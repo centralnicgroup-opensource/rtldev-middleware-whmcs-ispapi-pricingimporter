@@ -1,0 +1,726 @@
+<?php
+
+$module_version = "1.4";
+
+//if (!defined("WHMCS"))
+//    die("This file cannot be accessed directly");
+
+function ispapidpi_config($params) {
+global $module_version;
+
+    $configarray = array(
+    "name" => "ISPAPI Pricing Importer",
+    "description" => "This module allow you to download your pricing list in CSV format and upload it modified again. You can also add new TLDs in the file.",
+    "version" => $module_version,
+    "author" => "HEXONET",
+    "language" => "english",
+    "fields" => array("username" => array ("FriendlyName" => "Admin username", "Type" => "text", "Size" => "30", "Description" => "[REQUIRED]", "Default" => "admin",)));
+
+//echo "<pre>"; echo print_r($configarray);echo "</pre>";
+    return $configarray;
+}
+
+function ispapidpi_activate() {
+	return array('status'=>'success','description'=>'Installed');
+}
+
+function ispapidpi_deactivate() {
+	return array('status'=>'success','description'=>'Uninstalled');
+}
+
+//this goes at: addons->ISPAPI Pricing Importer
+function ispapidpi_output($vars) {
+	$price_classes = array();
+	echo 'Price list:'; echo " ";
+	//echo "<select name='price_class'>";
+	//echo "<option value='12'>here comes list of price classes</option>";
+	//echo "</select>";
+	echo " ";
+	echo "<input type='button' value='Check' onclick=''>";
+//	if(isset($_POST["Check"])){
+		/*$command =  $command = array(
+				"command" => "queryuserclasslist",
+				//"subuser" => $ispapi_config["login"],
+				//"password" => $ispapi_config["password"]
+		);
+		$response = ispapi_call($command);
+/*echo "<pre>";echo print_r($response);echo "</pre>";
+		if($response["CODE"] = "200")
+		{
+			//get data, create table with data.
+			array_push($price_classes, $response["USERCLASS"]); 
+			echo "<form method='post'>";
+				echo "<select name = 'price_class'>";
+					echo "<option selected = 'selected'>select price class</option>";
+					foreach($price_classes as $item)
+					{
+						echo "<option value = $item>.$item.</option>";
+					}
+				echo "</select>";
+			echo "</form>";
+		}*/
+		
+  //   	}
+}
+
+//check if the registar module exists- if exists = connected with API
+function ispapidpi_clientarea($vars)
+{
+	require_once(dirname(__FILE__)."/../../../includes/registrarfunctions.php");
+	//Check if the ISPAPI Registrar Module available, load it, raise error if not existing 	
+	//ISPAPI          require the ISPAPI Registrar Module
+	$error = false;
+	$modulelist = array();
+	if(file_exists(dirname(__FILE__)."/../../../modules/registrars/ispapi/ispapi.php")){
+		$file = "ispapi";
+		require_once(dirname(__FILE__)."/../../../modules/registrars/".$file."/".$file.".php");
+		$funcname = $file.'_GetISPAPIModuleVersion';
+		if(function_exists($file.'_GetISPAPIModuleVersion')){
+			$version = call_user_func($file.'_GetISPAPIModuleVersion');
+			//check if version = 1.0.15 or higher
+			if( version_compare($version, '1.0.15') >= 0 ){
+				//check authentication
+				$registrarconfigoptions = getregistrarconfigoptions($file);
+				$ispapi_config = ispapi_config($registrarconfigoptions);
+				$command =  $command = array(
+					"command" => "CheckAuthentication",
+					"subuser" => $ispapi_config["login"],
+					"password" => $ispapi_config["password"],
+				);
+				$checkAuthentication = ispapi_call($command, $ispapi_config);
+ 
+				if($checkAuthentication["CODE"] != "200"){
+					die("The \"".$file."\" registrar authentication failed! Please verify your registrar credentials and try again.");
+				}else{
+					array_push($modulelist, $file);
+				}
+			}else{
+				$error = true;
+			}
+		}else{
+			$error = true;
+		}
+	}else{
+		$error = true;
+	}
+	if($error){
+		die("The ISPAPI Pricing Importer Module requires ISPAPI Registrar Module v1.0.15 or higher!");
+	}
+	//Get the list of all used registrar modules
+	$result = select_query("tbldomainpricing","extension,autoreg");
+	$registrar = array();
+	while($data = mysql_fetch_array($result)){
+		if(!empty($data["autoreg"])){
+			if(!in_array($data["autoreg"], $modulelist)){
+				array_push($modulelist, $data["autoreg"]);
+			}
+		}
+	}
+	//filter the whole list to catch only the HEXONET registars	
+	foreach($modulelist as $file){
+		if(file_exists(dirname(__FILE__)."/../../../modules/registrars/".$file."/".$file.".php")){
+			require_once(dirname(__FILE__)."/../../../modules/registrars/".$file."/".$file.".php");
+			$funcname = $file.'_GetISPAPIModuleVersion';
+			if(function_exists($file.'_GetISPAPIModuleVersion')){
+				$version = call_user_func($file.'_GetISPAPIModuleVersion');
+				//check if version = 1.0.15 or higher
+				if( version_compare($version, '1.0.15') >= 0 ){
+					array_push($registrar, $file);
+					//check authentication
+					$registrarconfigoptions = getregistrarconfigoptions($file);
+					$ispapi_config = ispapi_config($registrarconfigoptions);
+					$command =  $command = array(
+							"command" => "CheckAuthentication",
+							"subuser" => $ispapi_config["login"],
+							"password" => $ispapi_config["password"],
+					);
+					$checkAuthentication = ispapi_call($command, $ispapi_config);
+					if($checkAuthentication["CODE"] != "200"){
+						die("The \"".$file."\" registrar authentication failed! Please verify your registrar credentials and try again.");
+					
+					}
+				}else{
+					die("The ISPAPI DomainCheck Module requires \"".$file."\" Registrar Module v1.0.15 or higher!");
+				}
+			}
+		}
+	}
+
+	$_SESSION["adminuser"] = $vars["username"];
+}
+
+/*
+//connect to API
+
+function ispapi_logModuleCall($registrar, $action, $requeststring, $responsedata, $processeddata = NULL, $replacevars = NULL) {
+        if ( !function_exists('logModuleCall') ) {
+                return;
+        }
+        return logModuleCall($registrar, $action, $requeststring, $responsedata, $processeddata, $replacevars);
+}
+
+function ispapi_config($params) {
+        $config = array();
+        $config["registrar"] = $params["registrar"];
+        $config["entity"] = "54cd";
+        $config["url"] = "http://api.ispapi.net/api/call.cgi";
+        $config["idns"] = $params["ConvertIDNs"];
+        if ( $params["TestMode"] == 1 || $params["TestMode"] == "on" ) {
+                $config["entity"] = "1234";
+        }
+        if ( $params["UseSSL"] == 1 || $params["UseSSL"] == "on" ) {
+                $config["url"] = "https://coreapi.1api.net/api/call.cgi";
+        }
+        if ( strlen($params["ProxyServer"]) ) {
+                $config["proxy"] = $params["ProxyServer"];
+        }
+        $config["login"] = $params["Username"];
+        $config["password"] = $params["Password"];
+
+echo "config variable"."<pre>"; echo print_r($config);echo "</pre>";
+
+        return $config;
+}
+
+
+function ispapi_call($command, $config) {
+    return ispapi_parse_response(ispapi_call_raw($command, $config));
+}
+
+function ispapi_call_raw($command, $config) {
+      //  global $ispapi_module_version;
+        $args = array();
+        $url = $config["url"];
+        if ( isset($config["login"]) )
+                $args["s_login"] = $config["login"];
+        if ( isset($config["password"]) )
+                $args["s_pw"] = $config["password"];
+        if ( isset($config["user"]) )
+                $args["s_user"] = $config["user"];
+        if ( isset($config["entity"]) )
+                $args["s_entity"] = $config["entity"];
+        $args["s_command"] = ispapi_encode_command($command);
+	
+	  # Convert IDNs via API
+        if ( 1 ) {
+                $new_command = array();
+                foreach ( explode("\n", $args["s_command"]) as $line ) {
+                        if ( preg_match('/^([^\=]+)\=(.*)/', $line, $m) ) {
+                                $new_command[strtoupper(trim($m[1]))] = trim($m[2]);
+                        }
+                }
+                if ( strtoupper($new_command["COMMAND"]) != "CONVERTIDN" ) {
+                        $replace = array();
+                        $domains = array();
+                        foreach ( $new_command as $k => $v ) {
+                                if ( preg_match('/^(DOMAIN|NAMESERVER|DNSZONE)([0-9]*)$/i', $k) ) {
+                                        if ( preg_match('/[^a-z0-9\.\- ]/i', $v) ) {
+                                                $replace[] = $k;
+                                                $domains[] = $v;
+                                        }
+                                }
+                        }
+                        if ( count($replace) ) {
+                                if ( $config["idns"] == "PHP" ) {
+                                        foreach ( $replace as $index => $k ) {
+                                                $new_command[$k] = ispapi_to_punycode($new_command[$k]);
+                                        }
+                                }
+                                else {
+                                        $r = ispapi_call(array("COMMAND" => "ConvertIDN", "DOMAIN" => $domains), $config);
+                                        if ( ($r["CODE"] == 200) && isset($r["PROPERTY"]["ACE"]) ) {
+                                                foreach ( $replace as $index => $k ) {
+                                                        $new_command[$k] = $r["PROPERTY"]["ACE"][$index];
+                                                }
+                                                $args["s_command"] = ispapi_encode_command($new_command);
+                                        }
+                                }
+                        }
+                }
+        }	
+
+        $config["curl"] = curl_init($url);
+        if ( $config["curl"] === FALSE ) {
+                return "[RESPONSE]\nCODE=423\nAPI access error: curl_init failed\nEOF\n";
+        }
+        $postfields = array();
+        foreach ( $args as $key => $value ) {
+                $postfields[] = urlencode($key)."=".urlencode($value);
+        }
+        $postfields = implode('&', $postfields);
+        curl_setopt( $config["curl"], CURLOPT_POST, 1 );
+	if ( strlen($config["proxy"]) ) {
+                curl_setopt( $config["curl"], CURLOPT_PROXY, $config["proxy"] );
+        }
+        curl_setopt($config["curl"], CURLOPT_USERAGENT, "ISPAPI/$ispapi_module_version WHMCS/".$GLOBALS["CONFIG"]["Version"]." PHP/".phpversion()." (".php_uname("s").")");
+        curl_setopt($config["curl"], CURLOPT_REFERER, $GLOBALS["CONFIG"]["SystemURL"]);
+        $response = curl_exec($config["curl"]);
+
+        if ( preg_match('/(^|\n)\s*COMMAND\s*=\s*([^\s]+)/i', $args["s_command"], $m) ) {
+                $command = $m[2];
+                // don't log read-only requests
+                if ( !preg_match('/^(Check|Status|Query|Convert)/i', $command) ) {
+                        ispapi_logModuleCall($config["registrar"], $command, $args["s_command"], $response);
+                }
+        }
+
+        return $response;
+}
+
+function ispapi_encode_command( $commandarray ) {
+    if (!is_array($commandarray)) return $commandarray;
+    $command = "";
+    foreach ( $commandarray as $k => $v ) {
+        if ( is_array($v) ) {
+            $v = ispapi_encode_command($v);
+            $l = explode("\n", trim($v));
+            foreach ( $l as $line ) {
+                $command .= "$k$line\n";
+                    }
+        }
+        else {
+            $v = preg_replace( "/\r|\n/", "", $v );
+            $command .= "$k=$v\n";
+        }
+    }
+    return $command;
+}
+
+function ispapi_parse_response ( $response ) {
+    if (is_array($response)) return $response;
+    $hash = array(
+                "PROPERTY" => array(),
+                "CODE" => "423",
+                "DESCRIPTION" => "Empty response from API"
+        );
+    if (!$response) return $hash;
+    $rlist = explode( "\n", $response );
+    foreach ( $rlist as $item ) {
+        if ( preg_match("/^([^\=]*[^\t\= ])[\t ]*=[\t ]*(.*)$/", $item, $m) ) {
+            $attr = $m[1];
+            $value = $m[2];
+            $value = preg_replace( "/[\t ]*$/", "", $value );
+            if ( preg_match( "/^property\[([^\]]*)\]/i", $attr, $m) ) {
+                $prop = strtoupper($m[1]);
+                $prop = preg_replace( "/\s/", "", $prop );
+                if ( in_array($prop, array_keys($hash["PROPERTY"])) ) {
+                    array_push($hash["PROPERTY"][$prop], $value);
+		}
+                else {
+                     $hash["PROPERTY"][$prop] = array($value);
+                }
+            }
+            else {
+                $hash[strtoupper($attr)] = $value;
+            }
+        }
+    }
+        if ( (!$hash["CODE"]) || (!$hash["DESCRIPTION"]) ) {
+                $hash = array(
+                        "PROPERTY" => array(),
+                        "CODE" => "423",
+                        "DESCRIPTION" => "Invalid response from API"
+                );
+        }
+    return $hash;
+}
+*/
+
+
+/*
+function ispapidpi_output($vars) {
+	require_once(dirname(__FILE__)."/csvparser.php");
+
+    if(isset($_POST["download"])){
+        if(isset($_POST["download_currency"])){
+            $download_currency = $_POST["download_currency"];
+        }
+
+		// output headers so that the file is downloaded rather than displayed
+		header('Content-Type: text/csv; charset=utf-8');
+		header('Content-Disposition: attachment; filename=yourpricinglist.csv');
+
+		// create a file pointer connected to the output stream
+		$output = fopen('php://output', 'w');
+
+		// output the column headings
+		fputcsv($output, array('EXTENSION', 'DNS MANAGEMENT', 'EMAIL FORWARDING', 'ID PROTECTION', 'EPP CODE', 'AUTOREG', 'ORDER', 'REGISTER 1Y', 'REGISTER 2Y', 'REGISTER 3Y', 'REGISTER 4Y', 'REGISTER 5Y', 'REGISTER 6Y', 'REGISTER 7Y', 'REGISTER 8Y', 'REGISTER 9Y', 'REGISTER 10Y', 'TRANSFER 1Y', 'TRANSFER 2Y', 'TRANSFER 3Y', 'TRANSFER 4Y', 'TRANSFER 5Y', 'TRANSFER 6Y', 'TRANSFER 7Y', 'TRANSFER 8Y', 'TRANSFER 9Y', 'TRANSFER 10Y', 'RENEW 1Y', 'RENEW 2Y', 'RENEW 3Y', 'RENEW 4Y', 'RENEW 5Y', 'RENEW 6Y', 'RENEW 7Y', 'RENEW 8Y', 'RENEW 9Y', 'RENEW 10Y'), ";");
+
+		$r = mysql_query("SELECT * FROM tbldomainpricing");
+		while ($tbldomainpricing = mysql_fetch_array($r)) {
+			//$ext = $data["extension"];
+			$result = mysql_query("SELECT * FROM tblpricing WHERE type='domainregister' AND currency=".$download_currency." AND relid=".$tbldomainpricing["id"]." ORDER BY id DESC LIMIT 1");
+			while ($tblpricing = mysql_fetch_array($result)) {
+				$data["domainregister1"] = $tblpricing["msetupfee"];
+				$data["domainregister2"] = $tblpricing["qsetupfee"];
+				$data["domainregister3"] = $tblpricing["ssetupfee"];
+				$data["domainregister4"] = $tblpricing["asetupfee"];
+				$data["domainregister5"] = $tblpricing["bsetupfee"];
+				$data["domainregister6"] = $tblpricing["monthly"];
+				$data["domainregister7"] = $tblpricing["quarterly"];
+				$data["domainregister8"] = $tblpricing["semiannually"];
+				$data["domainregister9"] = $tblpricing["annually"];
+				$data["domainregister10"] = $tblpricing["biennially"];
+			}
+
+			$result = mysql_query("SELECT * FROM tblpricing WHERE type='domaintransfer' AND currency=".$download_currency." AND relid=".$tbldomainpricing["id"]." ORDER BY id DESC LIMIT 1");
+			while ($tblpricing = mysql_fetch_array($result)) {
+				$data["domaintransfer1"] = $tblpricing["msetupfee"];
+				$data["domaintransfer2"] = $tblpricing["qsetupfee"];
+				$data["domaintransfer3"] = $tblpricing["ssetupfee"];
+				$data["domaintransfer4"] = $tblpricing["asetupfee"];
+				$data["domaintransfer5"] = $tblpricing["bsetupfee"];
+				$data["domaintransfer6"] = $tblpricing["monthly"];
+				$data["domaintransfer7"] = $tblpricing["quarterly"];
+				$data["domaintransfer8"] = $tblpricing["semiannually"];
+				$data["domaintransfer9"] = $tblpricing["annually"];
+				$data["domaintransfer10"] = $tblpricing["biennially"];
+			}
+
+			$result = mysql_query("SELECT * FROM tblpricing WHERE type='domainrenew' AND currency=".$download_currency." AND relid=".$tbldomainpricing["id"]." ORDER BY id DESC LIMIT 1");
+			while ($tblpricing = mysql_fetch_array($result)) {
+				$data["domainrenew1"] = $tblpricing["msetupfee"];
+				$data["domainrenew2"] = $tblpricing["qsetupfee"];
+				$data["domainrenew3"] = $tblpricing["ssetupfee"];
+				$data["domainrenew4"] = $tblpricing["asetupfee"];
+				$data["domainrenew5"] = $tblpricing["bsetupfee"];
+				$data["domainrenew6"] = $tblpricing["monthly"];
+				$data["domainrenew7"] = $tblpricing["quarterly"];
+				$data["domainrenew8"] = $tblpricing["semiannually"];
+				$data["domainrenew9"] = $tblpricing["annually"];
+				$data["domainrenew10"] = $tblpricing["biennially"];
+			}
+
+			fputcsv($output,
+                  array($tbldomainpricing["extension"],
+                        $tbldomainpricing["dnsmanagement"],
+                        $tbldomainpricing["emailforwarding"],
+                        $tbldomainpricing["idprotection"],
+                        $tbldomainpricing["eppcode"],
+                        $tbldomainpricing["autoreg"],
+                        $tbldomainpricing["order"],
+                        $data["domainregister1"],
+                        $data["domainregister2"],
+                        $data["domainregister3"],
+                        $data["domainregister4"],
+                        $data["domainregister5"],
+                        $data["domainregister6"],
+                        $data["domainregister7"],
+                        $data["domainregister8"],
+                        $data["domainregister9"],
+                        $data["domainregister10"],
+                        $data["domaintransfer1"],
+                        $data["domaintransfer2"],
+                        $data["domaintransfer3"],
+                        $data["domaintransfer4"],
+                        $data["domaintransfer5"],
+                        $data["domaintransfer6"],
+                        $data["domaintransfer7"],
+                        $data["domaintransfer8"],
+                        $data["domaintransfer9"],
+                        $data["domaintransfer10"],
+                        $data["domainrenew1"],
+                        $data["domainrenew2"],
+                        $data["domainrenew3"],
+                        $data["domainrenew4"],
+                        $data["domainrenew5"],
+                        $data["domainrenew6"],
+                        $data["domainrenew7"],
+                        $data["domainrenew8"],
+                        $data["domainrenew9"],
+                        $data["domainrenew10"]), ";");
+		}
+		die;
+	}
+
+    echo "<h2>1. Download your current pricing file</h2>";
+    echo 'Select the currency and click the "Download" button to generate the file on the fly.<br><br>';
+    echo "<form method='post' action='".$modulelink."'>";
+    echo "<input type='hidden' name='download' value='1'>";
+    echo '<table class="" width="100%" cellspacing="2" cellpadding="3" border="0">';
+    echo '<tr><td width="180px;">Currency</td><td>';
+    echo '<select name="download_currency">';
+    $request = mysql_query("SELECT * FROM tblcurrencies");
+    while ($currencies = mysql_fetch_array($request)) {
+        echo "<option value='".$currencies["id"]."'>".$currencies["code"]."</option>";
+    }
+    echo '</select></td></tr>';
+    echo '<tr><td colspan="2"><input style="margin-top:5px;" class="btn btn-primary" type="submit" value="Downdload" name="download"></td></tr>';
+    echo '</table>';
+    echo "</form>";
+    echo "<br>";
+    echo "<h2>2. Import the new file</h2>";
+    echo 'After having edited the generated file, please select the currency and import your new file. <br><br>';
+
+    $modulelink = $vars['modulelink'];
+
+	if(isset($_POST['upload'])){
+		require_once(dirname(__FILE__)."/../../../init.php");
+		global $templates_compiledir;
+
+		$target_path = $templates_compiledir;
+		$target_path = $target_path . "/data.csv";
+
+		if(move_uploaded_file($_FILES['uploadedfile']['tmp_name'], $target_path)) {
+			$uploaded = true;
+		} else{
+			$uploaded = false;
+		}
+
+		$csv_mimetypes = array(
+				'text/csv',
+				'text/plain',
+				'application/csv',
+				'text/comma-separated-values',
+				'application/excel',
+				'application/vnd.ms-excel',
+				'application/vnd.msexcel',
+				'text/anytext',
+				'application/octet-stream',
+				'application/txt',
+		);
+
+		if(!in_array($_FILES['uploadedfile']['type'], $csv_mimetypes)){
+		 $uploaded = false;
+		}
+
+		if(!$uploaded){
+			echo "<div class='errorbox'><strong><span class='title'>Upload error!</span></strong><br>There was an error while uploading the file. Please check the file format and try again. Only CSV authorized.</div>";
+		}else{
+			startimport($_POST["upload_currency"]);
+			unlink($target_path);
+		}
+	}
+
+	echo '<form enctype="multipart/form-data" action="'.$vars['modulelink'].'" method="post">';
+	echo '<input type="hidden" name="MAX_FILE_SIZE" value="10000000" />';
+	//echo '<table class="form" width="100%" cellspacing="2" cellpadding="3" border="0">';
+	//echo '<tbody>';
+
+    echo '<table class="" width="100%" cellspacing="2" cellpadding="3" border="0">';
+    echo '<tr><td width="180px;">Currency</td><td>';
+    echo '<select name="upload_currency">';
+    $request = mysql_query("SELECT * FROM tblcurrencies");
+    while ($currencies = mysql_fetch_array($request)) {
+        echo "<option value='".$currencies["id"]."'>".$currencies["code"]."</option>";
+    }
+    echo '</select></td></tr>';
+    echo '<tr><td>File</td><td><input name="uploadedfile" type="file" size="50"></td></tr>';
+    echo '<tr><td colspan="2"><input style="margin-top:5px;" class="btn btn-primary" name="upload" type="submit" value="Import"></td></tr>';
+    echo '</table>';
+
+	echo '</form>';
+
+}
+
+
+
+
+function startimport($currency){
+	global $templates_compiledir;
+
+	$csv = new CsvParser($templates_compiledir."/data.csv", false);
+
+	$firstline = $csv->getRecord(0);
+
+	//if only 1 item -> wrong separator -> raise error message
+	if (count($firstline) == 1) {
+	   	echo "<div class='errorbox'><strong><span class='title'>File error!</span></strong><br>CSV file should use \";\" as separator.</div>";
+	   	return;
+	}
+
+	for ($k = 1; $k < $csv->numRecords ; $k++)
+	{
+
+		$rec = $csv->getRecord($k);
+
+		$result = mysql_query("SELECT * FROM tbldomainpricing WHERE extension='".$rec[0]."'");
+		$tbldomainpricing = mysql_fetch_array($result);
+		if(!empty($tbldomainpricing)){
+			//update extension in table
+			update_query("tbldomainpricing",array("dnsmanagement"=> $rec[1], "emailforwarding"=> $rec[2], "idprotection"=> $rec[3], "eppcode"=> $rec[4], "autoreg"=> $rec[5], "order" => $rec[6]),array("extension" => $rec[0]));
+		}else{
+			//get the highest order value
+			$result = mysql_query("SELECT MAX(tbldomainpricing.order) FROM tbldomainpricing");
+			$max = mysql_fetch_array($result);
+			if(empty($max)){
+				$next = 0;
+			}else{
+				$next = $max[0] + 1;
+			}
+			//insert extension in table
+			$tbldomainpricing["id"] = insert_query("tbldomainpricing",array("extension" => $rec[0], "dnsmanagement"=> $rec[1], "emailforwarding"=> $rec[2], "idprotection"=> $rec[3], "eppcode"=> $rec[4], "autoreg"=> $rec[5], "order" => $next));
+		}
+
+		//replace or add pricing for domainregister
+		$result = mysql_query("SELECT * FROM tblpricing WHERE type='domainregister' AND currency=".$currency." AND relid=".$tbldomainpricing["id"]." ORDER BY id DESC LIMIT 1");
+		$tblpricing = mysql_fetch_array($result);
+		if(!empty($tblpricing)){
+			update_query("tblpricing",array("msetupfee"=> $rec[7], "qsetupfee"=> $rec[8], "ssetupfee"=> $rec[9], "asetupfee"=> $rec[10], "bsetupfee"=> $rec[11], "monthly"=> $rec[12], "quarterly"=> $rec[13], "semiannually"=> $rec[14], "annually"=> $rec[15], "biennially"=> $rec[16] ),array("id" => $tblpricing["id"]));
+		}else{
+			insert_query("tblpricing",array("type" => "domainregister", "currency" => $currency, relid => $tbldomainpricing["id"], "msetupfee"=> $rec[7], "qsetupfee"=> $rec[8], "ssetupfee"=> $rec[9], "asetupfee"=> $rec[10], "bsetupfee"=> $rec[11], "monthly"=> $rec[12], "quarterly"=> $rec[13], "semiannually"=> $rec[14], "annually"=> $rec[15], "biennially"=> $rec[16]));
+		}
+
+		//replace or add pricing for domaintransfer
+		$result = mysql_query("SELECT * FROM tblpricing WHERE type='domaintransfer' AND currency=".$currency." AND relid=".$tbldomainpricing["id"]." ORDER BY id DESC LIMIT 1");
+		$tblpricing = mysql_fetch_array($result);
+		if(!empty($tblpricing)){
+			update_query("tblpricing",array("msetupfee"=> $rec[17], "qsetupfee"=> $rec[18], "ssetupfee"=> $rec[19], "asetupfee"=> $rec[20], "bsetupfee"=> $rec[21], "monthly"=> $rec[22], "quarterly"=> $rec[23], "semiannually"=> $rec[24], "annually"=> $rec[25], "biennially"=> $rec[26]),array("id" => $tblpricing["id"]));
+		}else{
+			insert_query("tblpricing",array("type" => "domaintransfer", "currency" => $currency, relid => $tbldomainpricing["id"], "msetupfee"=> $rec[17], "qsetupfee"=> $rec[18], "ssetupfee"=> $rec[19], "asetupfee"=> $rec[20], "bsetupfee"=> $rec[21], "monthly"=> $rec[22], "quarterly"=> $rec[23], "semiannually"=> $rec[24], "annually"=> $rec[25], "biennially"=> $rec[26]));
+		}
+
+		//replace or add pricing for domainrenew
+		$result = mysql_query("SELECT * FROM tblpricing WHERE type='domainrenew' AND currency=".$currency." AND relid=".$tbldomainpricing["id"]." ORDER BY id DESC LIMIT 1");
+		$tblpricing = mysql_fetch_array($result);
+		if(!empty($tblpricing)){
+			update_query("tblpricing",array("msetupfee"=> $rec[27], "qsetupfee"=> $rec[28], "ssetupfee"=> $rec[29], "asetupfee"=> $rec[30], "bsetupfee"=> $rec[31], "monthly"=> $rec[32], "quarterly"=> $rec[33], "semiannually"=> $rec[34], "annually"=> $rec[35], "biennially"=> $rec[36],),array("id" => $tblpricing["id"]));
+		}else{
+			insert_query("tblpricing",array("type" => "domainrenew", "currency" => $currency, relid => $tbldomainpricing["id"], "msetupfee"=> $rec[27], "qsetupfee"=> $rec[28], "ssetupfee"=> $rec[29], "asetupfee"=> $rec[30], "bsetupfee"=> $rec[31], "monthly"=> $rec[32], "quarterly"=> $rec[33], "semiannually"=> $rec[34], "annually"=> $rec[35], "biennially"=> $rec[36]));
+		}
+
+	}
+	echo "<div class='infobox'><strong><span class='title'>Update successful!</span></strong><br>Your pricing list has been updated successfully.</div>";
+}
+
+*/
+
+
+//connect with API
+
+/*
+function ispapi_logModuleCall($registrar, $action, $requeststring, $responsedata, $processeddata = NULL, $replacevars = NULL) {
+        if ( !function_exists('logModuleCall') ) {
+                return;
+        }
+        return logModuleCall($registrar, $action, $requeststring, $responsedata, $processeddata, $replacevars);
+}
+
+function ispapi_config($params) {
+        $config = array();
+        $config["registrar"] = $params["registrar"];
+        $config["entity"] = "54cd";
+        $config["url"] = "http://api.ispapi.net/api/call.cgi";
+        $config["idns"] = $params["ConvertIDNs"];
+        if ( $params["TestMode"] == 1 || $params["TestMode"] == "on" ) {
+                $config["entity"] = "1234";
+        }
+        if ( $params["UseSSL"] == 1 || $params["UseSSL"] == "on" ) {
+                $config["url"] = "https://coreapi.1api.net/api/call.cgi";
+        }
+        if ( strlen($params["ProxyServer"]) ) {
+                $config["proxy"] = $params["ProxyServer"];
+        }
+        $config["login"] = $params["Username"];
+        $config["password"] = $params["Password"];
+        return $config;
+}
+
+
+function ispapi_call($command, $config) {
+    return ispapi_parse_response(ispapi_call_raw($command, $config));
+}
+
+function ispapi_call_raw($command, $config) {
+        global $ispapi_module_version;
+        $args = array();
+        $url = $config["url"];
+        if ( isset($config["login"]) )
+                $args["s_login"] = $config["login"];
+        if ( isset($config["password"]) )
+                $args["s_pw"] = $config["password"];
+        if ( isset($config["user"]) )
+                $args["s_user"] = $config["user"];
+        if ( isset($config["entity"]) )
+                $args["s_entity"] = $config["entity"];
+        $args["s_command"] = ispapi_encode_command($command);
+	
+	$config["curl"] = curl_init($url);
+        if ( $config["curl"] === FALSE ) {
+                return "[RESPONSE]\nCODE=423\nAPI access error: curl_init failed\nEOF\n";
+        }
+        $postfields = array();
+        foreach ( $args as $key => $value ) {
+                $postfields[] = urlencode($key)."=".urlencode($value);
+        }
+        $postfields = implode('&', $postfields);
+        curl_setopt( $config["curl"], CURLOPT_POST, 1 );
+        curl_setopt( $config["curl"], CURLOPT_POSTFIELDS, $postfields );
+        curl_setopt( $config["curl"], CURLOPT_HEADER, 0 );
+        curl_setopt( $config["curl"], CURLOPT_RETURNTRANSFER , 1 );
+        if ( strlen($config["proxy"]) ) {
+                curl_setopt( $config["curl"], CURLOPT_PROXY, $config["proxy"] );
+        }
+        curl_setopt($config["curl"], CURLOPT_USERAGENT, "ISPAPI/$ispapi_module_version WHMCS/".$GLOBALS["CONFIG"]["Version"]." PHP/".phpversion()." (".php_uname("s").")");
+        curl_setopt($config["curl"], CURLOPT_REFERER, $GLOBALS["CONFIG"]["SystemURL"]);
+        $response = curl_exec($config["curl"]);
+
+        if ( preg_match('/(^|\n)\s*COMMAND\s*=\s*([^\s]+)/i', $args["s_command"], $m) ) {
+                $command = $m[2];
+                // don't log read-only requests
+                if ( !preg_match('/^(Check|Status|Query|Convert)/i', $command) ) {
+                        ispapi_logModuleCall($config["registrar"], $command, $args["s_command"], $response);
+                }
+        }
+
+        return $response;
+}
+
+function ispapi_encode_command( $commandarray ) {
+    if (!is_array($commandarray)) return $commandarray;
+    $command = "";
+    foreach ( $commandarray as $k => $v ) {
+        if ( is_array($v) ) {
+            $v = ispapi_encode_command($v);
+            $l = explode("\n", trim($v));
+            foreach ( $l as $line ) {
+                $command .= "$k$line\n";
+                    }
+        }
+        else {
+            $v = preg_replace( "/\r|\n/", "", $v );
+            $command .= "$k=$v\n";
+        }
+    }
+    return $command;
+}
+
+function ispapi_parse_response ( $response ) {
+    if (is_array($response)) return $response;
+    $hash = array(
+                "PROPERTY" => array(),
+                "CODE" => "423",
+                "DESCRIPTION" => "Empty response from API"
+        );
+    if (!$response) return $hash;
+    $rlist = explode( "\n", $response );
+    foreach ( $rlist as $item ) {
+        if ( preg_match("/^([^\=]*[^\t\= ])[\t ]*=[\t ]*(.*)$/", $item, $m) ) {
+            $attr = $m[1];
+            $value = $m[2];
+            $value = preg_replace( "/[\t ]*$/", "", $value );
+            if ( preg_match( "/^property\[([^\]]*)\]/i", $attr, $m) ) {
+                $prop = strtoupper($m[1]);
+                $prop = preg_replace( "/\s/", "", $prop );
+                if ( in_array($prop, array_keys($hash["PROPERTY"])) ) {
+                    array_push($hash["PROPERTY"][$prop], $value);
+                }
+                else {
+                     $hash["PROPERTY"][$prop] = array($value);
+                }
+            }
+            else {
+                $hash[strtoupper($attr)] = $value;
+            }
+        }
+    }
+        if ( (!$hash["CODE"]) || (!$hash["DESCRIPTION"]) ) {
+                $hash = array(
+                        "PROPERTY" => array(),
+                        "CODE" => "423",
+                        "DESCRIPTION" => "Invalid response from API"
+                );
+        }
+    return $hash;
+}
+*/
