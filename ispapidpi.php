@@ -245,16 +245,18 @@ function ispapidpi_output($vars)
     if(isset($_POST['update']))
     {
       echo '
-      <table border="1" cellpadding="4">
-        <tr>
-          <th>TLD</td>
-          <th>Your Register Price</th>
-          <th>Register Price for WHMCS</th>
-          <th>Your Renew Price</th>
-          <th>Renew Price for WHMCS</th>
-          <th>Your Transfer Price</th>
-          <th>Transfer Price for WHMCS</th>
-        </tr>';
+      <table>
+        <thead>
+          <tr>
+            <th>TLD</td>
+            <th>Your Register Price</th>
+            <th>Register Price for WHMCS</th>
+            <th>Your Renew Price</th>
+            <th>Renew Price for WHMCS</th>
+            <th>Your Transfer Price</th>
+            <th>Transfer Price for WHMCS</th>
+          </tr>';
+
       foreach($_SESSION["checked_tld_data"] as $key=>$value)
       {
         echo '<tr id="row">';
