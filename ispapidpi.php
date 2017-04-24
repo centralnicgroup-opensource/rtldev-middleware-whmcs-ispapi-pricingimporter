@@ -23,6 +23,15 @@ function ispapidpi_activate() {
 function ispapidpi_deactivate() {
 	return array('status'=>'success','description'=>'Uninstalled');
 }
+//filter tld data array for only tlds with usd currency
+function filter_array($array,$term){
+      $matches = array();
+      foreach($array as $key=>$value){
+          if($value['currency'] == $term)
+              $matches[$key]=$value;
+      }
+      return $matches;
+  }
 
 function ispapidpi_output($vars)
 {
@@ -123,7 +132,13 @@ function ispapidpi_output($vars)
 	border-collapse: collapse;
   }
   th{
-	background-color: #ccc;
+	<!--this part - no lines appear for th elements
+  background-color: #ccc;
+  text-align: center;-->
+  }
+  th{
+    background: #efefef;
+    text-align: center;
   }
   th, td {
   border: 1px solid #ccc;
@@ -205,7 +220,7 @@ function ispapidpi_output($vars)
     echo '
     <form action="addonmodules.php?module=ispapidpi" method="POST">
       <label>Update your prices by using a factor:</label>
-        <input type="number" name="multiplier" min="0">
+        <input type="number" step="0.1" name="multiplier" min="0">
           <input type="submit" name="update" value="Update"/>
       </form>
       <br>
@@ -221,13 +236,28 @@ function ispapidpi_output($vars)
     $get_checked_tld_data = [];
     foreach($get_tld as $key=>$value)
     {
-      if(array_key_exists($key, $_SESSION["tlddata"]))
+      if(array_key_exists($key, $_SESSION["tld-register-renew-transfer-currency-filter"]))
       {
-        $tld_prices = $_SESSION["tlddata"][$key];
+        $tld_prices = $_SESSION["tld-register-renew-transfer-currency-filter"][$key];
         $get_checked_tld_data[$key]=$tld_prices;
       }
     }
     $_SESSION["checked_tld_data"] = $get_checked_tld_data;
+    // echo "before with currency <br>";
+    // echo "<pre>";
+    // print_r($_SESSION["checked_tld_data"]);
+    // echo "</pre>";
+
+    // remove currency element from the array $_SESSION["checked_tld_data"]
+    foreach ($_SESSION["checked_tld_data"] as $key => $subArr)
+    {
+      unset($subArr['currency']);
+      $_SESSION["checked_tld_data"][$key] = $subArr;
+    }
+    // echo "after removing currency <br>";
+    // echo "<pre>";
+    // print_r($_SESSION["checked_tld_data"]);
+    // echo "</pre>";
 
     //new prices //later must be deleted this part of code
     foreach ($_SESSION["checked_tld_data"] as $key => $value) {
@@ -246,16 +276,24 @@ function ispapidpi_output($vars)
     {
       echo '
       <table>
-        <thead>
           <tr>
-            <th>TLD</td>
-            <th>Your Register Price</th>
-            <th>Register Price for WHMCS</th>
-            <th>Your Renew Price</th>
-            <th>Renew Price for WHMCS</th>
-            <th>Your Transfer Price</th>
-            <th>Transfer Price for WHMCS</th>
-          </tr>';
+            <th>TLD</th>
+            <th colspan="2">Register</th>
+            <th colspan="2">Renew</th>
+            <th colspan="2">Transfer</th>
+            <th>Currency</th>
+          </tr>
+          <tr>
+            <th></th>
+            <th style="width:16%">Cost</th>
+            <th style="width:16%">Sale</th>
+            <th style="width:16%">Cost</th>
+            <th style="width:16%">Sale</th>
+            <th style="width:16%">Cost</th>
+            <th style="width:16%">Sale</th>
+            <th></th>
+          </tr>
+        ';
 
       foreach($_SESSION["checked_tld_data"] as $key=>$value)
       {
@@ -266,6 +304,7 @@ function ispapidpi_output($vars)
           echo "<td name='Myprices'>".$old_and_new_price."</td>";
           echo "<td><input type='text' name='PRICE_" . $key . "_" . $key2 . "' value='".$old_and_new_price*$multiplier."'></input></td>";
         }
+        echo '<td>'."USD".'</td>';
         echo '</tr>';
       }
       echo '
@@ -283,27 +322,39 @@ function ispapidpi_output($vars)
       echo '
       <form action="addonmodules.php?module=ispapidpi" method="POST">
       ';
-      echo'
-      <table border="1" cellpadding="4">
-        <tr>
-          <th>TLD</th>
-          <th>Your Register Price</th>
-          <th>Register Price for WHMCS</th>
-          <th>Your Renew Price</th>
-          <th>Renew Price for WHMCS</th>
-          <th>Your Transfer Price</th>
-          <th>Transfer Price for WHMCS</th>
-        </tr>';
+      echo '
+      <table>
+          <tr>
+            <th>TLD</th>
+            <th colspan="2">Register</th>
+            <th colspan="2">Renew</th>
+            <th colspan="2">Transfer</th>
+            <th>Currency</th>
+          </tr>
+          <tr>
+            <th></th>
+            <th style="width:16%">Cost</th>
+            <th style="width:16%">Sale</th>
+            <th style="width:16%">Cost</th>
+            <th style="width:16%">Sale</th>
+            <th style="width:16%">Cost</th>
+            <th style="width:16%">Sale</th>
+            <th></th>
+          </tr>
+        ';
       foreach($_SESSION["checked_tld_data"] as $key=>$value)
       {
         echo '<tr>';
         echo '<td>'.$key.'</td>';
+
         foreach($value as $key2=>$price)
         {
           echo "<td name='Myprices'>".$price."</td>";
           echo "<td><input type='text' name='PRICE_" . $key . "_" . $key2 . "' value='".$price."'></input></td>";
           // echo "<td name='Myprices'>".$price."</td>";
         }
+        echo '<td>'."USD".'</td>';
+        echo '</tr>';
       }
       echo '</table>
       <br>';
@@ -367,8 +418,37 @@ function ispapidpi_output($vars)
     }
     //remove duplicates
     $tlds = array_unique($tlds);
+    //collect tlds whose currency is USD
+    // $tlds_usd_currency = [];
+    // foreach($tlds as $key => $tld)
+    // {
+    //   $pattern_for_currency = "/PRICE_CLASS_DOMAIN_".$tld."_CURRENCY$/";
+    //   $currency_match = preg_grep($pattern_for_currency, $getdata_of_priceclass["PROPERTY"]["RELATIONVALUE"]);
+    //   echo "tlds with usd currency are <br>";
+    //   echo "<pre>";
+    //   print_r($currency_match);
+    //   echo "</pre>";
+    //   echo "currency match tlds <br>";
+    //  $currency_match_tlds = array_keys($currency_match);
+    //  echo "<pre>";
+    //  print_r($currency_match_tlds);
+    //  echo "</pre>";
+    //   /* foreach($currency_match_tlds as $key)
+    //   {
+    //     if(array_key_exists($key, $getdata_of_priceclass["PROPERTY"]["RELATIONVALUE"]))
+    //     {
+    //       $tlds_usd_currency[] = $key;
+    //     }
+    //   }*/
+    // }
+    // echo "<br>";
+    // echo "tlds with usd currency are <br>";
+    // echo "<pre>";
+    // print_r($tlds_usd_currency);
+    // echo "</pre>";
+
     //collect tld, register, renew and transfer prices in an array
-    $tld_data = array();
+    $tld_register_renew_transfer_currency = array();
     foreach ($tlds as $key => $tld)
     {
       $pattern_for_registerprice ="/PRICE_CLASS_DOMAIN_".$tld."_ANNUAL$/";
@@ -382,8 +462,8 @@ function ispapidpi_output($vars)
           //values of the keys
     //register and renew
           $register_price =  $getdata_of_priceclass["PROPERTY"]["RELATIONVALUE"][$key];
-          $tld_data[$tld]['register']= $register_price;
-          $tld_data[$tld]['renew']= $register_price;
+          $tld_register_renew_transfer_currency[$tld]['register']= $register_price;
+          $tld_register_renew_transfer_currency[$tld]['renew']= $register_price;
         }
       }
   //Transfer
@@ -397,11 +477,30 @@ function ispapidpi_output($vars)
         {
           //values of the keys
           $transfer_price =  $getdata_of_priceclass["PROPERTY"]["RELATIONVALUE"][$key];
-          $tld_data[$tld]['transfer']= $transfer_price;
+          $tld_register_renew_transfer_currency[$tld]['transfer']= $transfer_price;
+        }
+      }
+      //get tld currency
+      $pattern_for_currency = "/PRICE_CLASS_DOMAIN_".$tld."_CURRENCY$/";
+      $currency_match = preg_grep($pattern_for_currency, $getdata_of_priceclass["PROPERTY"]["RELATIONTYPE"]);
+      $currency_match_keys= array_keys($currency_match);
+      foreach($currency_match_keys as $key)
+      {
+        if(array_key_exists($key, $getdata_of_priceclass["PROPERTY"]["RELATIONVALUE"]))
+        {
+          $tld_currency = $getdata_of_priceclass["PROPERTY"]["RELATIONVALUE"][$key];
+          $tld_register_renew_transfer_currency[$tld]['currency'] = $tld_currency;
         }
       }
     }
-    $_SESSION["tlddata"]=$tld_data; //session variable for tld data (tld and prices)
+
+    $tld_register_renew_transfer_currency_filter = filter_array($tld_register_renew_transfer_currency,'USD');
+    // echo "tld data is with USD <br>";
+    // echo "<pre>";
+    // print_r($tld_register_renew_transfer_currency_filter);
+    // echo "</pre>";
+
+    $_SESSION["tld-register-renew-transfer-currency-filter"]=$tld_register_renew_transfer_currency_filter; //session variable for tld data (tld and prices ,currency)
     // echo "<pre>";print_r($_SESSION["tlddata"]);echo "</pre>";
     echo '
     <table class="tableClass">
@@ -410,8 +509,9 @@ function ispapidpi_output($vars)
         <th>Register</th>
         <th>Renew</th>
         <th>Transfer</th>
+        <th>Currency</th>
       </tr>';
-    foreach ($tld_data as $tld => $value)
+    foreach ($tld_register_renew_transfer_currency_filter as $tld => $value)
     {
       echo "<tr>";
       echo "<td><input type='checkbox' name='checkbox-tld[]' value='".$tld."'>".$tld."</input></td>";
