@@ -243,11 +243,11 @@ function ispapidpi_output($vars)
       }
     }
     $_SESSION["checked_tld_data"] = $get_checked_tld_data;
-    // echo "before with currency <br>";
+    $_SESSION["checked_tld_data"] = array_change_key_case($_SESSION["checked_tld_data"], CASE_LOWER);
     // echo "<pre>";
     // print_r($_SESSION["checked_tld_data"]);
     // echo "</pre>";
-
+    // $_SESSION["checked_tld_data"] = array_map('strtolower', $_SESSION["checked_tld_data"]);
     // remove currency element from the array $_SESSION["checked_tld_data"]
     foreach ($_SESSION["checked_tld_data"] as $key => $subArr)
     {
@@ -298,7 +298,7 @@ function ispapidpi_output($vars)
       foreach($_SESSION["checked_tld_data"] as $key=>$value)
       {
         echo '<tr id="row">';
-        echo '<td>'.$key.'</td>';
+        echo '<td>'.'.'.$key.'</td>';
         foreach($value as $key2=>$old_and_new_price)
         {
           echo "<td name='Myprices'>".$old_and_new_price."</td>";
@@ -345,7 +345,7 @@ function ispapidpi_output($vars)
       foreach($_SESSION["checked_tld_data"] as $key=>$value)
       {
         echo '<tr>';
-        echo '<td>'.$key.'</td>';
+        echo '<td>'.'.'.$key.'</td>';
 
         foreach($value as $key2=>$price)
         {
@@ -368,16 +368,6 @@ function ispapidpi_output($vars)
   {
     //step 2
     $_SESSION["price_class"] = $_POST['price_class'];
-
-    //old
-  // <div style="float: left">
-  //             <form method="POST">
-  //                 <input style="border:none;" type="submit" name="submit" value="Step 1"/>
-  //             </form>
-  //         </div>
-  //         <label style="background-color: yellow;">Step 2</label>
-  //         <label>Step 3</label>
-  //     </div>
     echo '
     <div class="steps" data-steps="3">
       <label>
@@ -418,35 +408,6 @@ function ispapidpi_output($vars)
     }
     //remove duplicates
     $tlds = array_unique($tlds);
-    //collect tlds whose currency is USD
-    // $tlds_usd_currency = [];
-    // foreach($tlds as $key => $tld)
-    // {
-    //   $pattern_for_currency = "/PRICE_CLASS_DOMAIN_".$tld."_CURRENCY$/";
-    //   $currency_match = preg_grep($pattern_for_currency, $getdata_of_priceclass["PROPERTY"]["RELATIONVALUE"]);
-    //   echo "tlds with usd currency are <br>";
-    //   echo "<pre>";
-    //   print_r($currency_match);
-    //   echo "</pre>";
-    //   echo "currency match tlds <br>";
-    //  $currency_match_tlds = array_keys($currency_match);
-    //  echo "<pre>";
-    //  print_r($currency_match_tlds);
-    //  echo "</pre>";
-    //   /* foreach($currency_match_tlds as $key)
-    //   {
-    //     if(array_key_exists($key, $getdata_of_priceclass["PROPERTY"]["RELATIONVALUE"]))
-    //     {
-    //       $tlds_usd_currency[] = $key;
-    //     }
-    //   }*/
-    // }
-    // echo "<br>";
-    // echo "tlds with usd currency are <br>";
-    // echo "<pre>";
-    // print_r($tlds_usd_currency);
-    // echo "</pre>";
-
     //collect tld, register, renew and transfer prices in an array
     $tld_register_renew_transfer_currency = array();
     foreach ($tlds as $key => $tld)
@@ -479,6 +440,9 @@ function ispapidpi_output($vars)
           $transfer_price =  $getdata_of_priceclass["PROPERTY"]["RELATIONVALUE"][$key];
           $tld_register_renew_transfer_currency[$tld]['transfer']= $transfer_price;
         }
+        else {
+          $tld_register_renew_transfer_currency[$tld]['transfer'] = "hello";
+        }
       }
       //get tld currency
       $pattern_for_currency = "/PRICE_CLASS_DOMAIN_".$tld."_CURRENCY$/";
@@ -493,13 +457,17 @@ function ispapidpi_output($vars)
         }
       }
     }
-
+    // sdkjfs djfhsd fjsf sjdf
+    // echo "tld data is with USD <br>";
+    // echo "<pre>";
+    // print_r($tld_register_renew_transfer_currency);
+    // echo "</pre>";
     $tld_register_renew_transfer_currency_filter = filter_array($tld_register_renew_transfer_currency,'USD');
     // echo "tld data is with USD <br>";
     // echo "<pre>";
     // print_r($tld_register_renew_transfer_currency_filter);
     // echo "</pre>";
-
+    $tld_register_renew_transfer_currency_filter =  array_change_key_case($tld_register_renew_transfer_currency_filter, CASE_LOWER);
     $_SESSION["tld-register-renew-transfer-currency-filter"]=$tld_register_renew_transfer_currency_filter; //session variable for tld data (tld and prices ,currency)
     // echo "<pre>";print_r($_SESSION["tlddata"]);echo "</pre>";
     echo '
@@ -514,7 +482,7 @@ function ispapidpi_output($vars)
     foreach ($tld_register_renew_transfer_currency_filter as $tld => $value)
     {
       echo "<tr>";
-      echo "<td><input type='checkbox' name='checkbox-tld[]' value='".$tld."'>".$tld."</input></td>";
+      echo "<td><input type='checkbox' name='checkbox-tld[]' value='".$tld."'>".'.'.$tld."</input></td>";
       foreach($value as $key)
       {
         //prints prices in each row
@@ -613,6 +581,7 @@ function ispapidpi_output($vars)
     startimport($new_prices_for_whmcs);
   }
 }
+//
 function array_combine_($keys, $values)
 {
     $result = array();
@@ -639,18 +608,19 @@ function startimport($prices_for_whmcs)
   // echo $currency;
 
   //here comes --> loop through array and insert or update the tld and prices for whmcs to DB
+  $prices_for_whmcs = array_change_key_case($prices_for_whmcs, CASE_LOWER);
   foreach($prices_for_whmcs as $key=>$value)
   {
     // echo "<br> foreach loop <br>";
 
    //with TLD/extension
-   $result = mysql_query("SELECT * FROM tbldomainpricing WHERE extension='".$key."'");
+   $result = mysql_query("SELECT * FROM tbldomainpricing WHERE extension='".'.'.$key."'");
    $tbldomainpricing = mysql_fetch_array($result);
    if(!empty($tbldomainpricing)){
      //
    }else{
 
-     $tbldomainpricing["id"] = insert_query("tbldomainpricing",array("extension" => $key));
+     $tbldomainpricing["id"] = insert_query("tbldomainpricing",array("extension" => '.'.$key));
    }
     //replace or add pricing for domainregister
     $result = mysql_query("SELECT * FROM tblpricing WHERE type='domainregister' AND currency=".$currency_id." AND relid=".$tbldomainpricing["id"]." ORDER BY id DESC LIMIT 1");
