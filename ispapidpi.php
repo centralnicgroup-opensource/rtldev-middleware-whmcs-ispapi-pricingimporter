@@ -12,7 +12,6 @@ global $module_version;
     "author" => "HEXONET",
     "language" => "english",
     "fields" => array("username" => array ("FriendlyName" => "Admin username", "Type" => "text", "Size" => "30", "Description" => "[REQUIRED]", "Default" => "admin",)));
-    //echo "<pre>"; echo print_r($configarray);echo "</pre>";
     return $configarray;
 }
 
@@ -35,140 +34,131 @@ function filter_array($array,$term){
 
 function ispapidpi_output($vars)
 {
+    // if ($_POST)
+    // {
+    // echo "<pre>" . print_r($_POST, true) . "</pre>";
+    // }
   //css
   echo '
   <style>
-  .steps{
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-  }
-  .steps label{
- 	list-style-type: none;
-  display: inline-block;
+    .steps{
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+    .steps label{
+    	list-style-type: none;
+      display: inline-block;
 
-	position: relative;
-  margin: 0;
-  padding: 0;
+      position: relative;
+      margin: 0;
+      padding: 0;
 
-	text-align: center;
-  line-height: 30px;
-  height: 30px;
+      text-align: center;
+      line-height: 30px;
+      height: 30px;
 
-	background-color: #f0f0f0;
-	}
+      background-color: #f0f0f0;
+    }
+    .steps[data-steps="3"] label{width: 33%;}
+    .steps[data-steps="3"] label{width: 25%;}
+    .steps[data-steps="3"] label{width: 20%;}
+    .steps label > span{
+      display: block;
+      color: #999;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    .steps label.labelClass > span{
+      color: #666;
+      background-color: #ccc;
+    }
+    .steps label > span:after,
+    .steps label > span:before{
+      content: "";
+      display: block;
+      width: 0px;
+      height: 0px;
 
-  .steps[data-steps="3"] label{width: 33%;}
-  .steps[data-steps="3"] label{width: 25%;}
-  .steps[data-steps="3"] label{width: 20%;}
+      position: absolute;
+      top: 0;
+      left: 0;
 
-  .steps label > span {
-  display: block;
+      border: solid transparent;
+      border-left-color: #f0f0f0;
+      border-width: 15px;
+    }
+    .steps label > span:after{
+      top: -5px;
+      z-index: 1;
+      border-left-color: white;
+      border-width: 20px;
+    }
+    .steps label > span:before{
+      z-index: 2;
+    }
+    .steps label.labelClass + label > span:before{
+      border-left-color: #ccc;
+    }
+    .steps label:first-child > span:after, .steps label:first-child > span:before{
+      display: none;
+    }
+    .steps label:first-child i,
+    .steps label:last-child i{
+      display: block;
+      height: 0;
+      width: 0;
 
-  color: #999;
-  font-weight: bold;
-  text-transform: uppercase;
-  }
-  .steps label.labelClass > span {
-  color: #666;
-  background-color: #ccc;
-  }
-  .steps label > span:after,
-  .steps label > span:before {
-  content: "";
-  display: block;
-  width: 0px;
-  height: 0px;
+      position: absolute;
+      top: 0;
+      left: 0;
 
-  position: absolute;
-  top: 0;
-  left: 0;
+      border: solid transparent;
+      border-left-color: white;
+      border-width: 15px;
+    }
+    .steps label:last-child i{
+      left: auto;
+      right: -15px;
 
-  border: solid transparent;
-  border-left-color: #f0f0f0;
-  border-width: 15px;
-  }
-  .steps label > span:after {
-  top: -5px;
-  z-index: 1;
-  border-left-color: white;
-  border-width: 20px;
-  }
-  .steps label > span:before {
-  z-index: 2;
-  }
-  .steps label.labelClass + label > span:before{
-    border-left-color: #ccc;
-  }
-  .steps label:first-child > span:after, .steps label:first-child > span:before{
-    display: none;
-  }
-  .steps label:first-child i,
-  .steps label:last-child i {
-  display: block;
-  height: 0;
-  width: 0;
-
-  position: absolute;
-  top: 0;
-  left: 0;
-
-  border: solid transparent;
-  border-left-color: white;
-  border-width: 15px;
-  }
-
-  .steps label:last-child i {
-  left: auto;
-  right: -15px;
-
-  border-left-color: transparent;
-  border-right-color: white;
-  border-top-color: white;
-  border-bottom-color: white;
-  }
-
-  table {
-	border-collapse: collapse;
-  }
-  th{
-	<!--this part - no lines appear for th elements
-  background-color: #ccc;
-  text-align: center;-->
-  }
-  th{
-    background: #efefef;
-    text-align: center;
-  }
-  th, td {
-  border: 1px solid #ccc;
-  padding: 8px;
-  }
-  tr:nth-child(even) {
-  background: #efefef;
-  }
-  tr:hover {
-  background: #d1d1d1;
-  }
-</style>
+      border-left-color: transparent;
+      border-right-color: white;
+      border-top-color: white;
+      border-bottom-color: white;
+    }
+    table {
+  	   border-collapse: collapse;
+    }
+    th{
+    	<!--this part - no lines appear for th elements
+      background-color: #ccc;
+      text-align: center;-->
+    }
+    th{
+      background: #efefef;
+      text-align: center;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+    }
+    tr:nth-child(even) {
+      background: #efefef;
+    }
+    tr:hover {
+      background: #d1d1d1;
+    }
+  </style>
   ';
-//   if ($_POST)
-// {
-//     echo "<pre>" . print_r($_POST, true) . "</pre>";
-// }
-	// echo 'HELLO';
   $file = "ispapi";
   require_once(dirname(__FILE__)."/../../../includes/registrarfunctions.php");
 	require_once(dirname(__FILE__)."/../../../modules/registrars/".$file."/".$file.".php");
-  //TO-DO : add tests ti check for these files- if doesnt exits throw an error - look in domainChecker code on gitLab
-  //https://gitlab.hexonet.net/anthonys/ispapi_whmcs-domaincheckaddon_v7/blob/master/modules/addons/ispapidomaincheck/ispapidomaincheck.php
   $registrarconfigoptions = getregistrarconfigoptions($file);
   $ispapi_config = ispapi_config($registrarconfigoptions);
   $command =  $command = array(
           "command" => "queryuserclasslist"
   );
-  $checkAuthentication = ispapi_call($command, $ispapi_config);
-  // echo "<pre>";print_r($checkAuthentication);echo "</pre>";
+  $queryuserclasslist = ispapi_call($command, $ispapi_config);
   $tlds_with_new_prices =  [];
   if(isset($_POST['checkbox-tld']) || (isset($_SESSION["checkbox-tld"]) && isset($_POST['multiplier'])))
   {
@@ -309,9 +299,15 @@ function ispapidpi_output($vars)
       }
       echo '
        </table>
-     <br>';
+     <br>
+     ';
      echo'
      <div>
+     <input type="checkbox" name="dns_management" value="on">DNS Management</input>
+     <input type="checkbox" name="email_forwarding" value="on">Email Forwarding</input>
+     <input type="checkbox" name="id_protection" value="on">ID Protection</input>
+     <input type="checkbox" name="epp_code" value="on">EPP Code</input>
+     <br> <br>
        <input type="submit" name="import" value="Import"/>
      </div>
      </form>
@@ -359,6 +355,11 @@ function ispapidpi_output($vars)
       echo '</table>
       <br>';
       echo '<div>
+      <input type="checkbox" name="dns_management" value="on">DNS Management</input>
+      <input type="checkbox" name="email_forwarding" value="on">Email Forwarding</input>
+      <input type="checkbox" name="id_protection" value="on">ID Protection</input>
+      <input type="checkbox" name="epp_code" value="on">EPP Code</input>
+      <br> <br>
         <input type="submit" name="import" value="Import"/>
       </div>';
       echo '</form>';
@@ -391,7 +392,9 @@ function ispapidpi_output($vars)
     <br>
       <form action="addonmodules.php?module=ispapidpi" method="POST">
         <label>Select the TLDs you want to import:</label>
+        <br>
     ';
+
     $command =  $command = array(
             "command" => "StatusUserClass",
             "userclass"=> $_POST['price_class']
@@ -457,20 +460,14 @@ function ispapidpi_output($vars)
         }
       }
     }
-    // sdkjfs djfhsd fjsf sjdf
-    // echo "tld data is with USD <br>";
-    // echo "<pre>";
-    // print_r($tld_register_renew_transfer_currency);
-    // echo "</pre>";
+
+    //filter tlds that are with currency USD
     $tld_register_renew_transfer_currency_filter = filter_array($tld_register_renew_transfer_currency,'USD');
-    // echo "tld data is with USD <br>";
-    // echo "<pre>";
-    // print_r($tld_register_renew_transfer_currency_filter);
-    // echo "</pre>";
+
     $tld_register_renew_transfer_currency_filter =  array_change_key_case($tld_register_renew_transfer_currency_filter, CASE_LOWER);
     $_SESSION["tld-register-renew-transfer-currency-filter"]=$tld_register_renew_transfer_currency_filter; //session variable for tld data (tld and prices ,currency)
-    // echo "<pre>";print_r($_SESSION["tlddata"]);echo "</pre>";
     echo '
+    <span><input type="checkbox" onchange="checkAll(this)" class="checkall" />Select all TLDs</span>
     <table class="tableClass">
       <tr>
         <th>TLD</th>
@@ -479,12 +476,10 @@ function ispapidpi_output($vars)
         <th>Transfer</th>
         <th>Currency</th>
       </tr>';
-    foreach ($tld_register_renew_transfer_currency_filter as $tld => $value)
-    {
+    foreach ($tld_register_renew_transfer_currency_filter as $tld => $value){
       echo "<tr>";
-      echo "<td><input type='checkbox' name='checkbox-tld[]' value='".$tld."'>".'.'.$tld."</input></td>";
-      foreach($value as $key)
-      {
+      echo "<td><input type='checkbox' class='tocheck'  name='checkbox-tld[]' value='".$tld."'>".'.'.$tld."</input></td>";
+      foreach($value as $key){
         //prints prices in each row
         echo "<td name='Myprices'>".$key."</td>";
       }
@@ -497,14 +492,7 @@ function ispapidpi_output($vars)
      </form>
      ';
   }
-  else
-  {
-    // <div class="steps">
-    //    <label style="background-color: yellow;">Step 1</label>
-    //    <label>Step 2</label>
-    //    <label>Step 3</label>
-    // </div>
-    //step1
+  else{
     echo '
       <div class="steps" data-steps="3">
          <label class="labelClass">
@@ -526,11 +514,8 @@ function ispapidpi_output($vars)
         <label>Select your price class:
           <br>
           <select name="price_class">
-            <option selected="disabled selected">Price class</option>"
     ';
-
-    foreach($checkAuthentication["PROPERTY"]["USERCLASS"] as $price_class)
-    {
+    foreach($queryuserclasslist["PROPERTY"]["USERCLASS"] as $price_class){
       echo "<option value=".$price_class.">".$price_class."</option>";
     }
     echo '</select>
@@ -538,46 +523,92 @@ function ispapidpi_output($vars)
       <input type="submit" name="submit" value="Select"/>
       ';
   }
-  if(isset($_POST['import']))
-  {
-    // $prices_match_pattern = "/PRICE_(.*)_register/";
+  //select all script
+  echo '
+    <script type="text/javascript">
+      function checkAll(ele) {
+        var checkboxes = document.getElementsByTagName("input");
+        if (ele.checked) {
+          for (var i = 0; i < checkboxes.length; i++) {
+            if (checkboxes[i].type == "checkbox") {
+              checkboxes[i].checked = true;
+            }
+          }
+        }
+        else {
+          for (var i = 0; i < checkboxes.length; i++) {
+            console.log(i)
+            if (checkboxes[i].type == "checkbox") {
+              checkboxes[i].checked = false;
+            }
+         }
+      }
+    }
+  </script>
+  ';
+
+  if(isset($_POST['import'])){
+
     $prices_match_pattern = "/PRICE_(.*)_(.*)/";
     $tld_match = []; //has all the tld names which have new prices
-    foreach($_POST as $key=>$value)
-    {
-      if(preg_match($prices_match_pattern,$key,$match))
-      {
+    foreach($_POST as $key=>$value){
+      if(preg_match($prices_match_pattern,$key,$match)){
         $tld_match[] = $match[1];
       }
     }
-    //for price names renew, register, transfer
-    $price_name_match = []; //has all the tld names which have new prices
-    foreach($_POST as $key=>$value)
-    {
-      if(preg_match($prices_match_pattern,$key,$match))
-      {
+    //for prices renew, register, transfer
+    $price_name_match = []; //has all new prices (strings)
+    foreach($_POST as $key=>$value){
+      if(preg_match($prices_match_pattern,$key,$match)){
         $price_name_match[] = $match[2];
       }
     }
-    //avoid duplicates
+    // remove duplicates
     // $tld_match = array_unique($tld_match);
+    // echo "tld match array<br>";
     // echo "<pre>"; print_r($tld_match);echo "</pre>";echo"<br>";
+    // echo "price name match array <br>";
     // echo "<pre>"; print_r($price_name_match);echo "</pre>";echo"<br>";
     $tld_new_price = [];
-    foreach($_POST as $key=>$value)
-    {
-      // echo "<br>";
-      if(preg_match($prices_match_pattern, $key))
-      {
+    foreach($_POST as $key=>$value){
+      if(preg_match($prices_match_pattern, $key)){
         $tld_new_price[] = $value;
       }
     }
-    // echo "prices are <br>";
+    // echo "tld new price<br>";
     // echo "<pre>"; print_r($tld_new_price);echo "</pre>";echo"<br>";
-
-    // echo "merge arrays  <br>";
     $new_prices_for_whmcs = array_combine_($tld_match, $tld_new_price);
-    // print_r($new_variable);echo "</pre>";
+
+    //for checked items -DNS Management, email Forwarding, id Protection, epp code
+    $domain_addons = [];
+    $dns_pattern = "/dns_management/";
+    foreach($_POST as $key=>$value){
+      if(preg_match($dns_pattern, $key)){
+        $domain_addons['dns-management'] = $value;
+      }
+    }
+    $emailforwarding_pattern = "/email_forwarding/";
+    foreach($_POST as $key=>$value){
+      if(preg_match($emailforwarding_pattern, $key)){
+        $domain_addons['email-forwarding'] = $value;
+      }
+    }
+    $idprotection_pattern = "/id_protection/";
+    foreach($_POST as $key=>$value){
+      if(preg_match($idprotection_pattern, $key)){
+        $domain_addons['id-protection'] = $value;
+      }
+    }
+    $eppcode_pattern = "/epp_code/";
+    foreach($_POST as $key=>$value){
+      if(preg_match($eppcode_pattern, $key)){
+        $domain_addons['epp-code'] = $value;
+      }
+    }
+    foreach($new_prices_for_whmcs as $key=>$value)
+    {
+      array_push($new_prices_for_whmcs[$key], $domain_addons);
+    }
     startimport($new_prices_for_whmcs);
   }
 }
@@ -600,27 +631,20 @@ function startimport($prices_for_whmcs)
   while ($currencies = mysql_fetch_array($request)) {
     $currency_id = $currencies["id"];
     $currency = $currencies["code"];
-      // echo "<option value='".$currencies["id"]."'>".$currencies["code"]."</option>";
   }
-  // echo "start import function<br>";
-  // echo $currency_id;
-  // echo "<br>";
-  // echo $currency;
 
   //here comes --> loop through array and insert or update the tld and prices for whmcs to DB
   $prices_for_whmcs = array_change_key_case($prices_for_whmcs, CASE_LOWER);
   foreach($prices_for_whmcs as $key=>$value)
   {
-    // echo "<br> foreach loop <br>";
-
    //with TLD/extension
    $result = mysql_query("SELECT * FROM tbldomainpricing WHERE extension='".'.'.$key."'");
    $tbldomainpricing = mysql_fetch_array($result);
    if(!empty($tbldomainpricing)){
      //
+     update_query("tbldomainpricing",array("dnsmanagement"=> $prices_for_whmcs[$key][3]['dns-management'], "emailforwarding"=> $prices_for_whmcs[$key][3]['email-forwarding'], "idprotection"=> $prices_for_whmcs[$key][3]['id-protection'], "eppcode"=> $prices_for_whmcs[$key][3]['epp-code'], "autoreg"=> "ispapi"),array("extension" => '.'.$key));
    }else{
-
-     $tbldomainpricing["id"] = insert_query("tbldomainpricing",array("extension" => '.'.$key));
+     $tbldomainpricing["id"] = insert_query("tbldomainpricing",array("extension" => '.'.$key, "dnsmanagement"=> $prices_for_whmcs[$key][3]['dns-management'], "emailforwarding"=> $prices_for_whmcs[$key][3]['email-forwarding'], "idprotection"=> $prices_for_whmcs[$key][3]['id-protection'], "eppcode"=>$prices_for_whmcs[$key][3]['epp-code'], "autoreg"=>"ispapi"));
    }
     //replace or add pricing for domainregister
     $result = mysql_query("SELECT * FROM tblpricing WHERE type='domainregister' AND currency=".$currency_id." AND relid=".$tbldomainpricing["id"]." ORDER BY id DESC LIMIT 1");
