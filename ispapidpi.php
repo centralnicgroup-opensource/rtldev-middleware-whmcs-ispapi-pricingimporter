@@ -173,7 +173,7 @@ function ispapidpi_output($vars)
     }
     else
     {
-        $multiplier = 1;
+        $multiplier = 1.00;
     }
 
     echo '
@@ -210,7 +210,7 @@ function ispapidpi_output($vars)
     echo '
     <form action="addonmodules.php?module=ispapidpi" method="POST">
       <label>Update your prices by using a factor:</label>
-        <input type="number" step="0.1" name="multiplier" min="0">
+        <input type="number" step="0.01" name="multiplier" min="0">
           <input type="submit" name="update" value="Update"/>
       </form>
       <br>
@@ -293,7 +293,9 @@ function ispapidpi_output($vars)
         foreach($value as $key2=>$old_and_new_price)
         {
           echo "<td name='Myprices'>".$old_and_new_price."</td>";
-          echo "<td><input type='text' name='PRICE_" . $key . "_" . $key2 . "' value='".$old_and_new_price*$multiplier."'></input></td>";
+          $update_price1 = $old_and_new_price*$multiplier;
+          $update_price=number_format((float)$update_price1, 2, '.', '');
+          echo "<td><input type='text' name='PRICE_" . $key . "_" . $key2 . "' value='".$update_price."'></input></td>";
         }
         echo '<td>'."USD".'</td>';
         echo '<td><select name="currency[]">';
@@ -487,9 +489,10 @@ function ispapidpi_output($vars)
     $tld_register_renew_transfer_currency_filter =  array_change_key_case($tld_register_renew_transfer_currency_filter, CASE_LOWER);
     $_SESSION["tld-register-renew-transfer-currency-filter"]=$tld_register_renew_transfer_currency_filter; //session variable for tld data (tld and prices ,currency)
     echo '
-    <span><input type="checkbox" onchange="checkAll(this)" class="checkall" />Select all TLDs</span>
+    <!--<span><input type="checkbox" onchange="checkAll(this)" class="checkall" />Select all TLDs</span>-->
     <table class="tableClass">
       <tr>
+        <th><span><input type="checkbox" onchange="checkAll(this)" class="checkall" /></span></th>
         <th>TLD</th>
         <th>Register</th>
         <th>Renew</th>
@@ -498,7 +501,8 @@ function ispapidpi_output($vars)
       </tr>';
     foreach ($tld_register_renew_transfer_currency_filter as $tld => $value){
       echo "<tr>";
-      echo "<td><input type='checkbox' class='tocheck'  name='checkbox-tld[]' value='".$tld."'>".'.'.$tld."</input></td>";
+      echo "<td><input type='checkbox' class='tocheck'  name='checkbox-tld[]' value='".$tld."'></input></td>";
+      echo "<td>".'.'.$tld."</input></td>";
       foreach($value as $key){
         //prints prices in each row
         echo "<td name='Myprices'>".$key."</td>";
@@ -642,7 +646,7 @@ function ispapidpi_output($vars)
     {
       array_push($new_prices_for_whmcs[$key], $domain_addons);
     }
-    //to merge each curreny value from currencies array
+    //to merge each curreny value from currencies array new_prices_for_whmcs
     $i = -1;
     foreach($new_prices_for_whmcs as $key=>$value)
     {
