@@ -271,7 +271,7 @@ function ispapidpi_output($vars)
             <th colspan="2">Register</th>
             <th colspan="2">Renew</th>
             <th colspan="2">Transfer</th>
-            <th>Currency</th>
+            <th colspan="2">Currency</th>
           </tr>
           <tr>
             <th></th>
@@ -281,7 +281,8 @@ function ispapidpi_output($vars)
             <th style="width:16%">Sale</th>
             <th style="width:16%">Cost</th>
             <th style="width:16%">Sale</th>
-            <th></th>
+            <th style="width:16%">Cost</th>
+            <th style="width:16%">Sale</th>
           </tr>
         ';
 
@@ -295,6 +296,15 @@ function ispapidpi_output($vars)
           echo "<td><input type='text' name='PRICE_" . $key . "_" . $key2 . "' value='".$old_and_new_price*$multiplier."'></input></td>";
         }
         echo '<td>'."USD".'</td>';
+        echo '<td><select name="currency[]">';
+        //get currency type from (tblcurrencies)
+        $request = mysql_query("SELECT * FROM tblcurrencies");
+        while ($currencies = mysql_fetch_array($request)) {
+          $currency_id = $currencies["id"];
+          $currency = $currencies["code"];
+          echo '<option value = "'.$currency_id.'">'.$currency.'</option>';
+        }
+        echo '</select></td>';
         echo '</tr>';
       }
       echo '
@@ -325,7 +335,7 @@ function ispapidpi_output($vars)
             <th colspan="2">Register</th>
             <th colspan="2">Renew</th>
             <th colspan="2">Transfer</th>
-            <th>Currency</th>
+            <th colspan="2">Currency</th>
           </tr>
           <tr>
             <th></th>
@@ -335,7 +345,8 @@ function ispapidpi_output($vars)
             <th style="width:16%">Sale</th>
             <th style="width:16%">Cost</th>
             <th style="width:16%">Sale</th>
-            <th></th>
+            <th style="width:16%">Cost</th>
+            <th style="width:16%">Sale</th>
           </tr>
         ';
       foreach($_SESSION["checked_tld_data"] as $key=>$value)
@@ -350,6 +361,15 @@ function ispapidpi_output($vars)
           // echo "<td name='Myprices'>".$price."</td>";
         }
         echo '<td>'."USD".'</td>';
+        echo '<td><select name="currency[]">';
+        //get currency type from (tblcurrencies)
+        $request = mysql_query("SELECT * FROM tblcurrencies");
+        while ($currencies = mysql_fetch_array($request)) {
+          $currency_id = $currencies["id"];
+          $currency = $currencies["code"];
+          echo '<option value = "'.$currency_id.'">'.$currency.'</option>';
+        }
+        echo '</select></td>';
         echo '</tr>';
       }
       echo '</table>
@@ -605,10 +625,32 @@ function ispapidpi_output($vars)
         $domain_addons['epp-code'] = $value;
       }
     }
+    //for currency
+    $currencies = [];
+    $currency_pattern = "/currency/";
+    foreach($_POST as $key=>$value){
+      if(preg_match($currency_pattern, $key)){
+        $currencies['currency'] = $value;
+      }
+    }
+    // echo "<pre>"; print_r($currencies);echo "</pre>";echo"<br>";
+    // echo "domain addons<br>";
+    // echo "<pre>"; print_r($domain_addons);echo "</pre>";echo"<br>";
+    // $new_prices_for_whmcs1 = array_combine_($new_prices_for_whmcs, $domain_addons);
+    // echo "new prices for whmcs<br>";
     foreach($new_prices_for_whmcs as $key=>$value)
     {
       array_push($new_prices_for_whmcs[$key], $domain_addons);
     }
+    //to merge each curreny value from currencies array
+    $i = -1;
+    foreach($new_prices_for_whmcs as $key=>$value)
+    {
+      $i++;
+      $new_prices_for_whmcs[$key]['currency'] = $currencies['currency'][$i];
+    }
+    // echo "<br> new prices for whcms<br>";
+    // echo "<pre>"; print_r($new_prices_for_whmcs);;echo "</pre>";echo"<br>";
     startimport($new_prices_for_whmcs);
   }
 }
@@ -626,12 +668,15 @@ function array_combine_($keys, $values)
 // function startimport($tld_pricing)
 function startimport($prices_for_whmcs)
 {
-  //get currency type from DB (tblcurrencies)
-  $request = mysql_query("SELECT * FROM tblcurrencies");
-  while ($currencies = mysql_fetch_array($request)) {
-    $currency_id = $currencies["id"];
-    $currency = $currencies["code"];
-  }
+  //get currency type from  (tblcurrencies)
+  // $request = mysql_query("SELECT * FROM tblcurrencies");
+  // while ($currencies = mysql_fetch_array($request)) {
+  //   $currency_id = $currencies["id"];
+  //   $currency = $currencies["code"];
+  //   // echo "curreny id and currency<br>";
+  //   // echo "<pre>"; print_r($currency_id); echo "</pre>";
+  //   //   echo "<pre>"; print_r($currency); echo "</pre>";
+  // }
 
   //here comes --> loop through array and insert or update the tld and prices for whmcs to DB
   $prices_for_whmcs = array_change_key_case($prices_for_whmcs, CASE_LOWER);
@@ -647,30 +692,30 @@ function startimport($prices_for_whmcs)
      $tbldomainpricing["id"] = insert_query("tbldomainpricing",array("extension" => '.'.$key, "dnsmanagement"=> $prices_for_whmcs[$key][3]['dns-management'], "emailforwarding"=> $prices_for_whmcs[$key][3]['email-forwarding'], "idprotection"=> $prices_for_whmcs[$key][3]['id-protection'], "eppcode"=>$prices_for_whmcs[$key][3]['epp-code'], "autoreg"=>"ispapi"));
    }
     //replace or add pricing for domainregister
-    $result = mysql_query("SELECT * FROM tblpricing WHERE type='domainregister' AND currency=".$currency_id." AND relid=".$tbldomainpricing["id"]." ORDER BY id DESC LIMIT 1");
+    $result = mysql_query("SELECT * FROM tblpricing WHERE type='domainregister' AND currency=".$prices_for_whmcs[$key]['currency']." AND relid=".$tbldomainpricing["id"]." ORDER BY id DESC LIMIT 1");
     $tblpricing = mysql_fetch_array($result);
     if(!empty($tblpricing)){
       update_query("tblpricing",array("msetupfee"=> $prices_for_whmcs[$key][0]), array("id" => $tblpricing["id"]));
     }else{
-      insert_query("tblpricing",array("type" => "domainregister", "currency" => $currency_id, relid => $tbldomainpricing["id"], "msetupfee"=> $prices_for_whmcs[$key][0], "qsetupfee"=> "-1", "ssetupfee"=> "-1", "asetupfee"=> "-1", "bsetupfee"=> "-1", "monthly"=> "-1", "quarterly"=> "-1", "semiannually"=> "-1", "annually"=> "-1", "biennially"=> "-1"));
+      insert_query("tblpricing",array("type" => "domainregister", "currency" => $prices_for_whmcs[$key]['currency'], relid => $tbldomainpricing["id"], "msetupfee"=> $prices_for_whmcs[$key][0], "qsetupfee"=> "-1", "ssetupfee"=> "-1", "asetupfee"=> "-1", "bsetupfee"=> "-1", "monthly"=> "-1", "quarterly"=> "-1", "semiannually"=> "-1", "annually"=> "-1", "biennially"=> "-1"));
     }
 
     //replace or add pricing for domaintransfer
-		$result = mysql_query("SELECT * FROM tblpricing WHERE type='domaintransfer' AND currency=".$currency_id." AND relid=".$tbldomainpricing["id"]." ORDER BY id DESC LIMIT 1");
+		$result = mysql_query("SELECT * FROM tblpricing WHERE type='domaintransfer' AND currency=".$prices_for_whmcs[$key]['currency']." AND relid=".$tbldomainpricing["id"]." ORDER BY id DESC LIMIT 1");
 		$tblpricing = mysql_fetch_array($result);
 		if(!empty($tblpricing)){
 			update_query("tblpricing",array("msetupfee"=> $prices_for_whmcs[$key][1]), array("id" => $tblpricing["id"]));
 		}else{
-			insert_query("tblpricing",array("type" => "domaintransfer", "currency" => $currency_id, relid => $tbldomainpricing["id"], "msetupfee"=> $prices_for_whmcs[$key][1], "qsetupfee"=> "-1", "ssetupfee"=> "-1", "asetupfee"=> "-1", "bsetupfee"=> "-1", "monthly"=> "-1", "quarterly"=> "-1", "semiannually"=> "-1", "annually"=> "-1", "biennially"=> "-1"));
+			insert_query("tblpricing",array("type" => "domaintransfer", "currency" => $prices_for_whmcs[$key]['currency'], relid => $tbldomainpricing["id"], "msetupfee"=> $prices_for_whmcs[$key][1], "qsetupfee"=> "-1", "ssetupfee"=> "-1", "asetupfee"=> "-1", "bsetupfee"=> "-1", "monthly"=> "-1", "quarterly"=> "-1", "semiannually"=> "-1", "annually"=> "-1", "biennially"=> "-1"));
 		}
 
     //replace or add pricing for domainrenew
-		$result = mysql_query("SELECT * FROM tblpricing WHERE type='domainrenew' AND currency=".$currency_id." AND relid=".$tbldomainpricing["id"]." ORDER BY id DESC LIMIT 1");
+		$result = mysql_query("SELECT * FROM tblpricing WHERE type='domainrenew' AND currency=".$prices_for_whmcs[$key]['currency']." AND relid=".$tbldomainpricing["id"]." ORDER BY id DESC LIMIT 1");
 		$tblpricing = mysql_fetch_array($result);
 		if(!empty($tblpricing)){
 			update_query("tblpricing",array("msetupfee"=> $prices_for_whmcs[$key][2]), array("id" => $tblpricing["id"]));
 		}else{
-			insert_query("tblpricing",array("type" => "domainrenew", "currency" => $currency_id, relid => $tbldomainpricing["id"], "msetupfee"=> $prices_for_whmcs[$key][2], "qsetupfee"=> "-1", "ssetupfee"=> "-1", "asetupfee"=> "-1", "bsetupfee"=> "-1", "monthly"=> "-1", "quarterly"=> "-1", "semiannually"=> "-1", "annually"=> "-1", "biennially"=> "-1"));
+			insert_query("tblpricing",array("type" => "domainrenew", "currency" => $prices_for_whmcs[$key]['currency'], relid => $tbldomainpricing["id"], "msetupfee"=> $prices_for_whmcs[$key][2], "qsetupfee"=> "-1", "ssetupfee"=> "-1", "asetupfee"=> "-1", "bsetupfee"=> "-1", "monthly"=> "-1", "quarterly"=> "-1", "semiannually"=> "-1", "annually"=> "-1", "biennially"=> "-1"));
 		}
 
   }
