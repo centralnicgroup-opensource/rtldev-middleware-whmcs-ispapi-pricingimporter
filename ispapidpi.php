@@ -32,6 +32,104 @@ function filter_array($array,$term){
       return $matches;
   }
 
+//this function is called based on the user selection --> selection of price class or to use defualt hexonet costs
+function priceclass_or_defualtcosts($priceclass_or_defaultcost)
+{
+  $tld_pattern = "/PRICE_CLASS_DOMAIN_([^_]+)_/";
+  $tlds = [];
+  foreach($priceclass_or_defaultcost["PROPERTY"]["RELATIONTYPE"] as $key => $value)
+  {
+    if(preg_match($tld_pattern,$value,$match))
+    {
+      $tlds[] = $match[1];
+    }
+  }
+  //remove duplicates
+  $tlds = array_unique($tlds);
+  //collect tld, register, renew and transfer prices in an array
+  $tld_register_renew_transfer_currency = array();
+  foreach ($tlds as $key => $tld)
+  {
+    $pattern_for_registerprice ="/PRICE_CLASS_DOMAIN_".$tld."_ANNUAL$/";
+    $register_match = preg_grep($pattern_for_registerprice, $priceclass_or_defaultcost["PROPERTY"]["RELATIONTYPE"]);
+    $register_match_keys = array_keys($register_match);
+    // $tld_data[] = $tld;
+    foreach ($register_match_keys as $key)
+    {
+      if(array_key_exists($key, $priceclass_or_defaultcost["PROPERTY"]["RELATIONVALUE"]))
+      {
+        //values of the keys
+  //register and renew
+        $register_price =  $priceclass_or_defaultcost["PROPERTY"]["RELATIONVALUE"][$key];
+        $tld_register_renew_transfer_currency[$tld]['register']= $register_price;
+        $tld_register_renew_transfer_currency[$tld]['renew']= $register_price;
+      }
+    }
+//Transfer
+    $pattern_for_transferprice = "/PRICE_CLASS_DOMAIN_".$tld."_TRANSFER$/";
+    $transfer_match = preg_grep($pattern_for_transferprice, $priceclass_or_defaultcost["PROPERTY"]["RELATIONTYPE"]);
+    $transfer_match_keys = array_keys($transfer_match);
+    // echo "<br>";
+    foreach ($transfer_match_keys as $key)
+    {
+      if(array_key_exists($key, $priceclass_or_defaultcost["PROPERTY"]["RELATIONVALUE"]))
+      {
+        //values of the keys
+        $transfer_price =  $priceclass_or_defaultcost["PROPERTY"]["RELATIONVALUE"][$key];
+        $tld_register_renew_transfer_currency[$tld]['transfer']= $transfer_price;
+      }
+      else {
+        $tld_register_renew_transfer_currency[$tld]['transfer'] = "hello";
+      }
+    }
+    //get tld currency
+    $pattern_for_currency = "/PRICE_CLASS_DOMAIN_".$tld."_CURRENCY$/";
+    $currency_match = preg_grep($pattern_for_currency, $priceclass_or_defaultcost["PROPERTY"]["RELATIONTYPE"]);
+    $currency_match_keys= array_keys($currency_match);
+    foreach($currency_match_keys as $key)
+    {
+      if(array_key_exists($key, $priceclass_or_defaultcost["PROPERTY"]["RELATIONVALUE"]))
+      {
+        $tld_currency = $priceclass_or_defaultcost["PROPERTY"]["RELATIONVALUE"][$key];
+        $tld_register_renew_transfer_currency[$tld]['currency'] = $tld_currency;
+      }
+    }
+  }
+
+  //filter tlds that are with currency USD
+  $tld_register_renew_transfer_currency_filter = filter_array($tld_register_renew_transfer_currency,'USD');
+
+  $tld_register_renew_transfer_currency_filter =  array_change_key_case($tld_register_renew_transfer_currency_filter, CASE_LOWER);
+  $_SESSION["tld-register-renew-transfer-currency-filter"]=$tld_register_renew_transfer_currency_filter; //session variable for tld data (tld and prices ,currency)
+  echo '
+  <!--<span><input type="checkbox" onchange="checkAll(this)" class="checkall" />Select all TLDs</span>-->
+  <table class="tableClass">
+    <tr>
+      <th><span><input type="checkbox" onchange="checkAll(this)" class="checkall" /></span></th>
+      <th>TLD</th>
+      <th>Register</th>
+      <th>Renew</th>
+      <th>Transfer</th>
+      <th>Currency</th>
+    </tr>';
+  foreach ($tld_register_renew_transfer_currency_filter as $tld => $value){
+    echo "<tr>";
+    echo "<td><input type='checkbox' class='tocheck'  name='checkbox-tld[]' value='".$tld."'></input></td>";
+    echo "<td>".'.'.$tld."</input></td>";
+    foreach($value as $key){
+      //prints prices in each row
+      echo "<td name='Myprices'>".$key."</td>";
+    }
+    echo "</tr>";
+  }
+  echo '
+  </table>
+  <br>
+  <input type="submit" name="check-button" value="Next">
+   </form>
+   ';
+}
+
 function ispapidpi_output($vars)
 {
     // if ($_POST)
@@ -422,101 +520,48 @@ function ispapidpi_output($vars)
             "userclass"=> $_POST['price_class']
     );
     $getdata_of_priceclass = ispapi_call($command, $ispapi_config);
-    $tld_pattern = "/PRICE_CLASS_DOMAIN_([^_]+)_/";
-    $tlds = [];
-    foreach($getdata_of_priceclass["PROPERTY"]["RELATIONTYPE"] as $key => $value)
-    {
-      if(preg_match($tld_pattern,$value,$match))
-      {
-        $tlds[] = $match[1];
-      }
-    }
-    //remove duplicates
-    $tlds = array_unique($tlds);
-    //collect tld, register, renew and transfer prices in an array
-    $tld_register_renew_transfer_currency = array();
-    foreach ($tlds as $key => $tld)
-    {
-      $pattern_for_registerprice ="/PRICE_CLASS_DOMAIN_".$tld."_ANNUAL$/";
-      $register_match = preg_grep($pattern_for_registerprice, $getdata_of_priceclass["PROPERTY"]["RELATIONTYPE"]);
-      $register_match_keys = array_keys($register_match);
-      // $tld_data[] = $tld;
-      foreach ($register_match_keys as $key)
-      {
-        if(array_key_exists($key, $getdata_of_priceclass["PROPERTY"]["RELATIONVALUE"]))
-        {
-          //values of the keys
-    //register and renew
-          $register_price =  $getdata_of_priceclass["PROPERTY"]["RELATIONVALUE"][$key];
-          $tld_register_renew_transfer_currency[$tld]['register']= $register_price;
-          $tld_register_renew_transfer_currency[$tld]['renew']= $register_price;
-        }
-      }
-  //Transfer
-      $pattern_for_transferprice = "/PRICE_CLASS_DOMAIN_".$tld."_TRANSFER$/";
-      $transfer_match = preg_grep($pattern_for_transferprice, $getdata_of_priceclass["PROPERTY"]["RELATIONTYPE"]);
-      $transfer_match_keys = array_keys($transfer_match);
-      // echo "<br>";
-      foreach ($transfer_match_keys as $key)
-      {
-        if(array_key_exists($key, $getdata_of_priceclass["PROPERTY"]["RELATIONVALUE"]))
-        {
-          //values of the keys
-          $transfer_price =  $getdata_of_priceclass["PROPERTY"]["RELATIONVALUE"][$key];
-          $tld_register_renew_transfer_currency[$tld]['transfer']= $transfer_price;
-        }
-        else {
-          $tld_register_renew_transfer_currency[$tld]['transfer'] = "hello";
-        }
-      }
-      //get tld currency
-      $pattern_for_currency = "/PRICE_CLASS_DOMAIN_".$tld."_CURRENCY$/";
-      $currency_match = preg_grep($pattern_for_currency, $getdata_of_priceclass["PROPERTY"]["RELATIONTYPE"]);
-      $currency_match_keys= array_keys($currency_match);
-      foreach($currency_match_keys as $key)
-      {
-        if(array_key_exists($key, $getdata_of_priceclass["PROPERTY"]["RELATIONVALUE"]))
-        {
-          $tld_currency = $getdata_of_priceclass["PROPERTY"]["RELATIONVALUE"][$key];
-          $tld_register_renew_transfer_currency[$tld]['currency'] = $tld_currency;
-        }
-      }
-    }
-
-    //filter tlds that are with currency USD
-    $tld_register_renew_transfer_currency_filter = filter_array($tld_register_renew_transfer_currency,'USD');
-
-    $tld_register_renew_transfer_currency_filter =  array_change_key_case($tld_register_renew_transfer_currency_filter, CASE_LOWER);
-    $_SESSION["tld-register-renew-transfer-currency-filter"]=$tld_register_renew_transfer_currency_filter; //session variable for tld data (tld and prices ,currency)
+    priceclass_or_defualtcosts($getdata_of_priceclass);
+  }
+  //when user select defualt hexonet costs
+  //to use defualt HEXONET costs
+  elseif(isset($_POST['default-costs']))
+  {
     echo '
-    <!--<span><input type="checkbox" onchange="checkAll(this)" class="checkall" />Select all TLDs</span>-->
-    <table class="tableClass">
-      <tr>
-        <th><span><input type="checkbox" onchange="checkAll(this)" class="checkall" /></span></th>
-        <th>TLD</th>
-        <th>Register</th>
-        <th>Renew</th>
-        <th>Transfer</th>
-        <th>Currency</th>
-      </tr>';
-    foreach ($tld_register_renew_transfer_currency_filter as $tld => $value){
-      echo "<tr>";
-      echo "<td><input type='checkbox' class='tocheck'  name='checkbox-tld[]' value='".$tld."'></input></td>";
-      echo "<td>".'.'.$tld."</input></td>";
-      foreach($value as $key){
-        //prints prices in each row
-        echo "<td name='Myprices'>".$key."</td>";
-      }
-      echo "</tr>";
-    }
-    echo '
-    </table>
+    <div class="steps" data-steps="3">
+      <label>
+		    <span>
+          <div>
+            <form method="POST">
+              <input style="border:none;" type="submit" name="submit" value="STEP 1"/>
+            </form>
+          </div>
+        </span>
+        <i></i>
+      </label><!--
+      --><label class="labelClass">
+        <span>STEP 2</span>
+      </label><!--
+      --><label>
+      <span>STEP 3</span>
+      <i></i>
+      </label>
+    </div>
     <br>
-    <input type="submit" name="check-button" value="Next">
-     </form>
-     ';
+      <form action="addonmodules.php?module=ispapidpi" method="POST">
+        <label>Select the TLDs you want to import:</label>
+        <br>
+    ';
+    $command =  $command = array(
+            "command" => "StatusUser"
+    );
+    $default_costs = ispapi_call($command, $ispapi_config);
+
+    $_SESSION["defualt-hexonet-costs"] = $default_costs;
+    priceclass_or_defualtcosts($default_costs);
+    // echo "<br>hexonet defualt costs are <br>";echo "<pre>";print_r($default_costs);echo "</pre>";
   }
   else{
+    // step 1
     echo '
       <div class="steps" data-steps="3">
          <label class="labelClass">
@@ -533,9 +578,16 @@ function ispapidpi_output($vars)
       </div>
     ';
     echo '
+    <form action="addonmodules.php?module=ispapidpi" method="POST">
+    <br>
+      <input type="submit" name="default-costs" value="Use my default HEXONET costs"/>
+      <br><br>
+      <label>or</label>
+      </form>
+    ';
+    echo '
       <form action="addonmodules.php?module=ispapidpi" method="POST">
-      <br>
-        <label>Select your price class:
+        <label>Select one of my HEXONET Price Classes:</label>
           <br>
           <select name="price_class">
     ';
@@ -543,10 +595,13 @@ function ispapidpi_output($vars)
       echo "<option value=".$price_class.">".$price_class."</option>";
     }
     echo '</select>
-      </label>
+
       <input type="submit" name="submit" value="Select"/>
+      </form>
       ';
+
   }
+
   //select all script
   echo '
     <script type="text/javascript">
