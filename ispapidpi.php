@@ -1,6 +1,6 @@
 <?php
 session_start();
-$module_version = "1.4";
+$module_version = "2.0";
 //if (!defined("WHMCS"))
 //    die("This file cannot be accessed directly");
 function ispapidpi_config($params) {
