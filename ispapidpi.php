@@ -132,10 +132,10 @@ function priceclass_or_defualtcosts($priceclass_or_defaultcost)
 
 function ispapidpi_output($vars)
 {
-    // if ($_POST)
-    // {
-    // echo "<pre>" . print_r($_POST, true) . "</pre>";
-    // }
+    if ($_POST)
+    {
+    echo "<pre>"; print_r($_POST); echo "</pre>";
+    }
   //css
   echo '
   <style>
@@ -315,13 +315,20 @@ function ispapidpi_output($vars)
     ';
     //get checked TLD then get register,renew and transfer prices for that TLD
     $get_tld = [];
+    echo "session checkbox tld<br>";
+    echo "<pre>"; print_r($_SESSION["checkbox-tld"]); echo "</pre>";
     foreach($_SESSION["checkbox-tld"] as $checkbox_tld)
     {
       array_push($get_tld, $checkbox_tld);
     }
+    echo "get tld before arry flip<br>";
+    echo "<pre>"; print_r($get_tld); echo "</pre>";
     $get_tld = array_flip($get_tld);
-
+    echo "get tld after flip<br>";
+    echo "<pre>"; print_r($get_tld); echo "</pre>";
     $get_checked_tld_data = [];
+    echo "tld register renew transfer currency filter<br>";
+    echo "<pre>"; print_r($_SESSION["tld-register-renew-transfer-currency-filter"]); echo "</pre>";
     foreach($get_tld as $key=>$value)
     {
       if(array_key_exists($key, $_SESSION["tld-register-renew-transfer-currency-filter"]))
@@ -330,6 +337,8 @@ function ispapidpi_output($vars)
         $get_checked_tld_data[$key]=$tld_prices;
       }
     }
+    echo "get checked tld data<br>";
+      echo "<pre>"; print_r($get_checked_tld_data); echo "</pre>";
     $_SESSION["checked_tld_data"] = $get_checked_tld_data;
     $_SESSION["checked_tld_data"] = array_change_key_case($_SESSION["checked_tld_data"], CASE_LOWER);
     // echo "<pre>";
@@ -342,21 +351,12 @@ function ispapidpi_output($vars)
       unset($subArr['currency']);
       $_SESSION["checked_tld_data"][$key] = $subArr;
     }
+    echo "get checked tld data something with currency<br>";
+      echo "<pre>"; print_r($get_checked_tld_data); echo "</pre>";
     // echo "after removing currency <br>";
     // echo "<pre>";
     // print_r($_SESSION["checked_tld_data"]);
     // echo "</pre>";
-
-    //new prices //later must be deleted this part of code
-    foreach ($_SESSION["checked_tld_data"] as $key => $value) {
-      {
-         foreach($value as $ky => $val)
-         {
-           $tlds_with_new_prices[$key][] = $val * $multiplier;
-         }
-       }
-
-    }
     echo '
     <form action="addonmodules.php?module=ispapidpi" method="POST">
     ';
@@ -484,7 +484,10 @@ function ispapidpi_output($vars)
       </div>';
       echo '</form>';
     }
+    // unset($_SESSION["checkbox-tld"]);
+    // session_destroy();
   }
+  //
   elseif(isset($_POST['price_class']))
   {
     //step 2
@@ -492,7 +495,7 @@ function ispapidpi_output($vars)
     echo '
     <div class="steps" data-steps="3">
       <label>
-		    <span>
+        <span>
           <div>
             <form method="POST">
               <input style="border:none;" type="submit" name="submit" value="STEP 1"/>
@@ -522,7 +525,316 @@ function ispapidpi_output($vars)
     $getdata_of_priceclass = ispapi_call($command, $ispapi_config);
     priceclass_or_defualtcosts($getdata_of_priceclass);
   }
-  //when user select defualt hexonet costs
+  //step 3 when csv file is selected
+  elseif($_POST['checkbox-tld-csv'] || (isset($_SESSION["checkbox-tld-csv"]) && isset($_POST['multiplier'])))
+  {
+    echo "<pre>";
+    print_r($_SESSION);
+    echo "</pre>";
+
+    if(isset($_POST['checkbox-tld-csv']))
+    {
+        $_SESSION["checkbox-tld-csv"] = $_POST["checkbox-tld-csv"];
+    }
+    if(isset($_POST['multiplier']))
+    {
+        $multiplier = $_POST['multiplier'];
+    }
+    else
+    {
+        $multiplier = 1.00;
+    }
+    echo '
+    <div class="steps" data-steps="3">
+      <label>
+        <span>
+          <div>
+            <form method="POST">
+              <input style="border:none;" type="submit" name="submit" value="STEP 1"/>
+            </form>
+          </div>
+        </span>
+        <i></i>
+      </label><!--
+      ';
+      echo '
+      --><label>
+        <span>
+          <div>
+            <form method="POST">';
+              // echo "<input type='hidden' name='price_class' value='".$_SESSION["csv-as-new-array"]."'</input>";
+              echo '<input style="border:none;" type="submit" name="submit" value="STEP 2"/>
+            </form>
+          </div>
+        </span>
+        <i></i>
+      </label><!--
+      --><label class="labelClass">
+        <span>STEP 3</span>
+        <i></i>
+      </label>
+    </div> ';
+    echo '<br>';
+    echo '
+    <form action="addonmodules.php?module=ispapidpi" method="POST">
+      <label>Update your prices by using a factor:</label>
+        <input type="number" step="0.01" name="multiplier" min="0">
+          <input type="submit" name="update-csv" value="Update"/>
+      </form>
+      <br>
+    ';
+    $get_tld = [];
+   foreach($_SESSION["checkbox-tld-csv"] as $checkbox_tld)
+   {
+     array_push($get_tld, $checkbox_tld);
+   }
+
+    $get_tld = array_flip($get_tld);
+
+    $get_checked_tld_data = [];
+    foreach($get_tld as $key=>$value)
+    {
+      if(array_key_exists($key, $_SESSION["csv-as-new-array"]))
+      {
+        $tld_prices = $_SESSION["csv-as-new-array"][$key];
+        $get_checked_tld_data[$key]=$tld_prices;
+      }
+    }
+   $_SESSION["checked_tld_csv_data"] = $get_checked_tld_data;
+   $_SESSION["checked_tld_csv_data"] = array_change_key_case($_SESSION["checked_tld_csv_data"], CASE_LOWER);
+
+    if(isset($_POST['update-csv']))
+    {
+
+      echo '
+      <table>
+          <tr>
+            <th>TLD</th>
+            <th colspan="2">Register</th>
+            <th colspan="2">Renew</th>
+            <th colspan="2">Transfer</th>
+            <th colspan="2">Currency</th>
+          </tr>
+          <tr>
+            <th></th>
+            <th style="width:16%">Cost</th>
+            <th style="width:16%">Sale</th>
+            <th style="width:16%">Cost</th>
+            <th style="width:16%">Sale</th>
+            <th style="width:16%">Cost</th>
+            <th style="width:16%">Sale</th>
+            <th style="width:16%">Cost</th>
+            <th style="width:16%">Sale</th>
+          </tr>
+        ';
+        foreach($_SESSION["checked_tld_csv_data"] as $key => $value)
+        {
+          echo '<tr id="row">';
+          echo '<td>'.'.'.$key.'</td>';
+          foreach($value as $key2=>$old_and_new_price)
+          {
+            echo "<td name='Myprices'>".$old_and_new_price."</td>";
+            $update_price1 = $old_and_new_price*$multiplier;
+            $update_price=number_format((float)$update_price1, 2, '.', '');
+            echo "<td><input type='text' name='PRICE_" . $key . "_" . $key2 . "' value='".$update_price."'></input></td>";
+          }
+          echo '<td>'."USD".'</td>';
+          echo '<td><select name="currency[]">';
+       //get currency type from (tblcurrencies)
+       $request = mysql_query("SELECT * FROM tblcurrencies");
+       while ($currencies = mysql_fetch_array($request)) {
+         $currency_id = $currencies["id"];
+         $currency = $currencies["code"];
+         echo '<option value = "'.$currency_id.'">'.$currency.'</option>';
+       }
+       echo '</select></td>';
+       echo '</tr>';
+     }
+     echo '
+      </table>
+    <br>
+    ';
+    echo '
+    <form action="addonmodules.php?module=ispapidpi" method="POST">
+    ';
+    echo'
+     <div>
+     <input type="checkbox" name="dns_management" value="on">DNS Management</input>
+     <input type="checkbox" name="email_forwarding" value="on">Email Forwarding</input>
+     <input type="checkbox" name="id_protection" value="on">ID Protection</input>
+     <input type="checkbox" name="epp_code" value="on">EPP Code</input>
+     <br> <br>
+       <input type="submit" name="import" value="Import"/>
+     </div>
+     </form>
+     ';
+    }
+    else
+    {
+      echo '
+      <form action="addonmodules.php?module=ispapidpi" method="POST">
+      ';
+      echo '
+      <table>
+          <tr>
+            <th>TLD</th>
+            <th colspan="2">Register</th>
+            <th colspan="2">Renew</th>
+            <th colspan="2">Transfer</th>
+            <th colspan="2">Currency</th>
+          </tr>
+          <tr>
+            <th></th>
+            <th style="width:16%">Cost</th>
+            <th style="width:16%">Sale</th>
+            <th style="width:16%">Cost</th>
+            <th style="width:16%">Sale</th>
+            <th style="width:16%">Cost</th>
+            <th style="width:16%">Sale</th>
+            <th style="width:16%">Cost</th>
+            <th style="width:16%">Sale</th>
+          </tr>
+        ';
+        foreach($_SESSION["checked_tld_csv_data"] as $key=>$value)
+          {
+            echo '<tr>';
+            echo '<td>'.$key.'</td>';
+
+            foreach($value as $key2=>$price)
+            {
+              echo "<td name='Myprices'>".$price."</td>";
+              echo "<td><input type='text' name='PRICE_" . $key . "_" . $key2 . "' value='".$price."'></input></td>";
+              // echo "<td name='Myprices'>".$price."</td>";
+            }
+            echo '<td>'."USD".'</td>';
+            echo '<td><select name="currency[]">';
+            //get currency type from (tblcurrencies)
+            $request = mysql_query("SELECT * FROM tblcurrencies");
+            while ($currencies = mysql_fetch_array($request)) {
+              $currency_id = $currencies["id"];
+              $currency = $currencies["code"];
+              echo '<option value = "'.$currency_id.'">'.$currency.'</option>';
+            }
+            echo '</select></td>';
+            echo '</tr>';
+          }
+          echo '</table>
+      <br>';
+      echo '<div>
+      <input type="checkbox" name="dns_management" value="on">DNS Management</input>
+      <input type="checkbox" name="email_forwarding" value="on">Email Forwarding</input>
+      <input type="checkbox" name="id_protection" value="on">ID Protection</input>
+      <input type="checkbox" name="epp_code" value="on">EPP Code</input>
+      <br> <br>
+        <input type="submit" name="import" value="Import"/>
+      </div>';
+      echo '</form>';
+    }
+  }
+
+  //when csv file selected
+  //working with csv file
+  elseif(isset($_POST['csv-file-selected']))
+  {
+    $_SESSION["csv-file-selected-session"] = $_POST['csv-file-selected'];
+    if ( isset($_FILES["file"])) {
+      $_SESSION["csv-file"] = $_FILES["file"];
+
+      //if there was an error uploading the file
+        if ($_FILES["file"]["error"] > 0) {
+            echo "Return Code: " . $_FILES["file"]["error"] . " error uploading the file"."<br />";
+        }
+        else {
+          //
+          $tmpName = $_FILES['file']['tmp_name'];
+          $csvAsArray = array_map(function($d) {
+              return str_getcsv($d, ";");
+          }, file($tmpName));
+          // $csvAsArray = array_map('str_getcsv', file($tmpName));
+          array_shift($csvAsArray); //remove first element (header part of the csv file)
+          // echo "<pre>";
+          // print_r($csvAsArray); echo "</pre>";
+          $_SESSION["csv-as-array"] = $csvAsArray;
+          $csv_as_new_array = [];
+          foreach($csvAsArray as $key=>$value)
+            {
+               $newKey = "";
+               foreach($value as $ky=>$val)
+               {
+                 if($ky == 0)
+                 {
+                   //first element to take as new key
+                   $newKey = $val;
+                   $csv_as_new_array[$newKey] = [];
+                 }
+                 else{
+                   $csv_as_new_array[$newKey][] = $val;
+                 }
+               }
+            }
+            $_SESSION["csv-as-new-array"] = $csv_as_new_array;
+            echo "<pre>";print_r($_SESSION["csv-as-new-array"]);echo "</pre>";
+            echo '
+            <div class="steps" data-steps="3">
+              <label>
+        		    <span>
+                  <div>
+                    <form method="POST">
+                      <input style="border:none;" type="submit" name="submit" value="STEP 1"/>
+                    </form>
+                  </div>
+                </span>
+                <i></i>
+              </label><!--
+              --><label class="labelClass">
+                <span>STEP 2</span>
+              </label><!--
+              --><label>
+              <span>STEP 3</span>
+              <i></i>
+              </label>
+            </div>
+            <br>
+              <form action="addonmodules.php?module=ispapidpi" method="POST">
+                <label>Select the TLDs you want to import:</label>
+                <br>
+            ';
+            echo '
+            <!--<span><input type="checkbox" onchange="checkAll(this)" class="checkall" />Select all TLDs</span>-->
+            <table class="tableClass">
+              <tr>
+                <th><span><input type="checkbox" onchange="checkAll(this)" class="checkall" /></span></th>
+                <th>TLD</th>
+                <th>Register</th>
+                <th>Renew</th>
+                <th>Transfer</th>
+                <th>Currency</th>
+              </tr>';
+              foreach ($csv_as_new_array as $tld => $value){
+                echo "<tr>";
+                echo "<td><input type='checkbox' class='tocheck'  name='checkbox-tld-csv[]' value='".$tld."'></input></td>";
+                echo "<td>".$tld."</input></td>";
+                foreach($value as $key){
+                  //prints prices in each row
+                  echo "<td name='Myprices'>".$key."</td>";
+                }
+                echo "<td>USD</td>";
+                echo "</tr>";
+              }
+            echo '
+            </table>
+            <br>
+            <input type="submit" name="check-button" value="Next">
+             </form>
+             ';
+
+       }
+    } else {
+            echo "No file selected <br />";
+    }
+  }
+  //
+  //when user selects defualt hexonet costs
   //to use defualt HEXONET costs
   elseif(isset($_POST['default-costs']))
   {
@@ -581,7 +893,7 @@ function ispapidpi_output($vars)
     <form action="addonmodules.php?module=ispapidpi" method="POST">
     <br>
       <input type="submit" name="default-costs" value="Use my default HEXONET costs"/>
-      <br><br>
+      <br>
       <label>or</label>
       </form>
     ';
@@ -599,9 +911,16 @@ function ispapidpi_output($vars)
       <input type="submit" name="submit" value="Select"/>
       </form>
       ';
-
+      echo '
+      <form action="addonmodules.php?module=ispapidpi" method="POST" enctype="multipart/form-data">
+      <label>or</label>
+      <br>
+      <label for="file">Filename:</label><input type="file" name="file" id="file"/> <br />
+        <input type="submit" name="csv-file-selected" value="Next"/>
+        <br><br>
+        </form>
+      ';
   }
-
   //select all script
   echo '
     <script type="text/javascript">
@@ -626,6 +945,7 @@ function ispapidpi_output($vars)
   </script>
   ';
 
+  //
   if(isset($_POST['import'])){
 
     $prices_match_pattern = "/PRICE_(.*)_(.*)/";
@@ -692,15 +1012,11 @@ function ispapidpi_output($vars)
         $currencies['currency'] = $value;
       }
     }
-    // echo "<pre>"; print_r($currencies);echo "</pre>";echo"<br>";
-    // echo "domain addons<br>";
-    // echo "<pre>"; print_r($domain_addons);echo "</pre>";echo"<br>";
-    // $new_prices_for_whmcs1 = array_combine_($new_prices_for_whmcs, $domain_addons);
-    // echo "new prices for whmcs<br>";
     foreach($new_prices_for_whmcs as $key=>$value)
     {
       array_push($new_prices_for_whmcs[$key], $domain_addons);
     }
+
     //to merge each curreny value from currencies array new_prices_for_whmcs
     $i = -1;
     foreach($new_prices_for_whmcs as $key=>$value)
