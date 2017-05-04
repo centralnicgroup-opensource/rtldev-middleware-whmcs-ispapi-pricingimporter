@@ -22,85 +22,61 @@ function ispapidpi_activate() {
 function ispapidpi_deactivate() {
 	return array('status'=>'success','description'=>'Uninstalled');
 }
-//filter tld data array for only tlds with usd currency
-function filter_array($array,$term){
-      $matches = array();
-      foreach($array as $key=>$value){
-          if($value['currency'] == $term)
-              $matches[$key]=$value;
-      }
-      return $matches;
-  }
-
-//this function is called based on the user selection --> selection of price class or to use defualt hexonet costs
-function priceclass_or_defualtcosts($priceclass_or_defaultcost)
-{
-  $tld_pattern = "/PRICE_CLASS_DOMAIN_([^_]+)_/";
+//this function is called based on the user selection --> selection of price class or to use defualt hexonet costs and makes an array
+function collect_tld_register_transfer_renew_currency($priceclass_or_defaultcost){
+  $pattern_for_tld = "/PRICE_CLASS_DOMAIN_([^_]+)_/";
   $tlds = [];
-  foreach($priceclass_or_defaultcost["PROPERTY"]["RELATIONTYPE"] as $key => $value)
-  {
-    if(preg_match($tld_pattern,$value,$match))
-    {
+  foreach($priceclass_or_defaultcost["PROPERTY"]["RELATIONTYPE"] as $key => $value){
+    if(preg_match($pattern_for_tld,$value,$match)){
       $tlds[] = $match[1];
     }
   }
-  //remove duplicates
+  //remove duplicates of tlds
   $tlds = array_unique($tlds);
-  //collect tld, register, renew and transfer prices in an array
+  //collect register, renew and transfer prices and currency for each tld in an array
   $tld_register_renew_transfer_currency = array();
-  foreach ($tlds as $key => $tld)
-  {
+  foreach ($tlds as $key => $tld){
     $pattern_for_registerprice ="/PRICE_CLASS_DOMAIN_".$tld."_ANNUAL$/";
     $register_match = preg_grep($pattern_for_registerprice, $priceclass_or_defaultcost["PROPERTY"]["RELATIONTYPE"]);
     $register_match_keys = array_keys($register_match);
     // $tld_data[] = $tld;
-    foreach ($register_match_keys as $key)
-    {
-      if(array_key_exists($key, $priceclass_or_defaultcost["PROPERTY"]["RELATIONVALUE"]))
-      {
+    foreach ($register_match_keys as $key){
+      if(array_key_exists($key, $priceclass_or_defaultcost["PROPERTY"]["RELATIONVALUE"])){
         //values of the keys
-  //register and renew
+        //register and renew
         $register_price =  $priceclass_or_defaultcost["PROPERTY"]["RELATIONVALUE"][$key];
         $tld_register_renew_transfer_currency[$tld]['register']= $register_price;
         $tld_register_renew_transfer_currency[$tld]['renew']= $register_price;
       }
     }
-//Transfer
+    //Transfer
     $pattern_for_transferprice = "/PRICE_CLASS_DOMAIN_".$tld."_TRANSFER$/";
     $transfer_match = preg_grep($pattern_for_transferprice, $priceclass_or_defaultcost["PROPERTY"]["RELATIONTYPE"]);
     $transfer_match_keys = array_keys($transfer_match);
-    // echo "<br>";
-    foreach ($transfer_match_keys as $key)
-    {
-      if(array_key_exists($key, $priceclass_or_defaultcost["PROPERTY"]["RELATIONVALUE"]))
-      {
+    foreach ($transfer_match_keys as $key){
+      if(array_key_exists($key, $priceclass_or_defaultcost["PROPERTY"]["RELATIONVALUE"])){
         //values of the keys
         $transfer_price =  $priceclass_or_defaultcost["PROPERTY"]["RELATIONVALUE"][$key];
         $tld_register_renew_transfer_currency[$tld]['transfer']= $transfer_price;
-      }
-      else {
-        $tld_register_renew_transfer_currency[$tld]['transfer'] = "hello";
       }
     }
     //get tld currency
     $pattern_for_currency = "/PRICE_CLASS_DOMAIN_".$tld."_CURRENCY$/";
     $currency_match = preg_grep($pattern_for_currency, $priceclass_or_defaultcost["PROPERTY"]["RELATIONTYPE"]);
     $currency_match_keys= array_keys($currency_match);
-    foreach($currency_match_keys as $key)
-    {
-      if(array_key_exists($key, $priceclass_or_defaultcost["PROPERTY"]["RELATIONVALUE"]))
-      {
+    foreach($currency_match_keys as $key){
+      if(array_key_exists($key, $priceclass_or_defaultcost["PROPERTY"]["RELATIONVALUE"])){
         $tld_currency = $priceclass_or_defaultcost["PROPERTY"]["RELATIONVALUE"][$key];
         $tld_register_renew_transfer_currency[$tld]['currency'] = $tld_currency;
       }
     }
   }
-
   //filter tlds that are with currency USD
   $tld_register_renew_transfer_currency_filter = filter_array($tld_register_renew_transfer_currency,'USD');
 
   $tld_register_renew_transfer_currency_filter =  array_change_key_case($tld_register_renew_transfer_currency_filter, CASE_LOWER);
   $_SESSION["tld-register-renew-transfer-currency-filter"]=$tld_register_renew_transfer_currency_filter; //session variable for tld data (tld and prices ,currency)
+  //
   echo '
   <!--<span><input type="checkbox" onchange="checkAll(this)" class="checkall" />Select all TLDs</span>-->
   <table class="tableClass">
@@ -207,73 +183,32 @@ function ispapidpi_output($vars)
       height: 0;
       width: 0;
 
-      position: absolute;
-      top: 0;
-      left: 0;
+function ispapidpi_output($vars){
+  //for css
+  echo '<style>';
+  include 'css/styles.css';
+  echo '</style>';
 
-      border: solid transparent;
-      border-left-color: white;
-      border-width: 15px;
-    }
-    .steps label:last-child i{
-      left: auto;
-      right: -15px;
-
-      border-left-color: transparent;
-      border-right-color: white;
-      border-top-color: white;
-      border-bottom-color: white;
-    }
-    table {
-  	   border-collapse: collapse;
-    }
-    th{
-    	<!--this part - no lines appear for th elements
-      background-color: #ccc;
-      text-align: center;-->
-    }
-    th{
-      background: #efefef;
-      text-align: center;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 8px;
-    }
-    tr:nth-child(even) {
-      background: #efefef;
-    }
-    tr:hover {
-      background: #d1d1d1;
-    }
-  </style>
-  ';
   $file = "ispapi";
   require_once(dirname(__FILE__)."/../../../includes/registrarfunctions.php");
-	require_once(dirname(__FILE__)."/../../../modules/registrars/".$file."/".$file.".php");
+    require_once(dirname(__FILE__)."/../../../modules/registrars/".$file."/".$file.".php");
   $registrarconfigoptions = getregistrarconfigoptions($file);
   $ispapi_config = ispapi_config($registrarconfigoptions);
   $command =  $command = array(
           "command" => "queryuserclasslist"
   );
   $queryuserclasslist = ispapi_call($command, $ispapi_config);
-  $tlds_with_new_prices =  [];
-  if(isset($_POST['checkbox-tld']) || (isset($_SESSION["checkbox-tld"]) && isset($_POST['multiplier'])))
-  {
+  if(isset($_POST['checkbox-tld']) || (isset($_SESSION["checkbox-tld"]) && isset($_POST['multiplier']))){
     //Step 3
-    if(isset($_POST['checkbox-tld']))
-    {
+    if(isset($_POST['checkbox-tld'])){
         $_SESSION["checkbox-tld"] = $_POST["checkbox-tld"];
     }
-    if(isset($_POST['multiplier']))
-    {
+    if(isset($_POST['multiplier'])){
         $multiplier = $_POST['multiplier'];
     }
-    else
-    {
+    else{
         $multiplier = 1.00;
     }
-
     echo '
     <div class="steps" data-steps="3">
       <label>
@@ -293,6 +228,7 @@ function ispapidpi_output($vars)
           <div>
             <form method="POST">';
               echo "<input type='hidden' name='price_class' value='".$_SESSION["price_class"]."'</input>";
+              // echo "<input type='hidden' name='price_class' value='".$_SESSION["tld-register-renew-transfer-currency-filter"]."'</input>";
               echo '<input style="border:none;" type="submit" name="submit" value="STEP 2"/>
             </form>
           </div>
@@ -346,8 +282,7 @@ function ispapidpi_output($vars)
     // echo "</pre>";
     // $_SESSION["checked_tld_data"] = array_map('strtolower', $_SESSION["checked_tld_data"]);
     // remove currency element from the array $_SESSION["checked_tld_data"]
-    foreach ($_SESSION["checked_tld_data"] as $key => $subArr)
-    {
+    foreach ($_SESSION["checked_tld_data"] as $key => $subArr){
       unset($subArr['currency']);
       $_SESSION["checked_tld_data"][$key] = $subArr;
     }
@@ -360,9 +295,7 @@ function ispapidpi_output($vars)
     echo '
     <form action="addonmodules.php?module=ispapidpi" method="POST">
     ';
-    if(isset($_POST['update']))
-    {
-      echo '
+    echo '
       <table>
           <tr>
             <th>TLD</th>
@@ -383,13 +316,11 @@ function ispapidpi_output($vars)
             <th style="width:16%">Sale</th>
           </tr>
         ';
-
-      foreach($_SESSION["checked_tld_data"] as $key=>$value)
-      {
+    if(isset($_POST['multiplier'])){
+      foreach($_SESSION["checked_tld_data"] as $key=>$value){
         echo '<tr id="row">';
         echo '<td>'.'.'.$key.'</td>';
-        foreach($value as $key2=>$old_and_new_price)
-        {
+        foreach($value as $key2=>$old_and_new_price){
           echo "<td name='Myprices'>".$old_and_new_price."</td>";
           $update_price1 = $old_and_new_price*$multiplier;
           $update_price=number_format((float)$update_price1, 2, '.', '');
@@ -407,59 +338,17 @@ function ispapidpi_output($vars)
         echo '</select></td>';
         echo '</tr>';
       }
-      echo '
-       </table>
-     <br>
-     ';
-     echo'
-     <div>
-     <input type="checkbox" name="dns_management" value="on">DNS Management</input>
-     <input type="checkbox" name="email_forwarding" value="on">Email Forwarding</input>
-     <input type="checkbox" name="id_protection" value="on">ID Protection</input>
-     <input type="checkbox" name="epp_code" value="on">EPP Code</input>
-     <br> <br>
-       <input type="submit" name="import" value="Import"/>
-     </div>
-     </form>
-     ';
     }
-    else
-    {
-      echo '
-      <form action="addonmodules.php?module=ispapidpi" method="POST">
-      ';
-      echo '
-      <table>
-          <tr>
-            <th>TLD</th>
-            <th colspan="2">Register</th>
-            <th colspan="2">Renew</th>
-            <th colspan="2">Transfer</th>
-            <th colspan="2">Currency</th>
-          </tr>
-          <tr>
-            <th></th>
-            <th style="width:16%">Cost</th>
-            <th style="width:16%">Sale</th>
-            <th style="width:16%">Cost</th>
-            <th style="width:16%">Sale</th>
-            <th style="width:16%">Cost</th>
-            <th style="width:16%">Sale</th>
-            <th style="width:16%">Cost</th>
-            <th style="width:16%">Sale</th>
-          </tr>
-        ';
-      foreach($_SESSION["checked_tld_data"] as $key=>$value)
-      {
+    else{
+      foreach($_SESSION["checked_tld_data"] as $key=>$value){
         echo '<tr>';
         echo '<td>'.'.'.$key.'</td>';
-
-        foreach($value as $key2=>$price)
-        {
+        foreach($value as $key2=>$price){
           echo "<td name='Myprices'>".$price."</td>";
           echo "<td><input type='text' name='PRICE_" . $key . "_" . $key2 . "' value='".$price."'></input></td>";
           // echo "<td name='Myprices'>".$price."</td>";
         }
+       //can be a function
         echo '<td>'."USD".'</td>';
         echo '<td><select name="currency[]">';
         //get currency type from (tblcurrencies)
@@ -472,17 +361,6 @@ function ispapidpi_output($vars)
         echo '</select></td>';
         echo '</tr>';
       }
-      echo '</table>
-      <br>';
-      echo '<div>
-      <input type="checkbox" name="dns_management" value="on">DNS Management</input>
-      <input type="checkbox" name="email_forwarding" value="on">Email Forwarding</input>
-      <input type="checkbox" name="id_protection" value="on">ID Protection</input>
-      <input type="checkbox" name="epp_code" value="on">EPP Code</input>
-      <br> <br>
-        <input type="submit" name="import" value="Import"/>
-      </div>';
-      echo '</form>';
     }
     // unset($_SESSION["checkbox-tld"]);
     // session_destroy();
@@ -517,13 +395,22 @@ function ispapidpi_output($vars)
         <label>Select the TLDs you want to import:</label>
         <br>
     ';
+    if($_POST['price_class'] == "DEFAULT_PRICE_CLASS"){
+      $command =  $command = array(
+          "command" => "StatusUser"
+      );
+      $default_costs = ispapi_call($command, $ispapi_config);
 
-    $command =  $command = array(
-            "command" => "StatusUserClass",
-            "userclass"=> $_POST['price_class']
-    );
-    $getdata_of_priceclass = ispapi_call($command, $ispapi_config);
-    priceclass_or_defualtcosts($getdata_of_priceclass);
+      collect_tld_register_transfer_renew_currency($default_costs);
+    }
+    else{
+      $command =  $command = array(
+              "command" => "StatusUserClass",
+              "userclass"=> $_POST['price_class']
+      );
+      $getdata_of_priceclass = ispapi_call($command, $ispapi_config);
+      collect_tld_register_transfer_renew_currency($getdata_of_priceclass);
+    }            // !!!
   }
   //step 3 when csv file is selected
   elseif($_POST['checkbox-tld-csv'] || (isset($_SESSION["checkbox-tld-csv"]) && isset($_POST['multiplier'])))
@@ -838,41 +725,6 @@ function ispapidpi_output($vars)
   //to use defualt HEXONET costs
   elseif(isset($_POST['default-costs']))
   {
-    echo '
-    <div class="steps" data-steps="3">
-      <label>
-		    <span>
-          <div>
-            <form method="POST">
-              <input style="border:none;" type="submit" name="submit" value="STEP 1"/>
-            </form>
-          </div>
-        </span>
-        <i></i>
-      </label><!--
-      --><label class="labelClass">
-        <span>STEP 2</span>
-      </label><!--
-      --><label>
-      <span>STEP 3</span>
-      <i></i>
-      </label>
-    </div>
-    <br>
-      <form action="addonmodules.php?module=ispapidpi" method="POST">
-        <label>Select the TLDs you want to import:</label>
-        <br>
-    ';
-    $command =  $command = array(
-            "command" => "StatusUser"
-    );
-    $default_costs = ispapi_call($command, $ispapi_config);
-
-    $_SESSION["defualt-hexonet-costs"] = $default_costs;
-    priceclass_or_defualtcosts($default_costs);
-    // echo "<br>hexonet defualt costs are <br>";echo "<pre>";print_r($default_costs);echo "</pre>";
-  }
-  else{
     // step 1
     echo '
       <div class="steps" data-steps="3">
@@ -907,7 +759,6 @@ function ispapidpi_output($vars)
       echo "<option value=".$price_class.">".$price_class."</option>";
     }
     echo '</select>
-
       <input type="submit" name="submit" value="Select"/>
       </form>
       ';
@@ -947,7 +798,6 @@ function ispapidpi_output($vars)
 
   //
   if(isset($_POST['import'])){
-
     $prices_match_pattern = "/PRICE_(.*)_(.*)/";
     $tld_match = []; //has all the tld names which have new prices
     foreach($_POST as $key=>$value){
@@ -977,7 +827,6 @@ function ispapidpi_output($vars)
     // echo "tld new price<br>";
     // echo "<pre>"; print_r($tld_new_price);echo "</pre>";echo"<br>";
     $new_prices_for_whmcs = array_combine_($tld_match, $tld_new_price);
-
     //for checked items -DNS Management, email Forwarding, id Protection, epp code
     $domain_addons = [];
     $dns_pattern = "/dns_management/";
@@ -1019,8 +868,7 @@ function ispapidpi_output($vars)
 
     //to merge each curreny value from currencies array new_prices_for_whmcs
     $i = -1;
-    foreach($new_prices_for_whmcs as $key=>$value)
-    {
+    foreach($new_prices_for_whmcs as $key=>$value){
       $i++;
       $new_prices_for_whmcs[$key]['currency'] = $currencies['currency'][$i];
     }
@@ -1030,8 +878,7 @@ function ispapidpi_output($vars)
   }
 }
 //
-function array_combine_($keys, $values)
-{
+function array_combine_($keys, $values){
     $result = array();
     foreach ($keys as $i => $k) {
         $result[$k][] = $values[$i];
@@ -1039,10 +886,18 @@ function array_combine_($keys, $values)
     array_walk($result, create_function('&$v', '$v = (count($v) == 1)? array_pop($v): $v;'));
     return    $result;
 }
+//filter tld data array for only tlds with usd currency
+function filter_array($array,$term){
+      $matches = array();
+      foreach($array as $key=>$value){
+          if($value['currency'] == $term)
+              $matches[$key]=$value;
+      }
+      return $matches;
+  }
 //import button
 // function startimport($tld_pricing)
-function startimport($prices_for_whmcs)
-{
+function startimport($prices_for_whmcs){
   //get currency type from  (tblcurrencies)
   // $request = mysql_query("SELECT * FROM tblcurrencies");
   // while ($currencies = mysql_fetch_array($request)) {
@@ -1055,8 +910,7 @@ function startimport($prices_for_whmcs)
 
   //here comes --> loop through array and insert or update the tld and prices for whmcs to DB
   $prices_for_whmcs = array_change_key_case($prices_for_whmcs, CASE_LOWER);
-  foreach($prices_for_whmcs as $key=>$value)
-  {
+  foreach($prices_for_whmcs as $key=>$value){
    //with TLD/extension
    $result = mysql_query("SELECT * FROM tbldomainpricing WHERE extension='".'.'.$key."'");
    $tbldomainpricing = mysql_fetch_array($result);
@@ -1096,3 +950,4 @@ function startimport($prices_for_whmcs)
   }
 echo "<div class='infobox'><strong><span class='title'>Update successful!</span></strong><br>Your pricing list has been updated successfully.</div>";
 }
+//http://stackoverflow.com/questions/308703/php-change-array-keys - for changing numeric keys to strings - csv arrays
