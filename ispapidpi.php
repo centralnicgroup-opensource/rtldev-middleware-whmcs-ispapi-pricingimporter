@@ -342,7 +342,7 @@ function ispapidpi_output($vars){
         array_shift($csvAsArray); //remove first element (header part of the csv file)
         // echo "<pre>";
         // print_r($csvAsArray); echo "</pre>";
-        $_SESSION["csv-as-array"] = $csvAsArray;
+        //$_SESSION["csv-as-array"] = $csvAsArray;	//To Be Deleted !!!
         $csv_as_new_array = [];
         foreach($csvAsArray as $key=>$value){
           $newKey = "";
@@ -368,8 +368,16 @@ function ispapidpi_output($vars){
           $csv_as_new_array[$key] = $csv_as_new_array[$key]+$add_currency_to_array;
         }
         $_SESSION["csv-as-new-array"] = $csv_as_new_array;
+
         // echo "<pre>"; print_r($csv_as_new_array);echo "</pre>";
-        echo '
+       }
+      }
+    elseif(isset($_SESSION["csv-as-new-array"]))	//!!!
+    {
+      //else for isset($_FILES["file"]), i.e. there is no file, but a session
+      $csv_as_new_array = $_SESSION["csv-as-new-array"];
+    }
+       echo '
         <!--<span><input type="checkbox" onchange="checkAll(this)" class="checkall" />Select all TLDs</span>-->
         <table class="tableClass">
           <tr>
@@ -396,9 +404,6 @@ function ispapidpi_output($vars){
         <input type="submit" name="check-button" value="Next">
          </form>
          ';
-       }
-      }
-      $_POST['price_class'] = $_SESSION["csv-as-new-array"];
     }
     else{
       $command =  $command = array(
