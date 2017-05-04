@@ -107,6 +107,7 @@ function collect_tld_register_transfer_renew_currency($priceclass_or_defaultcost
  }
 
 function ispapidpi_output($vars){
+  // echo"<pre>";print_r($_POST);echo"</pre>";
   //for css
   echo '<style>';
   include 'css/styles.css';
@@ -183,6 +184,13 @@ function ispapidpi_output($vars){
     foreach($get_tld as $key=>$value){
       if(array_key_exists($key, $_SESSION["tld-register-renew-transfer-currency-filter"])){
         $tld_prices = $_SESSION["tld-register-renew-transfer-currency-filter"][$key];
+        $get_checked_tld_data[$key]=$tld_prices;
+      }
+    }
+    //csv file array
+    foreach($get_tld as $key=>$value){
+      if(array_key_exists($key, $_SESSION["csv-as-new-array"])){
+        $tld_prices = $_SESSION["csv-as-new-array"][$key];
         $get_checked_tld_data[$key]=$tld_prices;
       }
     }
@@ -315,6 +323,83 @@ function ispapidpi_output($vars){
 
       collect_tld_register_transfer_renew_currency($default_costs);
     }
+    //when csv file is slected
+  elseif($_POST['price_class'] == "CSV-FILE"){
+
+
+    // $_POST['price_class'] = $_SESSION["csv-as-new-array"];
+    if ( isset($_FILES["file"])) {
+      //if there was an error uploading the file
+      if ($_FILES["file"]["error"] > 0) {
+          echo "Return Code: " . $_FILES["file"]["error"] . " error uploading the file"."<br />";
+      }
+      else {
+        $tmpName = $_FILES['file']['tmp_name'];
+        $csvAsArray = array_map(function($d) {
+            return str_getcsv($d, ";");
+        }, file($tmpName));
+        // $csvAsArray = array_map('str_getcsv', file($tmpName));
+        array_shift($csvAsArray); //remove first element (header part of the csv file)
+        // echo "<pre>";
+        // print_r($csvAsArray); echo "</pre>";
+        $_SESSION["csv-as-array"] = $csvAsArray;
+        $csv_as_new_array = [];
+        foreach($csvAsArray as $key=>$value){
+          $newKey = "";
+          foreach($value as $ky=>$val){
+            if($ky == 0){
+              //first element to take as new key
+              $newKey = $val;
+              $csv_as_new_array[$newKey] = [];
+            }
+            else{
+              $csv_as_new_array[$newKey][] = $val;
+            }
+          }
+        }
+
+        //to change keys of above array to strings
+        $keynames = array('register', 'renew', 'transfer');
+        foreach($csv_as_new_array as $key=>$value){
+          $csv_as_new_array[$key] = array_combine($keynames, array_values($csv_as_new_array[$key]));
+        }
+        $add_currency_to_array = array('currency'=>'USD');
+        foreach($csv_as_new_array as $key=>$value){
+          $csv_as_new_array[$key] = $csv_as_new_array[$key]+$add_currency_to_array;
+        }
+        $_SESSION["csv-as-new-array"] = $csv_as_new_array;
+        // echo "<pre>"; print_r($csv_as_new_array);echo "</pre>";
+        echo '
+        <!--<span><input type="checkbox" onchange="checkAll(this)" class="checkall" />Select all TLDs</span>-->
+        <table class="tableClass">
+          <tr>
+            <th><span><input type="checkbox" onchange="checkAll(this)" class="checkall" /></span></th>
+            <th>TLD</th>
+            <th>Register</th>
+            <th>Renew</th>
+            <th>Transfer</th>
+            <th>Currency</th>
+          </tr>';
+        foreach ($csv_as_new_array as $tld => $value){
+          echo "<tr>";
+          echo "<td><input type='checkbox' class='tocheck'  name='checkbox-tld[]' value='".$tld."'></input></td>";
+          echo "<td>".'.'.$tld."</input></td>";
+          foreach($value as $key){
+            //prints prices in each row
+            echo "<td name='Myprices'>".$key."</td>";
+          }
+          echo "</tr>";
+        }
+        echo '
+        </table>
+        <br>
+        <input type="submit" name="check-button" value="Next">
+         </form>
+         ';
+       }
+      }
+      $_POST['price_class'] = $_SESSION["csv-as-new-array"];
+    }
     else{
       $command =  $command = array(
               "command" => "StatusUserClass",
@@ -322,7 +407,7 @@ function ispapidpi_output($vars){
       );
       $getdata_of_priceclass = ispapi_call($command, $ispapi_config);
       collect_tld_register_transfer_renew_currency($getdata_of_priceclass);
-    }            // !!!
+    }
   }
   else
   {
@@ -342,6 +427,7 @@ function ispapidpi_output($vars){
          </label>
       </div>
     ';
+
     echo '
     <form action="addonmodules.php?module=ispapidpi" method="POST">
     <br>
@@ -364,6 +450,16 @@ function ispapidpi_output($vars){
       <input type="submit" name="submit" value="Select"/>
       </form>
       ';
+      echo '
+        <form action="addonmodules.php?module=ispapidpi" method="POST" enctype="multipart/form-data">
+        <label>or</label>
+        <br>
+        <input type="hidden" name="price_class" value="CSV-FILE" />
+        <label for="file">Filename:</label><input type="file" name="file" id="file"/> <br />
+          <input type="submit" name="csv-file-selected" value="Next"/>
+          <br><br>
+          </form>
+        ';
   }
   //select all script
   echo '
@@ -544,4 +640,3 @@ function startimport($prices_for_whmcs){
   }
 echo "<div class='infobox'><strong><span class='title'>Update successful!</span></strong><br>Your pricing list has been updated successfully.</div>";
 }
-//http://stackoverflow.com/questions/308703/php-change-array-keys - for changing numeric keys to strings - csv arrays
