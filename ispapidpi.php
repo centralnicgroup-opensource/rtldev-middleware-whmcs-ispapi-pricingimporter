@@ -15,6 +15,7 @@ global $module_version;
     return $configarray;
 }
 
+
 function ispapidpi_activate() {
 	return array('status'=>'success','description'=>'Installed');
 }
