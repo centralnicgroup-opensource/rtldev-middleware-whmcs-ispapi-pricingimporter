@@ -1,5 +1,6 @@
 <?php
 session_start();
+// session_cache_limiter('nocache').
 $module_version = "1.4";
 //if (!defined("WHMCS"))
 //    die("This file cannot be accessed directly");
@@ -88,6 +89,7 @@ function collect_tld_register_transfer_renew_currency($priceclass_or_defaultcost
  }
 
 function ispapidpi_output($vars){
+  echo "<pre>"; print_r($_POST); echo "</pre>";
   // echo "sessions";
   // echo "<pre>";print_r($_SESSION);echo "</pre>";
 
@@ -96,11 +98,14 @@ function ispapidpi_output($vars){
   $smarty->compile_dir = $GLOBALS['templates_compiledir'];
   $smarty->caching = false;
 
+  // css
+  // $smarty->display(dirname(__FILE__).'/templates/includeCss.tpl');
+
   // echo"<pre>";print_r($_POST);echo"</pre>";
-  //for css
-  echo '<style>';
-  include 'css/styles.css';
-  echo '</style>';
+  // css
+  // echo '<style>';
+  // include 'css/styles.css';
+  // echo '</style>';
 
   $file = "ispapi";
   require_once(dirname(__FILE__)."/../../../includes/registrarfunctions.php");
@@ -120,12 +125,16 @@ function ispapidpi_output($vars){
     }
     if(isset($_POST['multiplier'])){
         $multiplier = $_POST['multiplier'];
+        $smarty->assign('multiplier', $multiplier);
+
     }
     else{
         $multiplier = 1.00;
+        $smarty->assign('multiplier', $multiplier);
     }
 
     $smarty->assign('session-price-class', $_SESSION["price_class"]);
+
 
     //get checked TLD then get register,renew and transfer prices for that TLD
     $get_tld = [];
@@ -148,6 +157,7 @@ function ispapidpi_output($vars){
         $get_checked_tld_data[$key]=$tld_prices;
       }
     }
+    ###
     $_SESSION["checked_tld_data"] = $get_checked_tld_data;
     $_SESSION["checked_tld_data"] = array_change_key_case($_SESSION["checked_tld_data"], CASE_LOWER);
 
@@ -159,91 +169,105 @@ function ispapidpi_output($vars){
     $smarty->display(dirname(__FILE__).'/templates/tableInStep3.tpl');
 
     if(isset($_POST['multiplier'])){
-      foreach($_SESSION["checked_tld_data"] as $key=>$value){
-        echo '<tr id="row">';
-        echo '<td>'.'.'.$key.'</td>';
-        foreach($value as $key2=>$old_and_new_price){
-          echo "<td name='Myprices'>".$old_and_new_price."</td>";
-          $update_price1 = $old_and_new_price*$multiplier;
-          $update_price=number_format((float)$update_price1, 2, '.', '');
-          echo "<td><input type='text' name='PRICE_" . $key . "_" . $key2 . "' value='".$update_price."'></input></td>";
-        }
-        echo '<td>'."USD".'</td>';
-        echo '<td><select name="currency[]">';
-        //get currency type from (tblcurrencies)
-        $request = mysql_query("SELECT * FROM tblcurrencies");
-        while ($currencies = mysql_fetch_array($request)) {
-          $currency_id = $currencies["id"];
-          $currency = $currencies["code"];
-          echo '<option value = "'.$currency_id.'">'.$currency.'</option>';
-        }
-        echo '</select></td>';
-        echo '</tr>';
-      }
+      // echo "<pre>"; print_r($_SESSION); echo "</pre>";
+
+      $smarty->assign('session-checked-tld-data', $_SESSION["checked_tld_data"]);
+      $smarty->display(dirname(__FILE__).'/templates/issetMultiplier.tpl');
+
+      //
+      // foreach($_SESSION["checked_tld_data"] as $key=>$value){
+      //   echo '<tr id="row">';
+      //   echo '<td>'.'.'.$key.'</td>';
+      //   foreach($value as $key2=>$old_and_new_price){
+      //     echo "<td name='Myprices'>".$old_and_new_price."</td>";
+      //     $update_price1 = $old_and_new_price*$multiplier;
+      //     $update_price=number_format((float)$update_price1, 2, '.', '');
+      //     echo "<td><input type='text' name='PRICE_" . $key . "_" . $key2 . "' value='".$update_price."'></input></td>";
+      //   }
+      //   echo '<td>'."USD".'</td>';
+      //   echo '<td><select name="currency[]">';
+      //   //get currency type from (tblcurrencies)
+      //   $request = mysql_query("SELECT * FROM tblcurrencies");
+      //   while ($currencies = mysql_fetch_array($request)) {
+      //     $currency_id = $currencies["id"];
+      //     $currency = $currencies["code"];
+      //     echo '<option value = "'.$currency_id.'">'.$currency.'</option>';
+      //   }
+      //   echo '</select></td>';
+      //   echo '</tr>';
+      // }
     }
     else{
-      foreach($_SESSION["checked_tld_data"] as $key=>$value){
-        echo '<tr>';
-        echo '<td>'.'.'.$key.'</td>';
-        foreach($value as $key2=>$price){
-          echo "<td name='Myprices'>".$price."</td>";
-          echo "<td><input type='text' name='PRICE_" . $key . "_" . $key2 . "' value='".$price."'></input></td>";
-          // echo "<td name='Myprices'>".$price."</td>";
-        }
-       //can be a function
-        echo '<td>'."USD".'</td>';
-        echo '<td><select name="currency[]">';
-        //get currency type from (tblcurrencies)
-        $request = mysql_query("SELECT * FROM tblcurrencies");
-        while ($currencies = mysql_fetch_array($request)) {
-          $currency_id = $currencies["id"];
-          $currency = $currencies["code"];
-          echo '<option value = "'.$currency_id.'">'.$currency.'</option>';
-        }
-        echo '</select></td>';
-        echo '</tr>';
-      }
+      $smarty->assign('session-checked-tld-data', $_SESSION["checked_tld_data"]);
+      $smarty->display(dirname(__FILE__).'/templates/elseIssetMultiplier.tpl');
+
+      // foreach($_SESSION["checked_tld_data"] as $key=>$value){
+      //   echo '<tr>';
+      //   echo '<td>'.'.'.$key.'</td>';
+      //   foreach($value as $key2=>$price){
+      //     echo "<td name='Myprices'>".$price."</td>";
+      //     echo "<td><input type='text' name='PRICE_" . $key . "_" . $key2 . "' value='".$price."'></input></td>";
+      //     // echo "<td name='Myprices'>".$price."</td>";
+      //   }
+      //  //can be a function
+      //   echo '<td>'."USD".'</td>';
+      //   echo '<td><select name="currency[]">';
+      //   //get currency type from (tblcurrencies)
+      //   $request = mysql_query("SELECT * FROM tblcurrencies");
+      //   while ($currencies = mysql_fetch_array($request)) {
+      //     $currency_id = $currencies["id"];
+      //     $currency = $currencies["code"];
+      //     echo '<option value = "'.$currency_id.'">'.$currency.'</option>';
+      //   }
+      //   echo '</select></td>';
+      //   echo '</tr>';
+      // }
     }
-    echo '</table>
-    <br>';
-    echo '<div>
-    <input type="checkbox" name="dns_management" value="on">DNS Management</input>
-    <input type="checkbox" name="email_forwarding" value="on">Email Forwarding</input>
-    <input type="checkbox" name="id_protection" value="on">ID Protection</input>
-    <input type="checkbox" name="epp_code" value="on">EPP Code</input>
-    <br> <br>
-    <input type="submit" name="import" value="Import"/>
-    </div>';
-    echo '</form>';
+    $smarty->display(dirname(__FILE__).'/templates/inStep3.tpl');
+
+    // echo '</table>
+    // <br>';
+    // echo '<div>
+    // <input type="checkbox" name="dns_management" value="on">DNS Management</input>
+    // <input type="checkbox" name="email_forwarding" value="on">Email Forwarding</input>
+    // <input type="checkbox" name="id_protection" value="on">ID Protection</input>
+    // <input type="checkbox" name="epp_code" value="on">EPP Code</input>
+    // <br> <br>
+    // <input type="submit" name="import" value="Import"/>
+    // </div>';
+    // echo '</form>';
   }
   elseif(isset($_POST['price_class'])){
     //step 2
     $_SESSION["price_class"] = $_POST['price_class'];
-    echo '
-    <div class="steps" data-steps="3">
-      <label>
-            <span>
-          <div>
-            <form method="POST">
-              <input style="border:none;" type="submit" name="submit" value="STEP 1"/>
-            </form>
-          </div>
-        </span>
-        <i></i>
-      </label><!--
-      --><label class="labelClass">
-        <span>STEP 2</span>
-      </label><!--
-      --><label>
-      <span>STEP 3</span>
-      <i></i>
-      </label>
-    </div>
-    <br>
-      <form action="addonmodules.php?module=ispapidpi" method="POST">
-        <label>Select the TLDs you want to import:</label>
-        <br>
-    ';
+
+    $smarty->display(dirname(__FILE__).'/templates/step2.tpl');
+
+    // echo '
+    // <div class="steps" data-steps="3">
+    //   <label>
+    //         <span>
+    //       <div>
+    //         <form method="POST">
+    //           <input style="border:none;" type="submit" name="submit" value="STEP 1"/>
+    //         </form>
+    //       </div>
+    //     </span>
+    //     <i></i>
+    //   </label><!--
+    //   --><label class="labelClass">
+    //     <span>STEP 2</span>
+    //   </label><!--
+    //   --><label>
+    //   <span>STEP 3</span>
+    //   <i></i>
+    //   </label>
+    // </div>
+    // <br>
+    //   <form action="addonmodules.php?module=ispapidpi" method="POST">
+    //     <label>Select the TLDs you want to import:</label>
+    //     <br>
+    // ';
     if($_POST['price_class'] == "DEFAULT_PRICE_CLASS"){
       $command =  $command = array(
           "command" => "StatusUser"
@@ -291,42 +315,48 @@ function ispapidpi_output($vars){
           $csv_as_new_array[$key] = $csv_as_new_array[$key]+$add_currency_to_array;
         }
         $_SESSION["csv-as-new-array"] = $csv_as_new_array;
+        // $smarty->assign('csv-as-new-array', $_SESSION["csv-as-new-array"]);
        }
       }
-    elseif(isset($_SESSION["csv-as-new-array"]))	//!!!
-    {
+    elseif(isset($_SESSION["csv-as-new-array"])){
       //else for isset($_FILES["file"]), i.e. there is no file, but a session
       $csv_as_new_array = $_SESSION["csv-as-new-array"];
+      // $smarty->assign('csv-as-new-array', $csv_as_new_array);
     }
-    // $smarty->assign('csv_as_new_array', $csv_as_new_array);
-    // $smarty->display(dirname(__FILE__).'/templates/csvtableInStep2.tpl');
-     echo '
-      <!--<span><input type="checkbox" onchange="checkAll(this)" class="checkall" />Select all TLDs</span>-->
-      <table class="tableClass">
-        <tr>
-          <th><span><input type="checkbox" onchange="checkAll(this)" class="checkall" /></span></th>
-          <th>TLD</th>
-          <th>Register</th>
-          <th>Renew</th>
-          <th>Transfer</th>
-          <th>Currency</th>
-        </tr>';
-      foreach ($csv_as_new_array as $tld => $value){
-        echo "<tr>";
-        echo "<td><input type='checkbox' class='tocheck'  name='checkbox-tld[]' value='".$tld."'></input></td>";
-        echo "<td>".'.'.$tld."</input></td>";
-        foreach($value as $key){
-          //prints prices in each row
-          echo "<td name='Myprices'>".$key."</td>";
-        }
-        echo "</tr>";
-      }
-      echo '
-      </table>
-      <br>
-      <input type="submit" name="check-button" value="Next">
-       </form>
-       ';
+    // echo '<style>';
+    //   include 'css/styles.css';
+    // echo '</style>';
+    echo "<pre>"; print_r($csv_as_new_array); echo "</pre>";
+    $smarty->assign('csv_as_new_array', $csv_as_new_array);
+
+    $smarty->display(dirname(__FILE__).'/templates/csvTableInStep2.tpl');
+    //  echo '
+    //   <!--<span><input type="checkbox" onchange="checkAll(this)" class="checkall" />Select all TLDs</span>-->
+    //   <table class="tableClass">
+    //     <tr>
+    //       <th><span><input type="checkbox" onchange="checkAll(this)" class="checkall" /></span></th>
+    //       <th>TLD</th>
+    //       <th>Register</th>
+    //       <th>Renew</th>
+    //       <th>Transfer</th>
+    //       <th>Currency</th>
+    //     </tr>';
+    //   foreach ($csv_as_new_array as $tld => $value){
+    //     echo "<tr>";
+    //     echo "<td><input type='checkbox' class='tocheck'  name='checkbox-tld[]' value='".$tld."'></input></td>";
+    //     echo "<td>".$tld."</input></td>";
+    //     foreach($value as $key){
+    //       //prints prices in each row
+    //       echo "<td name='Myprices'>".$key."</td>";
+    //     }
+    //     echo "</tr>";
+    //   }
+    //   echo '
+    //   </table>
+    //   <br>
+    //   <input type="submit" name="check-button" value="Next">
+    //    </form>
+    //    ';
     }
     else{
       $command =  $command = array(
@@ -344,29 +374,29 @@ function ispapidpi_output($vars){
 
     $smarty->display(dirname(__FILE__).'/templates/step1.tpl');
   }
-  //select all checkboxes script
-  echo '
-    <script type="text/javascript">
-      function checkAll(ele) {
-        var checkboxes = document.getElementsByTagName("input");
-        if (ele.checked) {
-          for (var i = 0; i < checkboxes.length; i++) {
-            if (checkboxes[i].type == "checkbox") {
-              checkboxes[i].checked = true;
-            }
-          }
-        }
-        else {
-          for (var i = 0; i < checkboxes.length; i++) {
-            console.log(i)
-            if (checkboxes[i].type == "checkbox") {
-              checkboxes[i].checked = false;
-            }
-         }
-      }
-    }
-  </script>
-  ';
+  // //select all checkboxes script
+  // echo '
+  //   <script type="text/javascript">
+  //     function checkAll(ele) {
+  //       var checkboxes = document.getElementsByTagName("input");
+  //       if (ele.checked) {
+  //         for (var i = 0; i < checkboxes.length; i++) {
+  //           if (checkboxes[i].type == "checkbox") {
+  //             checkboxes[i].checked = true;
+  //           }
+  //         }
+  //       }
+  //       else {
+  //         for (var i = 0; i < checkboxes.length; i++) {
+  //           console.log(i)
+  //           if (checkboxes[i].type == "checkbox") {
+  //             checkboxes[i].checked = false;
+  //           }
+  //        }
+  //     }
+  //   }
+  // </script>
+  // ';
 
   if(isset($_POST['import'])){
     $prices_match_pattern = "/PRICE_(.*)_(.*)/";
@@ -436,6 +466,7 @@ function ispapidpi_output($vars){
     //import the data
     startimport($new_prices_for_whmcs);
   }
+
 }
 //helper functions
 function array_combine_($keys, $values){
