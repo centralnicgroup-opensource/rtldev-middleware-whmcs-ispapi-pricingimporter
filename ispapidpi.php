@@ -1,5 +1,5 @@
 <?php
-session_start();
+session_start(); 
 // session_cache_limiter('nocache').
 $module_version = "1.4";
 //if (!defined("WHMCS"))
