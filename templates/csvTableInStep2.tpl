@@ -12,7 +12,7 @@
   {foreach $csv_as_new_array as $tld=>$value}
     <tr>
       <td><input type=checkbox class=tocheck name=checkbox-tld[] value={$tld}></input></td>
-      <td>{$tld}</input></td>
+      <td>.{$tld}</input></td>
       {foreach $value as $key}
         <td name='Myprices'>{$key}</td>
       {/foreach}
