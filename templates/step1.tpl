@@ -37,7 +37,10 @@
           <label>or</label>
           <br>
           <input type="hidden" name="price_class" value="CSV-FILE" />
-          <label for="file">Filename:</label><input type="file" name="file" id="file"/> <br />
+          <label for="file">Upload a CSV file</label><input type="file" name="file" id="file"/> <br />
             <input type="submit" name="csv-file-selected" value="Next"/>
             <br><br>
+            </form>
+            <form action="addonmodules.php?module=ispapidpi" method="POST">
+              <input type="submit" name="download-sample-csv" value="Here you can download a sample CSV file" style="background:none;border:0;text-decoration:underline"/>
             </form>
