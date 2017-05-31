@@ -105,3 +105,23 @@
   tr:hover {
     background: #d1d1d1;
   }
+  button {
+	  overflow: visible;
+	  width: auto;
+  }
+  button.link {
+  	text-align: left;
+  	background: none;
+  	margin: 0;
+  	padding: 0;
+  	border: none;
+  	cursor: pointer;
+    -moz-user-select: text;
+  }
+  button.link span {
+	  text-decoration: underline;
+   }
+  button.link:hover span,
+  button.link:focus span {
+    color: black;
+  }
