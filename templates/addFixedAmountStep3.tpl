@@ -32,7 +32,7 @@
 <br>
 <form action=addonmodules.php?module=ispapidpi method=POST>
   <label>Bulk Price update</label><br>
-    <input type=number step=0.01 name=multiplier min=0 value={$smarty.post.multiplier}>
+    <input type=number step=0.01 name=multiplier min=0 value=1.00>
       <input type=submit name=update value=Multiply><br><br>
   </form>
   <form action=addonmodules.php?module=ispapidpi method=POST>
@@ -67,7 +67,7 @@
     <td>.{$key}</td>
     {foreach $value as $key2=>$old_and_new_price}
       <td name=Myprices>{$old_and_new_price}</td>
-      <td><input type=text name=PRICE_{$key}_{$key2} value={($old_and_new_price*$multiplier)|string_format:"%.2f"}></input></td>
+      <td><input type=text name=PRICE_{$key}_{$key2} value={($add_fixed_amount)|string_format:"%.2f"}></input></td>
     {/foreach}
     <td>USD</td>
     <td><select name=currency[]>

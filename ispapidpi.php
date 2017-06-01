@@ -25,6 +25,7 @@ function ispapidpi_deactivate() {
 }
 
 function ispapidpi_output($vars){
+  // echo "<pre>"; print_r($_POST); echo "</pre>";
   //Check if the registrar module exists
   $file = "ispapi";
   require_once(dirname(__FILE__)."/../../../includes/registrarfunctions.php");
@@ -49,18 +50,20 @@ function ispapidpi_output($vars){
   $queryuserclasslist = ispapi_call($command, $ispapi_config);
   $smarty->assign('queryuserclasslist', $queryuserclasslist);
 
-  if(isset($_POST['checkbox-tld']) || (isset($_SESSION["checkbox-tld"]) && isset($_POST['multiplier']))){
+  if(isset($_POST['checkbox-tld']) || (isset($_SESSION["checkbox-tld"]) && isset($_POST['multiplier'])) || (isset($_SESSION["checkbox-tld"]) && isset($_POST['add-fixed-amount']))){
     //Step 3
     if(isset($_POST['checkbox-tld'])){
         $_SESSION["checkbox-tld"] = $_POST["checkbox-tld"];
     }
     if(isset($_POST['multiplier'])){
         $multiplier = $_POST['multiplier'];
+        $smarty->assign('post-multiplier', $_POST['multiplier']);
         $smarty->assign('multiplier', $multiplier);
     }
     else{
-        $multiplier = 1.00;
-        $smarty->assign('multiplier', $multiplier);
+        $_POST['multiplier'] = 1.00;
+        $multiplier = $_POST['multiplier'];
+        $smarty->assign('post-multiplier', $_POST['multiplier']);
     }
     $smarty->assign('session-price-class', $_SESSION["price_class"]);
     //get checked TLD then get register,renew and transfer prices for that TLD
@@ -105,15 +108,24 @@ function ispapidpi_output($vars){
       //      $tlds_with_new_prices[$key][] = $val * $multiplier;
       //    }
       //  }
-    if(isset($_POST['multiplier'])){
-      $smarty->assign('session-checked-tld-data', $_SESSION["checked_tld_data"]);
-      $smarty->assign('currency_data', $currency_data);
-      $smarty->display(dirname(__FILE__).'/templates/step3.tpl');
-    }
-    else{
-      $smarty->assign('session-checked-tld-data', $_SESSION["checked_tld_data"]);
-      $smarty->assign('currency_data', $currency_data);
-      $smarty->display(dirname(__FILE__).'/templates/step3.tpl');
+      //
+      if(isset($_POST['add-fixed-amount'])){
+        $add_fixed_amount = $_POST['add-fixed-amount'];
+        $smarty->assign('add_fixed_amount', $add_fixed_amount);
+
+        $smarty->assign('session-checked-tld-data', $_SESSION["checked_tld_data"]);
+        $smarty->assign('currency_data', $currency_data);
+        $smarty->display(dirname(__FILE__).'/templates/addFixedAmountStep3.tpl');
+      }
+      elseif(isset($_POST['multiplier'])){
+        $smarty->assign('session-checked-tld-data', $_SESSION["checked_tld_data"]);
+        $smarty->assign('currency_data', $currency_data);
+        $smarty->display(dirname(__FILE__).'/templates/step3.tpl');
+      }
+      else{
+        $smarty->assign('session-checked-tld-data', $_SESSION["checked_tld_data"]);
+        $smarty->assign('currency_data', $currency_data);
+        $smarty->display(dirname(__FILE__).'/templates/step3.tpl');
     }
   }
   elseif(isset($_POST['price_class'])){
@@ -201,6 +213,7 @@ function ispapidpi_output($vars){
     $smarty->display(dirname(__FILE__).'/templates/step1.tpl');
   }
 
+  //import button clicked
   if(isset($_POST['import'])){
     importButton();
   }
