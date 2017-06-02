@@ -3,44 +3,54 @@
 
 <div class="steps" data-steps="3">
      <label class="labelClass">
-        <span>Step 1</span>
+        <span>Step 1 - Load prices</span>
         <i></i>
      </label><!--
      --><label>
-        <span>Step 2</span>
+        <span>Step 2 - Update prices</span>
      </label><!--
      --><label>
-        <span>Step 3</span>
+        <span>Step 3 - Import prices</span>
         <i></i>
      </label>
   </div>
 
-<form action="addonmodules.php?module=ispapidpi" method="POST">
 <br>
-<input type="hidden" name="price_class" value="DEFAULT_PRICE_CLASS" />
-  <input type="submit" name="default-button" value="Use my default HEXONET costs"/>
-  <br><br>
-  <label>or</label>
-  </form>
 
-  <form action="addonmodules.php?module=ispapidpi" method="POST">
-    <label>Select one of my HEXONET Price Classes:</label>
-      <br>
-      <select name="price_class">
-        {foreach $queryuserclasslist["PROPERTY"]["USERCLASS"] as $price_class}
-          <option value={$price_class}>{$price_class}</option>
-        {/foreach}
-          </select>
-          <input type="submit" name="submit" value="Select"></input>
-          </form>
-          <form action="addonmodules.php?module=ispapidpi" method="POST" enctype="multipart/form-data">
-          <label>or</label>
-          <br>
-          <input type="hidden" name="price_class" value="CSV-FILE" />
-          <label for="file">Upload a CSV file</label><input type="file" name="file" id="file"/> <br />
-            <input type="submit" name="csv-file-selected" value="Next"/>
+<div class="container_step1">
+    <div>
+        <h2>Use my own HEXONET costs</h2>
+        <form action="addonmodules.php?module=ispapidpi" method="POST">
+            <input type="hidden" name="price_class" value="DEFAULT_PRICE_CLASS" />
+            <input type="submit" class="btn btn-primary" name="default-button" value="Load"/>
             <br><br>
-            </form>
-            <form action="addonmodules.php?module=ispapidpi" method="POST">
-              <input type="submit" name="download-sample-csv" value="Here you can download a sample CSV file" style="background:none;border:0;text-decoration:underline"/>
-            </form>
+        </form>
+
+    </div>
+    <div>
+        <h2>Use a HEXONET Price Class </h2>
+        <form action="addonmodules.php?module=ispapidpi" method="POST">
+                <select name="price_class">
+                    {foreach $queryuserclasslist["PROPERTY"]["USERCLASS"] as $price_class}
+                        <option value={$price_class}>{$price_class}</option>
+                    {/foreach}
+                </select>
+            <input type="submit" name="submit" class="btn btn-primary" value="Load"></input>
+        </form>
+
+    </div>
+    <div>
+        <h2>Use a CSV file</h2>
+        <form action="addonmodules.php?module=ispapidpi" method="POST">
+            <input type="submit" class="btn btn-default btn-xs" name="download-sample-csv" value="Download a sample CSV file"/>
+        </form>
+        <br/>
+        <form action="addonmodules.php?module=ispapidpi" method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="price_class" value="CSV-FILE" />
+            <input type="file" name="file" id="file"/>
+            <input type="submit" name="csv-file-selected" class="btn btn-primary" style="margin-top:5px;" value="Load"/>
+            <br><br>
+        </form>
+
+    </div>
+</div>
