@@ -3,7 +3,7 @@
 
 <div class="steps" data-steps="3">
      <label class="labelClass">
-        <span>Step 1 - Load prices</span>
+        <span>Step 1 - Load prices</span> 
         <i></i>
      </label><!--
      --><label>
@@ -22,7 +22,7 @@
         <h2>Use my own HEXONET costs</h2>
         <form action="addonmodules.php?module=ispapidpi" method="POST">
             <input type="hidden" name="price_class" value="DEFAULT_PRICE_CLASS" />
-            <input type="submit" class="btn btn-primary" name="default-button" value="Load"/>
+            <input type="submit" class="btn btn-primary" name="default-price-class-button" value="Load"/>
             <br><br>
         </form>
 
