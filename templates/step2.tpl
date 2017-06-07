@@ -5,17 +5,17 @@
         <span>
       <div>
         <form method="POST">
-          <input style="border:none;" type="submit" name="submit" value="STEP 1"/>
+          <input style="border:none;" type="submit" name="submit" value="Step 1 - Load prices"/>
         </form>
       </div>
     </span>
     <i></i>
   </label><!--
   --><label class="labelClass">
-    <span>STEP 2</span>
+    <span>Step 2 - Update prices</span>
   </label><!--
   --><label>
-  <span>STEP 3</span>
+  <span>Step 3 - Import prices</span>
   <i></i>
   </label>
 </div>
