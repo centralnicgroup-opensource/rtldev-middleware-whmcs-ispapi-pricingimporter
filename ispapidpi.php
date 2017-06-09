@@ -183,14 +183,14 @@ function ispapidpi_output($vars){
               // removeEmpty($csv_as_new_array);
 
               $_SESSION["csv-as-new-array"] = $csv_as_new_array;
-              if(empty($csv_as_new_array)){
-                $smarty->display(dirname(__FILE__).'/templates/step1.tpl');
-                echo "<br><br><br><br><br><br><br><br><br><br><div class='errorbox'><strong><span class='title'>ERROR!</span></strong><br>No data has been added to CSV file.</div>";
-              }
-              else{
+              //if(empty($csv_as_new_array)){
+               // $smarty->display(dirname(__FILE__).'/templates/step1.tpl');
+                //echo "<br><br><br><br><br><br><br><br><br><br><div class='errorbox'><strong><span class='title'>ERROR!</span></strong><br>No data has been added to CSV file.</div>";
+              //}
+              //else{
                 $smarty->assign('csv_as_new_array', $csv_as_new_array);
                 $smarty->display(dirname(__FILE__).'/templates/step2.tpl');
-              }
+              //}
             }
             else{
               $smarty->display(dirname(__FILE__).'/templates/step1.tpl');
