@@ -5,26 +5,25 @@
     <span>
       <div>
         <form method=POST>
-          <input style="border:none;" type="submit" name="submit" value="STEP 1"/>
+          <input style="border:none;" type="submit" name="submit" value="STEP 1 - LOAD PRICES"/>
         </form>
       </div>
     </span>
     <i></i>
   </label><!--
-
   --><label>
     <span>
       <div>
         <form method=POST>
           <input type=hidden name=price_class value={$smarty.session.price_class} </input>
-          <input style="border:none;" type="submit" name="submit" value="STEP 2"/>
+          <input style="border:none;" type="submit" name="submit" value="STEP 2 - UPDATE PRICES"/>
         </form>
       </div>
     </span>
     <i></i>
   </label><!--
   --><label class=labelClass>
-    <span>STEP 3</span>
+    <span>STEP 3 - IMPORT PRICES</span>
     <i></i>
   </label>
 </div>
@@ -32,15 +31,15 @@
 <form action=addonmodules.php?module=ispapidpi method=POST>
   <label>Bulk Price update</label><br>
     <span>Using Factor: </span><input type=number step=0.01 id="postMultiplier" name=multiplier min=0 value={$smarty.post.multiplier}>
-      <input type=submit name=update value=Multiply><br><br>
+      <input type=submit name=update class="btn btn-primary" value=Multiply><br><br>
 
     <form action=addonmodules.php?module=ispapidpi method=POST>
   <div>
-  <span>Fixed Amount: </span><input type=number step=0.01 id=Text1 name=add-fixed-amount min=0 value=1.00>
-    <input id=addition type=button name=add_fixed_amount value=Add  oonclick="add_number()">
+  <span>Fixed Amount: </span><input type=number step=0.01 id=FixedAmount name=add-fixed-amount min=0 value=1.00>
+    <input id=addition type=button name=add_fixed_amount class="btn btn-primary" value=Add  oonclick="add_number()">
   </div>
     </form>
-    </form>
+    <!-- </form> -->
   <br>
 
   <form action=addonmodules.php?module=ispapidpi method=POST>
@@ -88,16 +87,20 @@
 <input type="checkbox" name="id_protection" value="on">ID Protection</input>
 <input type="checkbox" name="epp_code" value="on">EPP Code</input>
 <br> <br>
-<input type="submit" name="import" value="Import"/>
+<input type="submit" name="import" class="btn btn-primary" value="Import"/>
 </div>
+{if isset($smarty.post.import)}
+  <div class='infobox'><strong><span class='title'>Update successful!</span></strong><br>Your pricing list has been updated successfully.</div>
+{/if}
+</form>
 </form>
 
 <script>
 $("#addition").click(function () {
-    var primaryincome = parseFloat($("#Text1").val());
+    var fixedAmount = parseFloat($("#FixedAmount").val());
     var  sum = 0;
     $('[id^="PRICE_"]').each(function(){
-        sum = (parseFloat($(this).val())+primaryincome).toFixed(2);
+        sum = (parseFloat($(this).val())+fixedAmount).toFixed(2);
         // console.log(sum);
         $(this).val(sum);
     })

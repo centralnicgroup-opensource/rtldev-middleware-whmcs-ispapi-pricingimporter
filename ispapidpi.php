@@ -49,9 +49,10 @@ function ispapidpi_output($vars){
           "command" => "queryuserclasslist"
   );
   $queryuserclasslist = ispapi_call($command, $ispapi_config);
+  // unset($queryuserclasslist); //testing purpose -- if there are no price classes exists then a message should be printed instead <select>
   $smarty->assign('queryuserclasslist', $queryuserclasslist);
 
-  if(isset($_POST['checkbox-tld']) || (isset($_SESSION["checkbox-tld"]) && isset($_POST['multiplier'])) || (isset($_SESSION["checkbox-tld"]) && isset($_POST['add-fixed-amount']))){
+  if(isset($_POST['checkbox-tld']) || (isset($_SESSION["checkbox-tld"]) && isset($_POST['multiplier'])) || (isset($_SESSION["checkbox-tld"]) && isset($_POST['add-fixed-amount'])) || isset($_POST['import'])){
     //Step 3
     if(isset($_POST['checkbox-tld'])){
         $_SESSION["checkbox-tld"] = $_POST["checkbox-tld"];
@@ -101,15 +102,6 @@ function ispapidpi_output($vars){
       while ($currencies = mysql_fetch_array($request)) {
         $currency_data[$currencies["id"]] = $currencies["code"];
       }
-      // multiplication for new prices in script to avoid it in .tpl file
-      // $tlds_with_new_prices = array();
-      // foreach ($_SESSION["checked_tld_data"] as $key => $value){
-      //    foreach($value as $ky => $val)
-      //    {
-      //      $tlds_with_new_prices[$key][] = $val * $multiplier;
-      //    }
-      //  }
-      //
       if(isset($_POST['add-fixed-amount'])){
         $add_fixed_amount = $_POST['add-fixed-amount'];
         $smarty->assign('add_fixed_amount', $add_fixed_amount);
@@ -142,62 +134,75 @@ function ispapidpi_output($vars){
 
       collect_tld_register_transfer_renew_currency($default_costs);
     }
-    //when csv file is slected
+    //when csv file is slected also in STEP 2
     elseif($_POST['price_class'] == "CSV-FILE"){
       // $_POST['price_class'] = $_SESSION["csv-as-new-array"];
       if ( isset($_FILES["file"])) {
-        //if there is an error uploading the file
-        if ($_FILES["file"]["error"] > 0) {
-          echo "Return Code: " . $_FILES["file"]["error"] . " error uploading the file"."<br />";
-          exit;
-        }
-        else {
+          $smarty->assign('post-file', $_FILES["file"]);
+        if($_FILES["file"]["name"] != "") {
+          $smarty->assign('post-file-name', $_FILES["file"]["name"]);
+          // echo "THERE IS A FILE HERE" ;
           $tmpName = $_FILES['file']['tmp_name'];
-          //handling comma and semicolon with csv files
-          $csvAsArray = array_map(function($d) {
-            return str_getcsv($d, ",");
-          }, file($tmpName));
-          $csvAsArray = array_map(function($d) {
-            return str_getcsv($d, ";");
-          }, file($tmpName));
-          array_shift($csvAsArray); //remove first element (header part of the csv file)
+              //handling comma and semicolon with csv files
+              $csvAsArray = array_map(function($d) {
+                return str_getcsv($d, ",");
+              }, file($tmpName));
+              $csvAsArray = array_map(function($d) {
+                return str_getcsv($d, ";");
+              }, file($tmpName));
+              array_shift($csvAsArray); //remove first element (header part of the csv file)
 
-          $csv_as_new_array = [];
-          foreach($csvAsArray as $key=>$value){
-            $newKey = "";
-            foreach($value as $ky=>$val){
-              if($ky == 0){
-                //first element to take as new key
-                $newKey = $val;
-                $csv_as_new_array[$newKey] = [];
+              $csv_as_new_array = [];
+              foreach($csvAsArray as $key=>$value){
+                $newKey = "";
+                foreach($value as $ky=>$val){
+                  if($ky == 0){
+                    //first element to take as new key
+                    $newKey = $val;
+                    $csv_as_new_array[$newKey] = [];
+                  }
+                  else{
+                    $csv_as_new_array[$newKey][] = $val;
+                  }
+                }
+              }
+              //to change keys of above array to strings
+              $keynames = array('register', 'renew', 'transfer');
+              foreach($csv_as_new_array as $key=>$value){
+                $csv_as_new_array[$key] = array_combine($keynames, array_values($csv_as_new_array[$key]));
+              }
+              $add_currency_to_array = array('currency'=>'USD');
+              foreach($csv_as_new_array as $key=>$value){
+                $csv_as_new_array[$key] = $csv_as_new_array[$key]+$add_currency_to_array;
+              }
+              $csv_as_new_array = array_change_key_case($csv_as_new_array, CASE_LOWER);
+              // remove duplicates
+              // $csv_as_new_array = array_unique($csv_as_new_array);
+
+              //to remove tlds with empty prices
+              // removeEmpty($csv_as_new_array);
+
+              $_SESSION["csv-as-new-array"] = $csv_as_new_array;
+              if(empty($csv_as_new_array)){
+                $smarty->display(dirname(__FILE__).'/templates/step1.tpl');
+                echo "<br><br><br><br><br><br><br><br><br><br><div class='errorbox'><strong><span class='title'>ERROR!</span></strong><br>No data has been added to CSV file.</div>";
               }
               else{
-                $csv_as_new_array[$newKey][] = $val;
+                $smarty->assign('csv_as_new_array', $csv_as_new_array);
+                $smarty->display(dirname(__FILE__).'/templates/step2.tpl');
               }
             }
-          }
-          if(empty($csv_as_new_array)){
-            	echo "<div class='errorbox'><strong><span class='title'>Upload error!</span></strong><br>No data has been added to CSV file</div>";
-          }
-          //to change keys of above array to strings
-          $keynames = array('register', 'renew', 'transfer');
-          foreach($csv_as_new_array as $key=>$value){
-            $csv_as_new_array[$key] = array_combine($keynames, array_values($csv_as_new_array[$key]));
-          }
-          $add_currency_to_array = array('currency'=>'USD');
-          foreach($csv_as_new_array as $key=>$value){
-            $csv_as_new_array[$key] = $csv_as_new_array[$key]+$add_currency_to_array;
-          }
-          $csv_as_new_array = array_change_key_case($csv_as_new_array, CASE_LOWER);
-          $_SESSION["csv-as-new-array"] = $csv_as_new_array;
+            else{
+              $smarty->display(dirname(__FILE__).'/templates/step1.tpl');
+              echo "<br><br><br><br><br><br><br><br><br><br><div class='errorbox'><strong><span class='title'>ERROR!</span></strong><br>No CSV file has been selected.</div>";
+             }
         }
-      }
-      elseif(isset($_SESSION["csv-as-new-array"])){
-        //else for isset($_FILES["file"]), i.e. there is no file, but a session
-        $csv_as_new_array = $_SESSION["csv-as-new-array"];
-      }
-      $smarty->assign('csv_as_new_array', $csv_as_new_array);
-      $smarty->display(dirname(__FILE__).'/templates/csvInStep2.tpl');
+        elseif(isset($_SESSION["csv-as-new-array"])){
+          //else for isset($_FILES["file"]), i.e. there is no file, but a session
+          $csv_as_new_array = $_SESSION["csv-as-new-array"];
+          $smarty->assign('csv_as_new_array', $csv_as_new_array);
+          $smarty->display(dirname(__FILE__).'/templates/step2.tpl');
+        }
     }
     else{
       $command =  $command = array(
@@ -217,6 +222,7 @@ function ispapidpi_output($vars){
   //import button clicked
   if(isset($_POST['import'])){
     importButton();
+    $smarty->assign('post-import', $_POST['import']);
   }
 }//end of ispapidpi_output()
 
@@ -230,8 +236,8 @@ function download_csv_sample_file(){
   header('Expires: 0');
   //create a file pointer connected to the output stream
   $output = fopen('php://output', 'w');
-  // output the column headings
-  fputcsv($output, array('TLD','REGISTER_PRICE_USD','RENEW_PRICE_USD','TRANSFER_PRICE_USD'));
+  fputcsv($output, array('TLD','REGISTER_PRICE_USD','RENEW_PRICE_USD','TRANSFER_PRICE_USD'),";");
+  fputcsv($output, array('com', '10.99', '10.99', '11.59'),";");
   exit(0);
 }
 //this function is called based on the user selection --> selection of price class or to use defualt hexonet costs and creates an array
@@ -463,5 +469,5 @@ function startimport($prices_for_whmcs){
 		}
 
   }
-echo "<div class='infobox'><strong><span class='title'>Update successful!</span></strong><br>Your pricing list has been updated successfully.</div>";
+// echo "<div class='infobox'><strong><span class='title'>Update successful!</span></strong><br>Your pricing list has been updated successfully.</div>";
 }
