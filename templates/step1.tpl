@@ -3,14 +3,14 @@
 
 <div class="steps" data-steps="3">
      <label class="labelClass">
-        <span>Step 1 - Load prices</span> 
+        <span>STEP 1 - LOAD PRICES</span>
         <i></i>
      </label><!--
      --><label>
-        <span>Step 2 - Update prices</span>
+        <span>STEP 2 - UPDATE PRICES</span>
      </label><!--
      --><label>
-        <span>Step 3 - Import prices</span>
+        <span>STEP 3 - IMPORT PRICES</span>
         <i></i>
      </label>
   </div>
@@ -30,12 +30,16 @@
     <div>
         <h2>Use a HEXONET Price Class </h2>
         <form action="addonmodules.php?module=ispapidpi" method="POST">
+          {if (count($queryuserclasslist["PROPERTY"]["USERCLASS"]) == 0)}
+            <span>Price Classes can be created in the HEXONET Control Panel</span>
+            {else}
                 <select name="price_class">
                     {foreach $queryuserclasslist["PROPERTY"]["USERCLASS"] as $price_class}
                         <option value={$price_class}>{$price_class}</option>
                     {/foreach}
                 </select>
             <input type="submit" name="submit" class="btn btn-primary" value="Load"></input>
+          {/if}
         </form>
 
     </div>
@@ -51,6 +55,5 @@
             <input type="submit" name="csv-file-selected" class="btn btn-primary" style="margin-top:5px;" value="Load"/>
             <br><br>
         </form>
-
     </div>
 </div>

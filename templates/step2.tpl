@@ -5,23 +5,23 @@
         <span>
       <div>
         <form method="POST">
-          <input style="border:none;" type="submit" name="submit" value="Step 1 - Load prices"/>
+          <input style="border:none;" type="submit" name="submit" value="STEP 1 - LOAD PRICES"/>
         </form>
       </div>
     </span>
     <i></i>
   </label><!--
   --><label class="labelClass">
-    <span>Step 2 - Update prices</span>
+    <span>STEP 2 - UPDATE PRICES</span>
   </label><!--
   --><label>
-  <span>Step 3 - Import prices</span>
+  <span>STEP 3 - IMPORT PRICES</span>
   <i></i>
   </label>
 </div>
 <br>
   <form action="addonmodules.php?module=ispapidpi" method="POST">
-    <label>Select the TLDs you want to import:</label>
+    <label><h2>Select the TLDs you want to import:</h2></label>
     <br>
 <table class="tableClass">
   <tr>
@@ -41,9 +41,20 @@
             {/foreach}
         </tr>
    {/foreach}
+
+   {foreach $csv_as_new_array as $tld=>$value}
+     <tr>
+       <td><input type=checkbox class=tocheck name=checkbox-tld[] value={$tld}></input></td>
+       <td>.{$tld}</input></td>
+       {foreach $value as $key}
+         <td name='Myprices'>{$key}</td>
+       {/foreach}
+    </tr>
+  {/foreach}
+
 </table>
 <br>
-<input type="submit" name="check-button" value="Next">
+<input type="submit" name="check-button" class="btn btn-primary" value="Next">
 
 <script type="text/javascript">
   function checkAll(ele) {

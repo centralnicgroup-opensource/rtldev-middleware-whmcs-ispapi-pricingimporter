@@ -1,4 +1,6 @@
 .steps{
+
+
     margin: 0;
     padding: 0;
     overflow: hidden;
@@ -27,8 +29,12 @@
     text-transform: uppercase;
   }
   .steps label.labelClass > span{
-    color: #666;
-    background-color: #ccc;
+    color:#fff;
+    background-color:#337ab7;
+    border-color:#2e6da4;
+
+    /*color: #666;
+    background-color: #ccc;*/
   }
   .steps label > span:after,
   .steps label > span:before{
@@ -55,7 +61,9 @@
     z-index: 2;
   }
   .steps label.labelClass + label > span:before{
-    border-left-color: #ccc;
+    border-left-color: #337ab7;
+
+    /*border-left-color: #ccc;*/
   }
   .steps label:first-child > span:after, .steps label:first-child > span:before{
     display: none;
@@ -72,7 +80,7 @@
 
     border: solid transparent;
     border-left-color: white;
-    border-width: 15px;
+    border-width: 16px;
   }
   .steps label:last-child i{
     left: auto;
@@ -92,8 +100,9 @@
     text-align: center;-->
   }
   th{
-    background: #efefef;
-    text-align: center;
+    color:#fff;
+	  background-color:#337ab7;
+	  border-color:#2e6da4;
   }
   th, td {
     border: 1px solid #ccc;
@@ -104,26 +113,6 @@
   }
   tr:hover {
     background: #d1d1d1;
-  }
-  button {
-	  overflow: visible;
-	  width: auto;
-  }
-  button.link {
-  	text-align: left;
-  	background: none;
-  	margin: 0;
-  	padding: 0;
-  	border: none;
-  	cursor: pointer;
-    -moz-user-select: text;
-  }
-  button.link span {
-	  text-decoration: underline;
-   }
-  button.link:hover span,
-  button.link:focus span {
-    color: black;
   }
 
   .container_step1 div {
