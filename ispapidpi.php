@@ -428,7 +428,7 @@ function filter_array($array,$term){
         }
     }
 }
-//import button
+//import button --function
 function startimport($prices_for_whmcs){
   //loop through array and insert or update the tld and prices for whmcs to DB
   $prices_for_whmcs = array_change_key_case($prices_for_whmcs, CASE_LOWER);
