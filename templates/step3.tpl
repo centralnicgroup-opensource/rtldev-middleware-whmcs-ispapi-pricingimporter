@@ -1,5 +1,8 @@
 <link rel="stylesheet" href="../modules/addons/ispapidpi/css/styles.css">
 <!-- <script src="../modules/addons/ispapidpi/js/checkbox.js"></script> -->
+{if isset($smarty.post.import)}
+  <div class='infobox'><strong><span class='title'>Update successful!</span></strong><br>Your pricing list has been updated successfully.</div>
+{/if}
 <div class=steps data-steps=3>
   <label>
     <span>
@@ -89,9 +92,7 @@
 <br> <br>
 <input type="submit" name="import" class="btn btn-primary" value="Import"/>
 </div>
-{if isset($smarty.post.import)}
-  <div class='infobox'><strong><span class='title'>Update successful!</span></strong><br>Your pricing list has been updated successfully.</div>
-{/if}
+
 </form>
 </form>
 

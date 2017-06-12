@@ -30,7 +30,7 @@
     <div>
         <h2>Use a HEXONET Price Class </h2>
         <form action="addonmodules.php?module=ispapidpi" method="POST">
-          {if (count($queryuserclasslist) == 0)}
+          {if (count($queryuserclasslist["PROPERTY"]["USERCLASS"]) == 0)}
             <h2>Price Classes can be created in the HEXONET Control Panel</h2>
             {else}
                 <select name="price_class">

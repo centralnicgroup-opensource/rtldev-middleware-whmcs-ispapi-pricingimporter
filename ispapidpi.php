@@ -49,6 +49,7 @@ function ispapidpi_output($vars){
           "command" => "queryuserclasslist"
   );
   $queryuserclasslist = ispapi_call($command, $ispapi_config);
+  // echo "<pre>"; print_r($queryuserclasslist); echo "</pre>";
   // unset($queryuserclasslist); //testing purpose -- if there are no price classes exists then a message should be printed instead <select>
   $smarty->assign('queryuserclasslist', $queryuserclasslist);
 
@@ -183,18 +184,18 @@ function ispapidpi_output($vars){
               // removeEmpty($csv_as_new_array);
 
               $_SESSION["csv-as-new-array"] = $csv_as_new_array;
-              if(empty($csv_as_new_array)){
-                $smarty->display(dirname(__FILE__).'/templates/step1.tpl');
-                echo "<br><br><br><br><br><br><br><br><br><br><div class='errorbox'><strong><span class='title'>ERROR!</span></strong><br>No data has been added to CSV file.</div>";
-              }
-              else{
+              // if(empty($csv_as_new_array)){
+              //   $smarty->display(dirname(__FILE__).'/templates/step1.tpl');
+              //   echo "<br><br><br><br><br><br><br><br><br><br><div class='errorbox'><strong><span class='title'>ERROR!</span></strong><br>No data has been added to CSV file.</div>";
+              // }
+              // else{
                 $smarty->assign('csv_as_new_array', $csv_as_new_array);
                 $smarty->display(dirname(__FILE__).'/templates/step2.tpl');
-              }
+              // }
             }
             else{
+              echo "<div class='errorbox'><strong><span class='title'>ERROR!</span></strong><br>No CSV file has been selected.</div><br>";
               $smarty->display(dirname(__FILE__).'/templates/step1.tpl');
-              echo "<br><br><br><br><br><br><br><br><br><br><div class='errorbox'><strong><span class='title'>ERROR!</span></strong><br>No CSV file has been selected.</div>";
              }
         }
         elseif(isset($_SESSION["csv-as-new-array"])){
