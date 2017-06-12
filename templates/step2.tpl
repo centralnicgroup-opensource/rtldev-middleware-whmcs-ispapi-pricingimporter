@@ -51,7 +51,7 @@
        {/foreach}
     </tr>
   {/foreach}
-  
+
 </table>
 <br>
 <input type="submit" name="check-button" class="btn btn-primary" value="Next">
