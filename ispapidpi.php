@@ -25,15 +25,56 @@ function ispapidpi_deactivate() {
 }
 
 function ispapidpi_output($vars){
-  // echo "<pre>"; print_r($_POST); echo "</pre>";
+  echo "<pre>"; print_r($_POST); echo "</pre>";
   // echo "<pre>"; print_r($_SESSION); echo "</pre>";
+
   //Check if the registrar module exists
-  $file = "ispapi";
+  // $file = "ispapi";
   require_once(dirname(__FILE__)."/../../../includes/registrarfunctions.php");
-	require_once(dirname(__FILE__)."/../../../modules/registrars/".$file."/".$file.".php");
-  if(!file_exists(dirname(__FILE__)."/../../../modules/registrars/".$file."/".$file.".php")){
-    die("The ISPAPIDPI Module requires ISPAPI Registrar Module v1.0.45 or higher!");
-  }
+	// require_once(dirname(__FILE__)."/../../../modules/registrars/".$file."/".$file.".php");
+  // if(!file_exists(dirname(__FILE__)."/../../../modules/registrars/".$file."/".$file.".php")){
+  //   die("The ISPAPIDPI Module requires ISPAPI Registrar Module v1.0.45 or higher!");
+  // }
+
+  // //Check if the ISPAPI Registrar Module available, load it, raise error if not existing
+	// //ISPAPI DomainChecker require the ISPAPI Registrar Module
+	$error = false;
+	$modulelist = array();
+	if(file_exists(dirname(__FILE__)."/../../../modules/registrars/ispapi/ispapi.php")){
+		$file = "ispapi";
+		require_once(dirname(__FILE__)."/../../../modules/registrars/".$file."/".$file.".php");
+		$funcname = $file.'_GetISPAPIModuleVersion';
+		if(function_exists($file.'_GetISPAPIModuleVersion')){
+			$version = call_user_func($file.'_GetISPAPIModuleVersion');
+	 		//check if version = 1.0.15 or higher
+			if( version_compare($version, '1.0.15') >= 0 ){
+	 			//check authentication
+				$registrarconfigoptions = getregistrarconfigoptions($file);
+				$ispapi_config = ispapi_config($registrarconfigoptions);
+				$command =  $command = array(
+						"command" => "CheckAuthentication",
+						"subuser" => $ispapi_config["login"],
+						"password" => $ispapi_config["password"],
+				);
+				$checkAuthentication = ispapi_call($command, $ispapi_config);
+				if($checkAuthentication["CODE"] != "200"){
+					die("The \"".$file."\" registrar authentication failed! Please verify your registrar credentials and try again.");
+				}else{
+					array_push($modulelist, $file);
+				}
+			}else{
+				$error = true;
+			}
+		}else{
+			$error = true;
+		}
+	}else{
+		$error = true;
+	}
+	if($error){
+		die("The ISPAPI DomainCheck Module requires ISPAPI Registrar Module v1.0.15 or higher!");
+	}
+
   //to download a sample csv file
   if(isset($_POST['download-sample-csv'])){
     download_csv_sample_file();
@@ -53,8 +94,10 @@ function ispapidpi_output($vars){
   // unset($queryuserclasslist); //testing purpose -- if there are no price classes exists then a message should be printed instead <select>
   $smarty->assign('queryuserclasslist', $queryuserclasslist);
 
-  if(isset($_POST['checkbox-tld']) || (isset($_SESSION["checkbox-tld"]) && isset($_POST['multiplier'])) || (isset($_SESSION["checkbox-tld"]) && isset($_POST['add-fixed-amount'])) || isset($_POST['import'])){
+  if(isset($_POST['checkbox-tld']) || (isset($_SESSION["checkbox-tld"]) && isset($_POST['multiplier'])) || (isset($_SESSION["checkbox-tld"]) && isset($_POST['addfixedamount'])) || isset($_POST['import'])){
     //Step 3
+    // echo "type post multiplier<br>";
+    // echo gettype($_POST['multiplier']);
     if(isset($_POST['checkbox-tld'])){
         $_SESSION["checkbox-tld"] = $_POST["checkbox-tld"];
     }
@@ -68,6 +111,18 @@ function ispapidpi_output($vars){
         // $multiplier = $_POST['multiplier'];
         $smarty->assign('post-multiplier', $_POST['multiplier']);
     }
+
+    if(isset($_POST['addfixedamount'])){
+        // $multiplier = $_POST['multiplier'];
+        $smarty->assign('post-addfixedamount', $_POST['addfixedamount']);
+        // $smarty->assign('multiplier', $multiplier);
+    }
+    else{
+        $_POST['add-fixed-amount'] = 1.00;
+        // $multiplier = $_POST['multiplier'];
+        $smarty->assign('post-addfixedamount', $_POST['addfixedamount']);
+    }
+
     $smarty->assign('session-price-class', $_SESSION["price_class"]);
     //get checked TLD then get register,renew and transfer prices for that TLD
     $get_tld = [];
@@ -223,7 +278,20 @@ function ispapidpi_output($vars){
   //import button clicked
   if(isset($_POST['import'])){
     importButton();
+
     $smarty->assign('post-import', $_POST['import']);
+    if($_POST['dns_management'] == 'on'){
+      $smarty->assign('post-dns_management', $_POST['dns_management']);
+    }
+    if($_POST['email_forwarding'] == 'on'){
+      $smarty->assign('post-email_forwarding', $_POST['email_forwarding']);
+    }
+    if($_POST['id_protection'] == 'on'){
+      $smarty->assign('post-id_protection', $_POST['id_protection']);
+    }
+    if($_POST['epp_code'] == 'on'){
+      $smarty->assign('post-epp_code', $_POST['epp_code']);
+    }
   }
 }//end of ispapidpi_output()
 
@@ -401,6 +469,7 @@ function importButton(){
   }
   //import the data
   startimport($new_prices_for_whmcs);
+
 }
 //#####helper functions###########
 function array_combine_($keys, $values){
