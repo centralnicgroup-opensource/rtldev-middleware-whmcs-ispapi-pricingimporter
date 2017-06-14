@@ -25,7 +25,7 @@ function ispapidpi_deactivate() {
 }
 
 function ispapidpi_output($vars){
-  echo "<pre>"; print_r($_POST); echo "</pre>";
+  //echo "<pre>"; print_r($_POST); echo "</pre>";
   // echo "<pre>"; print_r($_SESSION); echo "</pre>";
 
   //Check if the registrar module exists

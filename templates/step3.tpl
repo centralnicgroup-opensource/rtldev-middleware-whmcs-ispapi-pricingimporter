@@ -33,7 +33,7 @@
 <br>
 <form action=addonmodules.php?module=ispapidpi method=POST>
   <label>Bulk Price update</label><br>
-    <span>Using Factor: </span><input type=number placeholder='1.00' step=0.01 id="postMultiplier" name=multiplier min=0 value={$smarty.post.multiplier} placeholder='1.00'>
+    <span>Using Factor: </span><input type='number' placeholder='1.00' step='0.01' id='postMultiplier' value='{$smarty.post.multiplier|string_format:"%.2f"}' name='multiplier' min='0.00'>
       <input type=submit name=update class="btn btn-primary" value=Multiply><br><br>
 
     <form action=addonmodules.php?module=ispapidpi method=POST>
@@ -66,6 +66,7 @@
           <th style=width:16%>Sale</th>
         </tr>
 
+{counter start=-1 skip=1 print=FALSE}
 {foreach $smarty.session.checked_tld_data as $key=>$value}
   <tr id="row">
     <td>.{$key}</td>
@@ -74,11 +75,14 @@
       <td><input type=text name=PRICE_{$key}_{$key2} id=PRICE_{$key}_{$key2} value={($old_and_new_price*$smarty.post.multiplier+$smarty.post.addfixedamount)|string_format:"%.2f"}></input></td>
     {/foreach}
     <td>USD</td>
-    <td><select name=currency[]>
-    {foreach $currency_data as $id=>$code}
-      <option value={$id}>{$code}</option>
-    {/foreach}
-  </select></td>
+    <td>
+        {assign var="selectedvalue" value="{$smarty.post.currency[{counter}]}"}
+        <select name=currency[]>
+            {foreach $currency_data as $id=>$code}
+              <option {if $selectedvalue==$id}selected="selected"{/if} value={$id}>{$code}</option>
+            {/foreach}
+        </select>
+    </td>
   </tr>
 {/foreach}
 
