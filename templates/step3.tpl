@@ -32,18 +32,18 @@
 </div>
 <br>
 <form action=addonmodules.php?module=ispapidpi method=POST>
-  <label>Bulk Price update</label><br>
-    <span>Using Factor: </span><input type='number' placeholder='1.00' step='0.01' id='postMultiplier' value='{$smarty.post.multiplier|string_format:"%.2f"}' name='multiplier' min='0.00'>
-      <input type=submit name=update class="btn btn-primary" value=Multiply><br><br>
+  <h2>Bulk Price update</h2>
+  <span style="font-weight:bold;">Using Factor: </span><input type='number' placeholder='1.00' step='0.01' id='postMultiplier' value='{$smarty.post.multiplier|string_format:"%.2f"}' name='multiplier' min='0.00'>
+  <input type=submit name=update class="btn btn-primary" value=Multiply>
 
-    <form action=addonmodules.php?module=ispapidpi method=POST>
-  <div>
-  <span>Fixed Amount: </span><input type=number step=0.01 id=FixedAmount name=addfixedamount min=0 value={$smarty.post.addfixedamount}>
-    <input id=addition type=button name=add_fixed_amount class="btn btn-primary" value=Add>
-  </div>
+    <!--<form action=addonmodules.php?module=ispapidpi method=POST>-->
+
+  <span style="margin-left:40px;font-weight:bold;">Fixed Amount: </span><input type=number step=0.01 id=FixedAmount name=addfixedamount min=0 value={$smarty.post.addfixedamount}>
+  <input id=addition type=button name=add_fixed_amount class="btn btn-primary" value=Add>
+
     <!-- </form> -->
     <!-- </form> -->
-  <br>
+  <br><br>
 
   <!-- <form action=addonmodules.php?module=ispapidpi method=POST> -->
     <table>
@@ -72,7 +72,7 @@
     <td>.{$key}</td>
     {foreach $value as $key2=>$old_and_new_price}
       <td name=Myprices>{$old_and_new_price}</td>
-      <td><input type=text name=PRICE_{$key}_{$key2} id=PRICE_{$key}_{$key2} value={($old_and_new_price*$smarty.post.multiplier+$smarty.post.addfixedamount)|string_format:"%.2f"}></input></td>
+      <td><input class="sale1" type=text name=PRICE_{$key}_{$key2} id=PRICE_{$key}_{$key2} value={($old_and_new_price*$smarty.post.multiplier+$smarty.post.addfixedamount)|string_format:"%.2f"}></input></td>
     {/foreach}
     <td>USD</td>
     <td>
@@ -89,7 +89,7 @@
 </table>
 <br>
 <div>
-  <label>Domain Addons</label><br>
+  <h2>Domain Addons</h2>
         <div class="[ form-group ]">
                     <input type="checkbox" name="dns_management" value={$smarty.post.dns_management} checked='checked' id="fancy-checkbox-primary-custom-icons" autocomplete="off" />
                     <div class="[ btn-group ]">

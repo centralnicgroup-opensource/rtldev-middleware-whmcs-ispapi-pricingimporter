@@ -129,9 +129,16 @@
   }
 
   h2 {
-      font-size:1.1em;
+      font-size:1.3em;
+      font-weight:bold;
+      color:#337ab7;
+      margin-bottom:10px;
+  }
+
+  .sale1{
       font-weight:bold;
   }
+
   .form-group input[type="checkbox"] {
       display: none;
   }

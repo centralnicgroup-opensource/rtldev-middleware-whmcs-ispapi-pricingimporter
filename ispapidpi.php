@@ -83,7 +83,15 @@ function ispapidpi_output($vars){
   $smarty = new Smarty;
   $smarty->compile_dir = $GLOBALS['templates_compiledir'];
   $smarty->caching = false;
-  //
+
+  if($ispapi_config["entity"] == "54cd"){
+      $entity = "PRODUCTION Environment";
+  }else{
+      $entity = "OT&E Environment";
+  }
+  $smarty->assign('user', $ispapi_config["login"]);
+  $smarty->assign('entity', $entity);
+
   $registrarconfigoptions = getregistrarconfigoptions($file);
   $ispapi_config = ispapi_config($registrarconfigoptions);
   $command =  $command = array(
