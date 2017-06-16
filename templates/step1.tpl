@@ -1,5 +1,4 @@
 <link rel="stylesheet" href="../modules/addons/ispapidpi/css/styles.css">
-<!-- <script src="../modules/addons/ispapidpi/js/checkbox.js"></script> -->
 
 <div class="steps" data-steps="3">
      <label class="labelClass">
@@ -15,7 +14,7 @@
      </label>
   </div>
 
-<br>
+<div style="margin-bottom:10px;margin-top:10px;font-weight:bold">You are connected with <span style="color:green">{$user}</span> in <span style="color:green">{$entity}</span>.</div>
 
 <div class="container_step1">
     <div>
