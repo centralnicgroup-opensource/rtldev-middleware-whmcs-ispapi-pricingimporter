@@ -1,5 +1,4 @@
 <link rel="stylesheet" href="../modules/addons/ispapidpi/css/styles.css">
-<!-- <script src="../modules/addons/ispapidpi/js/checkbox.js"></script> -->
 
 <div class="steps" data-steps="3">
      <label class="labelClass">
