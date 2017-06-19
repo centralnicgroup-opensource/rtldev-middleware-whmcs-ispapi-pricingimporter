@@ -94,9 +94,9 @@ table {
 }
 
 th{
-    /*this part - no lines appear for th elements
+    /*this part - no lines appear for th elements*/
     background-color: #ccc;
-    text-align: center;*/
+    text-align: center;
 }
 
 th{
