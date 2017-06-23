@@ -61,7 +61,7 @@ function ispapidpi_output($vars){
         $error = true;
     }
     if($error){
-        die("The ISPAPI DomainCheck Module requires ISPAPI Registrar Module v1.0.15 or higher!");
+        die("The ISPAPI Pricing importer Module requires ISPAPI Registrar Module v1.0.15 or higher!");
     }
 
     //to download a sample csv file
