@@ -25,7 +25,7 @@ function ispapidpi_deactivate() {
 
 function ispapidpi_output($vars){
     //echo "<pre>"; print_r($_POST); echo "</pre>";
-    //echo "<pre>"; print_r($_SESSION); echo "</pre>";
+    // echo "<pre>"; print_r($_SESSION); echo "</pre>";
 
     //load and check if registrar module is installed
     require_once(dirname(__FILE__)."/../../../includes/registrarfunctions.php");
@@ -61,7 +61,7 @@ function ispapidpi_output($vars){
         $error = true;
     }
     if($error){
-        die("The ISPAPI DomainCheck Module requires ISPAPI Registrar Module v1.0.15 or higher!");
+        die("The ISPAPI Pricing importer Module requires ISPAPI Registrar Module v1.0.15 or higher!");
     }
 
     //to download a sample csv file
@@ -261,6 +261,10 @@ function ispapidpi_output($vars){
 
 //this function is called based on the user selection --> selection of price class or to use default hexonet costs and creates an array
 function collect_tld_register_transfer_renew_currency($priceclass_or_defaultcost){
+
+//include file for second or third level domain name
+    include("tldlib_array.php");
+
     //smarty template for table in step 2
     $smarty = new Smarty;
     $smarty->compile_dir = $GLOBALS['templates_compiledir'];
@@ -348,9 +352,21 @@ function collect_tld_register_transfer_renew_currency($priceclass_or_defaultcost
     $tld_register_renew_transfer_currency_filter = filter_array($tld_register_renew_transfer_currency,'USD');
 
     $tld_register_renew_transfer_currency_filter =  array_change_key_case($tld_register_renew_transfer_currency_filter, CASE_LOWER);
-    $_SESSION["tld-register-renew-transfer-currency-filter"] = $tld_register_renew_transfer_currency_filter; //session variable for tld data (tld and prices ,currency)
 
-    $smarty->assign('tld_register_renew_transfer_currency_filter', $tld_register_renew_transfer_currency_filter);
+//check for second or third level domain names and replace
+    $tldlib =  array_change_key_case($tldlib, CASE_LOWER);
+
+    $tld_register_renew_transfer_currency_filter1 = array();
+    foreach($tld_register_renew_transfer_currency_filter as $key => $value){
+
+        if(array_key_exists($key, $tldlib)){
+            $tld_register_renew_transfer_currency_filter1[$tldlib[$key]['tld']] = $tld_register_renew_transfer_currency_filter[$key];
+        }
+    }
+
+    $_SESSION["tld-register-renew-transfer-currency-filter"] = $tld_register_renew_transfer_currency_filter1; //session variable for tld data (tld and prices ,currency)
+
+    $smarty->assign('tld_register_renew_transfer_currency_filter', $tld_register_renew_transfer_currency_filter1);
     $smarty->display(dirname(__FILE__).'/templates/step2.tpl');
  }
 
@@ -358,11 +374,16 @@ function collect_tld_register_transfer_renew_currency($priceclass_or_defaultcost
 //It collects the tlds and the updated prices by user. calls the startimport()
 function importButton(){
     $prices_match_pattern = "/PRICE_(.*)_(.*)/";
+
     $tld_match = []; //has all the tld names which have new prices
     foreach($_POST as $key=>$value){
         if(preg_match($prices_match_pattern,$key,$match)){
           $tld_match[] = $match[1];
         }
+    }
+//replace underscores with dots in the tlds
+    foreach ($tld_match as $key => $value){
+        $tld_match[$key] = strtolower(str_replace('_', '.', $value));
     }
     //for prices renew, register, transfer
     $price_name_match = []; //has all new prices (strings)
@@ -423,7 +444,6 @@ function importButton(){
         $i++;
         $new_prices_for_whmcs[$key]['currency'] = $currencies['currency'][$i];
     }
-
     //import the data
     startimport($new_prices_for_whmcs);
 }
@@ -513,3 +533,4 @@ function removeEmpty(&$arr) {
         }
     }
 }
+?>
