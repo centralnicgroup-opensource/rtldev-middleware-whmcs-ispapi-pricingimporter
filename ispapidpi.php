@@ -24,7 +24,7 @@ function ispapidpi_deactivate() {
 }
 
 function ispapidpi_output($vars){
-    //echo "<pre>"; print_r($_POST); echo "</pre>";
+    // echo "<pre>"; print_r($_POST); echo "</pre>";
     // echo "<pre>"; print_r($_SESSION); echo "</pre>";
 
     //load and check if registrar module is installed
@@ -131,6 +131,7 @@ function ispapidpi_output($vars){
 
         $_SESSION["checked_tld_data"] = $get_checked_tld_data;
         $_SESSION["checked_tld_data"] = array_change_key_case($_SESSION["checked_tld_data"], CASE_LOWER);
+
 
         foreach ($_SESSION["checked_tld_data"] as $key => $subArr){
             unset($subArr['currency']);
