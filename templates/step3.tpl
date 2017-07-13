@@ -72,7 +72,7 @@
     <td>.{$key}</td>
     {foreach $value as $key2=>$old_and_new_price}
       <td name=Myprices>{$old_and_new_price}</td>
-      <td><input class="sale1" type=text name=PRICE_{$key|upper}_{$key2|upper} id=PRICE_{$key}_{$key2} value={($old_and_new_price*$smarty.post.multiplier+$smarty.post.addfixedamount)|string_format:"%.2f"}></input></td>
+      <td><input class="sale1" type=text name=PRICE_{$key|upper}_{$key2|upper} id=PRICE_{$key|upper}_{$key2|upper} value={($old_and_new_price*$smarty.post.multiplier+$smarty.post.addfixedamount)|string_format:"%.2f"}></input></td>
     {/foreach}
     <td>USD</td>
     <td>

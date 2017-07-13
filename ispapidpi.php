@@ -170,76 +170,96 @@ function ispapidpi_output($vars){
         }
         elseif($_POST['price_class'] == "CSV-FILE"){
             //when csv file is slected also in STEP 2
+            //to check if the file is csv
+            $type_of_uploaded_file = array('text/csv');
             if (isset($_FILES["file"])) {
-                $smarty->assign('post-file', $_FILES["file"]);
-                if($_FILES["file"]["name"] != "") {
-                    $smarty->assign('post-file-name', $_FILES["file"]["name"]);
-                    $tmpName = $_FILES['file']['tmp_name'];
+                if(in_array($_FILES["file"]["type"], $mimes)){
+                    $smarty->assign('post-file', $_FILES["file"]);
+                    if($_FILES["file"]["name"] != "") {
+                        $smarty->assign('post-file-name', $_FILES["file"]["name"]);
+                        $tmpName = $_FILES['file']['tmp_name'];
 
-                    //handling comma and semicolon with csv files
-                    $csvAsArray = array_map(function($d) {
-                        return str_getcsv($d, ",");
-                    }, file($tmpName));
-                    $csvAsArray = array_map(function($d) {
-                        return str_getcsv($d, ";");
-                    }, file($tmpName));
-                    //remove first element (header part of the csv file)
-                    array_shift($csvAsArray);
+                        $csvAsArray = array();
+                        //if the delimiter is ; then continue else print an error message
+                        if(checkDelimiterCount($tmpName)){
+                        //handling comma and semicolon with csv files
+                        $csvAsArray = array_map(function($d) {
+                            return str_getcsv($d, ",");
+                        }, file($tmpName));
 
-                    $csv_as_new_array = [];
-                    foreach($csvAsArray as $key=>$value){
-                        $newKey = "";
-                        foreach($value as $ky=>$val){
-                            if($ky == 0){
-                                //first element to take as new key
-                                $newKey = $val;
-                                $csv_as_new_array[$newKey] = [];
-                            }else{
-                                $csv_as_new_array[$newKey][] = $val;
+                        $csvAsArray = array_map(function($d) {
+                            return str_getcsv($d, ";");
+                        }, file($tmpName));
+
+                        //remove first element (header part of the csv file)
+                        array_shift($csvAsArray);
+
+                        $csv_as_new_array = [];
+                        foreach($csvAsArray as $key=>$value){
+                            $newKey = "";
+                            foreach($value as $ky=>$val){
+                                if($ky == 0){
+                                    //first element to take as new key
+                                    $newKey = $val;
+                                    $csv_as_new_array[$newKey] = [];
+                                }else{
+                                    $csv_as_new_array[$newKey][] = $val;
+                                }
                             }
                         }
-                    }
 
-                    //to change keys of above array to strings
-                    $keynames = array('register', 'renew', 'transfer');
-                    foreach($csv_as_new_array as $key=>$value){
-                        $csv_as_new_array[$key] = array_combine($keynames, array_values($csv_as_new_array[$key]));
-                    }
-                    $add_currency_to_array = array('currency'=>'USD');
-                    foreach($csv_as_new_array as $key=>$value){
-                        $csv_as_new_array[$key] = $csv_as_new_array[$key]+$add_currency_to_array;
-                    }
-                    $csv_as_new_array = array_change_key_case($csv_as_new_array, CASE_LOWER);
+                        //to change keys of above array to strings
+                        $keynames = array('register', 'renew', 'transfer');
+                        foreach($csv_as_new_array as $key=>$value){
+                            $csv_as_new_array[$key] = array_combine($keynames, array_values($csv_as_new_array[$key]));
+                        }
+                        $add_currency_to_array = array('currency'=>'USD');
+                        foreach($csv_as_new_array as $key=>$value){
+                            $csv_as_new_array[$key] = $csv_as_new_array[$key]+$add_currency_to_array;
+                        }
+                        $csv_as_new_array = array_change_key_case($csv_as_new_array, CASE_LOWER);
 
-                    $_SESSION["csv-as-new-array"] = $csv_as_new_array;
+                        $_SESSION["csv-as-new-array"] = $csv_as_new_array;
 
+                        $smarty->assign('csv_as_new_array', $csv_as_new_array);
+                        $smarty->display(dirname(__FILE__).'/templates/step2.tpl');
+
+                        }else{
+                            echo "<div class='errorbox'><strong><span class='title'>File error!</span></strong><br>CSV file should use \";\" as separator.</div>";
+                            // echo "<div class='errorbox'><strong><span class='title'>ERROR!</span></strong><br>No CSV file has been selected.</div><br>";
+                            $smarty->display(dirname(__FILE__).'/templates/step1.tpl');
+                        }
+
+                    }// end of if $_FILES["file"]["name"] is not empty
+                    else{
+                        echo "<div class='errorbox'><strong><span class='title'>ERROR!</span></strong><br>No CSV file has been selected.</div><br>";
+                        $smarty->display(dirname(__FILE__).'/templates/step1.tpl');
+                    }
+                }else{
+                    echo "<div class='errorbox'><strong><span class='title'>ERROR!</span></strong><br>Please only upload a CSV file.</div><br>";
+                    $smarty->display(dirname(__FILE__).'/templates/step1.tpl');
+                }
+                }
+                elseif(isset($_SESSION["csv-as-new-array"])){
+                    //else for isset($_FILES["file"]), i.e. there is no file, but a session
+                    $csv_as_new_array = $_SESSION["csv-as-new-array"];
                     $smarty->assign('csv_as_new_array', $csv_as_new_array);
                     $smarty->display(dirname(__FILE__).'/templates/step2.tpl');
                 }
-                else{
-                    echo "<div class='errorbox'><strong><span class='title'>ERROR!</span></strong><br>No CSV file has been selected.</div><br>";
-                    $smarty->display(dirname(__FILE__).'/templates/step1.tpl');
-                }
-            }
-            elseif(isset($_SESSION["csv-as-new-array"])){
-                //else for isset($_FILES["file"]), i.e. there is no file, but a session
-                $csv_as_new_array = $_SESSION["csv-as-new-array"];
-                $smarty->assign('csv_as_new_array', $csv_as_new_array);
-                $smarty->display(dirname(__FILE__).'/templates/step2.tpl');
+            }else{
+                $command = array(
+                    "command" => "StatusUserClass",
+                    "userclass"=> $_POST['price_class']
+                );
+                $getdata_of_priceclass = ispapi_call($command, $ispapi_config);
+                collect_tld_register_transfer_renew_currency($getdata_of_priceclass);
             }
         }else{
-            $command = array(
-                "command" => "StatusUserClass",
-                "userclass"=> $_POST['price_class']
-            );
-            $getdata_of_priceclass = ispapi_call($command, $ispapi_config);
-            collect_tld_register_transfer_renew_currency($getdata_of_priceclass);
-        }
-    }else{
-        //step 1
-        $smarty->assign('queryuserclasslist_PROPERTY_USERCLASS', $queryuserclasslist["PROPERTY"]["USERCLASS"]);
-        $smarty->display(dirname(__FILE__).'/templates/step1.tpl');
+            //step 1
+            $smarty->assign('queryuserclasslist_PROPERTY_USERCLASS', $queryuserclasslist["PROPERTY"]["USERCLASS"]);
+            $smarty->display(dirname(__FILE__).'/templates/step1.tpl');
     }
+
 
     //import button clicked
     if(isset($_POST['import'])){
@@ -259,6 +279,31 @@ function ispapidpi_output($vars){
         }
     }
 }//end of ispapidpi_output()
+
+//to check if each line with semicolon separated
+function checkDelimiterCount($file){
+    $file = new SplFileObject($file);
+    $file->setFlags(SplFileObject::READ_CSV |
+    SplFileObject::SKIP_EMPTY |
+    SplFileObject::READ_AHEAD);
+    $delimiter = ";";
+    $count = 0;
+    while (!$file->eof()) {
+        $line = $file->fgets();
+        if(!empty($line)){
+            // echo "This is the line: " . $line . "<br>";
+            if(substr_count($line, $delimiter) != 3){
+                // echo "Error found in line " . $count . ". found " . substr_count($line, $delimiter) . " semicolons.<br>";
+                $file = null;
+                return 0;
+            }
+        }
+        //$file->next();
+        $count++;
+    }
+    $file = null;
+    return 1;
+}
 
 //this function is called based on the user selection --> selection of price class or to use default hexonet costs and creates an array
 function collect_tld_register_transfer_renew_currency($priceclass_or_defaultcost){
@@ -362,6 +407,8 @@ function collect_tld_register_transfer_renew_currency($priceclass_or_defaultcost
 
         if(array_key_exists($key, $tldlib)){
             $tld_register_renew_transfer_currency_filter1[$tldlib[$key]['tld']] = $tld_register_renew_transfer_currency_filter[$key];
+        }else{
+            $tld_register_renew_transfer_currency_filter1[$key] = $tld_register_renew_transfer_currency_filter[$key];
         }
     }
 
@@ -503,6 +550,7 @@ function download_csv_sample_file(){
   $output = fopen('php://output', 'w');
   fputcsv($output, array('TLD','REGISTER_PRICE_USD','RENEW_PRICE_USD','TRANSFER_PRICE_USD'),";");
   fputcsv($output, array('com', '10.99', '10.99', '11.59'),";");
+  fputcsv($output, array('com.au', '12.99', '10.45', '15.59'),";");
   exit(0);
 }
 
