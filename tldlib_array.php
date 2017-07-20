@@ -1,4 +1,5 @@
 <?php
+    //class/tld mappings
     $tldlib = array(
     'ABOGADO' => array('tld' => 'abogado'),
     'ABUDHABI' => array('tld' => 'abudhabi'),

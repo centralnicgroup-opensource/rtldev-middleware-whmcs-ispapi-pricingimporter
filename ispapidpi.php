@@ -24,12 +24,11 @@ function ispapidpi_deactivate() {
 }
 
 function ispapidpi_output($vars){
-    // echo "<pre>"; print_r($_POST); echo "</pre>";
-    // echo "<pre>"; print_r($_SESSION); echo "</pre>";
 
     //load and check if registrar module is installed
     require_once(dirname(__FILE__)."/../../../includes/registrarfunctions.php");
-    //Check if the registrar module exists
+
+    //check if the registrar module exists
     $file = "ispapi";
     $error = false;
     if(file_exists(dirname(__FILE__)."/../../../modules/registrars/".$file."/".$file.".php")){
@@ -64,7 +63,7 @@ function ispapidpi_output($vars){
         die("The ISPAPI Pricing importer Module requires ISPAPI Registrar Module v1.0.15 or higher!");
     }
 
-    //to download a sample csv file
+    //download a sample csv file
     if(isset($_POST['download-sample-csv'])){
         download_csv_sample_file();
     }
@@ -134,7 +133,7 @@ function ispapidpi_output($vars){
 
 
         foreach ($_SESSION["checked_tld_data"] as $key => $subArr){
-            unset($subArr['currency']);
+            //unset($subArr['currency']);
             $_SESSION["checked_tld_data"][$key] = $subArr;
         }
         $currency_data = [];
@@ -292,14 +291,11 @@ function checkDelimiterCount($file){
     while (!$file->eof()) {
         $line = $file->fgets();
         if(!empty($line)){
-            // echo "This is the line: " . $line . "<br>";
             if(substr_count($line, $delimiter) != 3){
-                // echo "Error found in line " . $count . ". found " . substr_count($line, $delimiter) . " semicolons.<br>";
                 $file = null;
                 return 0;
             }
         }
-        //$file->next();
         $count++;
     }
     $file = null;
@@ -308,9 +304,8 @@ function checkDelimiterCount($file){
 
 //this function is called based on the user selection --> selection of price class or to use default hexonet costs and creates an array
 function collect_tld_register_transfer_renew_currency($priceclass_or_defaultcost){
-
-//include file for second or third level domain name
-    include("tldlib_array.php");
+    //include file for second or third level domain name
+    include(dirname(__FILE__)."/tldlib_array.php");
 
     //smarty template for table in step 2
     $smarty = new Smarty;
@@ -331,6 +326,8 @@ function collect_tld_register_transfer_renew_currency($priceclass_or_defaultcost
     //collect register, renew and transfer prices and currency for each tld in an array
     $tld_register_renew_transfer_currency = array();
     foreach ($tlds as $key => $tld){
+        $register_price = '';
+
         //register
         $pattern_for_registerprice ="/PRICE_CLASS_DOMAIN_".$tld."_ANNUAL$/";
         if(preg_grep($pattern_for_registerprice, $priceclass_or_defaultcost["PROPERTY"]["RELATIONTYPE"])){
@@ -392,15 +389,24 @@ function collect_tld_register_transfer_renew_currency($priceclass_or_defaultcost
                 $tld_register_renew_transfer_currency[$tld]['currency'] = $tld_currency;
             }
         }
+
+        //remove tlds which have empty register, renew and transfer relations
+        if(empty($tld_register_renew_transfer_currency[$tld]['register']) && empty($tld_register_renew_transfer_currency[$tld]['renew']) && empty($tld_register_renew_transfer_currency[$tld]['transfer'])){
+            unset($tld_register_renew_transfer_currency[$tld]);
+        }
     }
-    removeEmpty($tld_register_renew_transfer_currency);
+
+    //remove tlds which have 0 pricings
+    //removeEmpty($tld_register_renew_transfer_currency);
 
     //filter tlds that are with currency USD
-    $tld_register_renew_transfer_currency_filter = filter_array($tld_register_renew_transfer_currency,'USD');
+    //$tld_register_renew_transfer_currency_filter = filter_array($tld_register_renew_transfer_currency,'USD');
+
+    $tld_register_renew_transfer_currency_filter = $tld_register_renew_transfer_currency;
 
     $tld_register_renew_transfer_currency_filter =  array_change_key_case($tld_register_renew_transfer_currency_filter, CASE_LOWER);
 
-//check for second or third level domain names and replace
+    //check for second or third level domain names and replace
     $tldlib =  array_change_key_case($tldlib, CASE_LOWER);
 
     $tld_register_renew_transfer_currency_filter1 = array();
@@ -409,7 +415,8 @@ function collect_tld_register_transfer_renew_currency($priceclass_or_defaultcost
         if(array_key_exists($key, $tldlib)){
             $tld_register_renew_transfer_currency_filter1[$tldlib[$key]['tld']] = $tld_register_renew_transfer_currency_filter[$key];
         }else{
-            $tld_register_renew_transfer_currency_filter1[$key] = $tld_register_renew_transfer_currency_filter[$key];
+            //do not add tlds which are not existing in $tldlib.
+            //$tld_register_renew_transfer_currency_filter1[$key] = $tld_register_renew_transfer_currency_filter[$key];
         }
     }
 
@@ -430,7 +437,7 @@ function importButton(){
           $tld_match[] = $match[1];
         }
     }
-//replace underscores with dots in the tlds
+    //replace underscores with dots in the tlds
     foreach ($tld_match as $key => $value){
         $tld_match[$key] = strtolower(str_replace('_', '.', $value));
     }
@@ -541,18 +548,18 @@ function startimport($prices_for_whmcs){
 
 //download a sample csv file
 function download_csv_sample_file(){
-  // output headers so that the file is downloaded rather than displayed
-  header('Content-type: text/csv; charset=utf-8');
-  header('Content-Disposition: attachment; filename=yourpricinglist.csv');
-  // do not cache the file
-  header('Pragma: no-cache');
-  header('Expires: 0');
-  //create a file pointer connected to the output stream
-  $output = fopen('php://output', 'w');
-  fputcsv($output, array('TLD','REGISTER_PRICE_USD','RENEW_PRICE_USD','TRANSFER_PRICE_USD'),";");
-  fputcsv($output, array('com', '10.99', '10.99', '11.59'),";");
-  fputcsv($output, array('com.au', '12.99', '10.45', '15.59'),";");
-  exit(0);
+    // output headers so that the file is downloaded rather than displayed
+    header('Content-type: text/csv; charset=utf-8');
+    header('Content-Disposition: attachment; filename=yourpricinglist.csv');
+    // do not cache the file
+    header('Pragma: no-cache');
+    header('Expires: 0');
+    //create a file pointer connected to the output stream
+    $output = fopen('php://output', 'w');
+    fputcsv($output, array('TLD','REGISTER_PRICE_USD','RENEW_PRICE_USD','TRANSFER_PRICE_USD'),";");
+    fputcsv($output, array('com', '10.99', '10.99', '11.59'),";");
+    fputcsv($output, array('com.au', '12.99', '10.45', '15.59'),";");
+    exit(0);
 }
 
 //###### Helper functions ######
@@ -576,11 +583,11 @@ function filter_array($array,$term){
 }
 
 //function to remove if any of the prices are empty/not listed
-function removeEmpty(&$arr) {
-    foreach ($arr as $index => $person) {
-        if (count($person) != count(array_filter($person, function($value) { return !!$value; }))) {
-            unset($arr[$index]);
-        }
-    }
-}
+// function removeEmpty(&$arr) {
+//     foreach ($arr as $index => $person) {
+//         if (count($person) != count(array_filter($person, function($value) { return !!$value; }))) {
+//             unset($arr[$index]);
+//         }
+//     }
+// }
 ?>
