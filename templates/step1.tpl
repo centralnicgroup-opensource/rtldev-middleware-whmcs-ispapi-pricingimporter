@@ -4,11 +4,11 @@
      <label class="labelClass">
         <span>STEP 1 - LOAD PRICES</span>
         <i></i>
-     </label><!--
-     --><label>
+     </label>
+     <label>
         <span>STEP 2 - UPDATE PRICES</span>
-     </label><!--
-     --><label>
+     </label>
+     <label>
         <span>STEP 3 - IMPORT PRICES</span>
         <i></i>
      </label>
