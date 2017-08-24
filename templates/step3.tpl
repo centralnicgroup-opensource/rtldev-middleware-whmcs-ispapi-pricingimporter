@@ -72,7 +72,8 @@
     <div>
         <h2>Domain Addons</h2>
         <div class="[ form-group ]">
-            <input type="checkbox" name="dns_management" value={$smarty.post.dns_management} checked='checked' id="fancy-checkbox-primary-custom-icons" autocomplete="off" />
+            <input type="checkbox" name="dns_management" value="on" id="fancy-checkbox-primary-custom-icons" autocomplete="off" />
+            <!-- <input type="checkbox" name="dns_management" value={$smarty.post.dns_management} checked='checked' id="fancy-checkbox-primary-custom-icons" autocomplete="off" /> -->
             <div class="[ btn-group ]">
                 <label for="fancy-checkbox-primary-custom-icons" class="[ btn btn-primary ]">
                     <span class="[ glyphicon glyphicon-plus ]"></span>
@@ -83,7 +84,7 @@
                 </label>
             </div>
             <label> </label>
-            <input type="checkbox" name="email_forwarding" value={$smarty.post.email_forwarding} checked='checked' id="fancy-checkbox-primary-custom-icons1" autocomplete="off" />
+            <input type="checkbox" name="email_forwarding" value="on" id="fancy-checkbox-primary-custom-icons1" autocomplete="off" />
             <div class="[ btn-group ]">
                 <label for="fancy-checkbox-primary-custom-icons1" class="[ btn btn-primary ]">
                     <span class="[ glyphicon glyphicon-plus ]"></span>
@@ -94,7 +95,7 @@
                 </label>
             </div>
             <label> </label>
-            <input type="checkbox" name="id_protection" value={$smarty.post.id_protection} checked='checked' id="fancy-checkbox-primary-custom-icons2" autocomplete="off" />
+            <input type="checkbox" name="id_protection" value="on" id="fancy-checkbox-primary-custom-icons2" autocomplete="off" />
             <div class="[ btn-group ]">
                 <label for="fancy-checkbox-primary-custom-icons2" class="[ btn btn-primary ]">
                     <span class="[ glyphicon glyphicon-plus ]"></span>
@@ -105,7 +106,7 @@
                 </label>
             </div>
             <label> </label>
-            <input type="checkbox" name="epp_code" value={$smarty.post.epp_code} checked='checked' id="fancy-checkbox-primary-custom-icons3" autocomplete="off" />
+            <input type="checkbox" name="epp_code" value="on" id="fancy-checkbox-primary-custom-icons3" autocomplete="off" />
             <div class="[ btn-group ]">
                 <label for="fancy-checkbox-primary-custom-icons3" class="[ btn btn-primary ]">
                     <span class="[ glyphicon glyphicon-plus ]"></span>
