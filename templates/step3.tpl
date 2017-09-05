@@ -1,13 +1,13 @@
 <link rel="stylesheet" href="../modules/addons/ispapidpi/css/styles.css">
-
+<!--  comment lines at label tags should not be removed in order to keep the design appropriate -->
 {if isset($smarty.post.import)}
   <div class='infobox'><strong><span class='title'>Update successful!</span></strong><br>Your pricing list has been updated successfully.</div><br>
 {/if}
 
 <div class=steps data-steps=3>
-  <label><span><div><form method=POST><input style="border:none;" type="submit" name="submit" value="STEP 1 - LOAD PRICES"/></form></div></span><i></i></label>
-  <label><span><div><form method=POST><input type=hidden name=price_class value={$smarty.session.price_class} </input><input style="border:none;" type="submit" name="submit" value="STEP 2 - UPDATE PRICES"/></form></div></span><i></i></label>
-  <label class=labelClass><span>STEP 3 - IMPORT PRICES</span><i></i></label>
+  <label><span><div><form method=POST><input style="border:none;" type="submit" name="submit" value="STEP 1 - LOAD PRICES"/></form></div></span><i></i></label><!--
+  --><label><span><div><form method=POST><input type=hidden name=price_class value={$smarty.session.price_class} </input><input style="border:none;" type="submit" name="submit" value="STEP 2 - UPDATE PRICES"/></form></div></span><i></i></label><!--
+  --><label class=labelClass><span>STEP 3 - IMPORT PRICES</span><i></i></label>
 </div>
 <br>
 <form action=addonmodules.php?module=ispapidpi method=POST>
@@ -72,8 +72,7 @@
     <div>
         <h2>Domain Addons</h2>
         <div class="[ form-group ]">
-            <input type="checkbox" name="dns_management" value="on" id="fancy-checkbox-primary-custom-icons" autocomplete="off" />
-            <!-- <input type="checkbox" name="dns_management" value={$smarty.post.dns_management} checked='checked' id="fancy-checkbox-primary-custom-icons" autocomplete="off" /> -->
+            <input type="checkbox" name="dns_management" value={$smarty.post.dns_management} checked='checked' id="fancy-checkbox-primary-custom-icons" autocomplete="off" />
             <div class="[ btn-group ]">
                 <label for="fancy-checkbox-primary-custom-icons" class="[ btn btn-primary ]">
                     <span class="[ glyphicon glyphicon-plus ]"></span>
@@ -84,7 +83,7 @@
                 </label>
             </div>
             <label> </label>
-            <input type="checkbox" name="email_forwarding" value="on" id="fancy-checkbox-primary-custom-icons1" autocomplete="off" />
+            <input type="checkbox" name="email_forwarding" value={$smarty.post.email_forwarding} checked='checked' id="fancy-checkbox-primary-custom-icons1" autocomplete="off" />
             <div class="[ btn-group ]">
                 <label for="fancy-checkbox-primary-custom-icons1" class="[ btn btn-primary ]">
                     <span class="[ glyphicon glyphicon-plus ]"></span>
@@ -95,7 +94,7 @@
                 </label>
             </div>
             <label> </label>
-            <input type="checkbox" name="id_protection" value="on" id="fancy-checkbox-primary-custom-icons2" autocomplete="off" />
+            <input type="checkbox" name="id_protection" value={$smarty.post.id_protection} checked='checked' id="fancy-checkbox-primary-custom-icons2" autocomplete="off" />
             <div class="[ btn-group ]">
                 <label for="fancy-checkbox-primary-custom-icons2" class="[ btn btn-primary ]">
                     <span class="[ glyphicon glyphicon-plus ]"></span>
@@ -106,7 +105,7 @@
                 </label>
             </div>
             <label> </label>
-            <input type="checkbox" name="epp_code" value="on" id="fancy-checkbox-primary-custom-icons3" autocomplete="off" />
+            <input type="checkbox" name="epp_code" value={$smarty.post.epp_code} checked='checked' id="fancy-checkbox-primary-custom-icons3" autocomplete="off" />
             <div class="[ btn-group ]">
                 <label for="fancy-checkbox-primary-custom-icons3" class="[ btn btn-primary ]">
                     <span class="[ glyphicon glyphicon-plus ]"></span>
