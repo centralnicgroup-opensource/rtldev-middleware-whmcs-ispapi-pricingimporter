@@ -570,7 +570,7 @@ function startimport($prices_for_whmcs){
         }
 
     } catch (Exception $e) {
-
+         die($e->getMessage());
     }
 
 
