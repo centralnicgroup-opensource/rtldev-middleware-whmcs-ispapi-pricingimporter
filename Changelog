@@ -4,6 +4,10 @@ ______________________________________________________________________________
 Changelog
 ______________________________________________________________________________
 
+v 2.1 - 2017-10-12
+ - migrated deprecated functions to new framework
+ - minor template changes
+
 v 2.0 - 2017-07-20
  - design and usability optimizations
  - load TLDs with prices through three possible ways: HEXONET costs, HEXONET Price Classes or custom CSV file 
