@@ -1,14 +1,14 @@
 <link rel="stylesheet" href="../modules/addons/ispapidpi/css/styles.css">
-
+<!--  comment lines at label tags should not be removed in order to keep the design appropriate -->
 <div class="steps" data-steps="3">
      <label class="labelClass">
         <span>STEP 1 - LOAD PRICES</span>
         <i></i>
-     </label>
-     <label>
+     </label><!--
+     --><label>
         <span>STEP 2 - UPDATE PRICES</span>
-     </label>
-     <label>
+     </label><!--
+     --><label>
         <span>STEP 3 - IMPORT PRICES</span>
         <i></i>
      </label>

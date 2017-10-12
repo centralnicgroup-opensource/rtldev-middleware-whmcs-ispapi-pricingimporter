@@ -1,13 +1,13 @@
 <link rel="stylesheet" href="../modules/addons/ispapidpi/css/styles.css">
-
+<!--  comment lines at label tags should not be removed in order to keep the design appropriate -->
 {if isset($smarty.post.import)}
   <div class='infobox'><strong><span class='title'>Update successful!</span></strong><br>Your pricing list has been updated successfully.</div><br>
 {/if}
 
 <div class=steps data-steps=3>
-  <label><span><div><form method=POST><input style="border:none;" type="submit" name="submit" value="STEP 1 - LOAD PRICES"/></form></div></span><i></i></label>
-  <label><span><div><form method=POST><input type=hidden name=price_class value={$smarty.session.price_class} </input><input style="border:none;" type="submit" name="submit" value="STEP 2 - UPDATE PRICES"/></form></div></span><i></i></label>
-  <label class=labelClass><span>STEP 3 - IMPORT PRICES</span><i></i></label>
+  <label><span><div><form method=POST><input style="border:none;" type="submit" name="submit" value="STEP 1 - LOAD PRICES"/></form></div></span><i></i></label><!--
+  --><label><span><div><form method=POST><input type=hidden name=price_class value={$smarty.session.price_class} </input><input style="border:none;" type="submit" name="submit" value="STEP 2 - UPDATE PRICES"/></form></div></span><i></i></label><!--
+  --><label class=labelClass><span>STEP 3 - IMPORT PRICES</span><i></i></label>
 </div>
 <br>
 <form action=addonmodules.php?module=ispapidpi method=POST>
