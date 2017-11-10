@@ -1,7 +1,7 @@
 <?php
 use WHMCS\Database\Capsule;
 session_start();
-$module_version = "2.1";
+$module_version = "2.2";
 
 function ispapidpi_config($params) {
     global $module_version;
@@ -572,29 +572,31 @@ function startimport($prices_for_whmcs){
                 $insert_stmt->execute(array($prices_for_whmcs[$key]['currency'], $tbldomainpricing['id'], $prices_for_whmcs[$key][0]));
             }
 
-            //replace or add pricing for domaintransfer
-            $stmt = $pdo->prepare("SELECT * FROM tblpricing WHERE type='domaintransfer' AND currency=? AND relid=? ORDER BY id DESC LIMIT 1");
-            $stmt->execute(array($prices_for_whmcs[$key]['currency'], $tbldomainpricing['id']));
-            $tblpricing = $stmt->fetch(PDO::FETCH_ASSOC);
-            if(!empty($tblpricing)){
-                $update_stmt=$pdo->prepare("UPDATE tblpricing SET msetupfee=? WHERE id=?");
-                $update_stmt->execute(array($prices_for_whmcs[$key][1], $tblpricing["id"]));
-            }else{
-                $insert_stmt = $pdo->prepare("INSERT INTO tblpricing (type, currency, relid, msetupfee, qsetupfee, ssetupfee, asetupfee, bsetupfee, monthly, quarterly, semiannually, annually, biennially) VALUES ('domaintransfer', ?, ?, ?, '-1', '-1', '-1', '-1', '-1', '-1', '-1', '-1', '-1')");
-                $insert_stmt->execute(array($prices_for_whmcs[$key]['currency'], $tbldomainpricing['id'], $prices_for_whmcs[$key][1]));
-            }
-
             //replace or add pricing for domainrenew
             $stmt = $pdo->prepare("SELECT * FROM tblpricing WHERE type='domainrenew' AND currency=? AND relid=? ORDER BY id DESC LIMIT 1");
             $stmt->execute(array($prices_for_whmcs[$key]['currency'], $tbldomainpricing['id']));
             $tblpricing = $stmt->fetch(PDO::FETCH_ASSOC);
             if(!empty($tblpricing)){
                 $update_stmt=$pdo->prepare("UPDATE tblpricing SET msetupfee=? WHERE id=?");
-                $update_stmt->execute(array($prices_for_whmcs[$key][2], $tblpricing["id"]));
+                $update_stmt->execute(array($prices_for_whmcs[$key][1], $tblpricing["id"]));
             }else{
                 $insert_stmt = $pdo->prepare("INSERT INTO tblpricing (type, currency, relid, msetupfee, qsetupfee, ssetupfee, asetupfee, bsetupfee, monthly, quarterly, semiannually, annually, biennially) VALUES ('domainrenew', ?, ?, ?, '-1', '-1', '-1', '-1', '-1', '-1', '-1', '-1', '-1')");
+                $insert_stmt->execute(array($prices_for_whmcs[$key]['currency'], $tbldomainpricing['id'], $prices_for_whmcs[$key][1]));
+            }
+
+            //replace or add pricing for domaintransfer
+            $stmt = $pdo->prepare("SELECT * FROM tblpricing WHERE type='domaintransfer' AND currency=? AND relid=? ORDER BY id DESC LIMIT 1");
+            $stmt->execute(array($prices_for_whmcs[$key]['currency'], $tbldomainpricing['id']));
+            $tblpricing = $stmt->fetch(PDO::FETCH_ASSOC);
+            if(!empty($tblpricing)){
+                $update_stmt=$pdo->prepare("UPDATE tblpricing SET msetupfee=? WHERE id=?");
+                $update_stmt->execute(array($prices_for_whmcs[$key][2], $tblpricing["id"]));
+            }else{
+                $insert_stmt = $pdo->prepare("INSERT INTO tblpricing (type, currency, relid, msetupfee, qsetupfee, ssetupfee, asetupfee, bsetupfee, monthly, quarterly, semiannually, annually, biennially) VALUES ('domaintransfer', ?, ?, ?, '-1', '-1', '-1', '-1', '-1', '-1', '-1', '-1', '-1')");
                 $insert_stmt->execute(array($prices_for_whmcs[$key]['currency'], $tbldomainpricing['id'], $prices_for_whmcs[$key][2]));
             }
+
+
         }
 
     } catch (Exception $e) {
