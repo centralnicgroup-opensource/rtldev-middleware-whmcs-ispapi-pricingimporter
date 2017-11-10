@@ -4,6 +4,9 @@ ______________________________________________________________________________
 Changelog
 ______________________________________________________________________________
 
+v 2.2 - 2017-11-10
+ -fix for incorrect Renew and Transfer prices
+
 v 2.1 - 2017-10-12
  - migrated deprecated functions to new framework
  - minor template changes
