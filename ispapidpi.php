@@ -1,7 +1,7 @@
 <?php
 use WHMCS\Database\Capsule;
 session_start();
-$module_version = "2.2";
+$module_version = "2.3";
 
 function ispapidpi_config($params) {
     global $module_version;
@@ -24,6 +24,7 @@ function ispapidpi_deactivate() {
 	return array('status'=>'success','description'=>'Uninstalled');
 }
 
+
 function ispapidpi_output($vars){
     //load and check if registrar module is installed
     require_once(dirname(__FILE__)."/../../../includes/registrarfunctions.php");
@@ -36,15 +37,16 @@ function ispapidpi_output($vars){
         $funcname = $file.'_GetISPAPIModuleVersion';
         if(function_exists($file.'_GetISPAPIModuleVersion')){
             $version = call_user_func($file.'_GetISPAPIModuleVersion');
+
             //check if version = 1.0.15 or higher
             if( version_compare($version, '1.0.15') >= 0 ){
                 //check authentication
                 $registrarconfigoptions = getregistrarconfigoptions($file);
+
                 $ispapi_config = ispapi_config($registrarconfigoptions);
-                $command =  $command = array(
-                    "command" => "CheckAuthentication",
-                    "subuser" => $ispapi_config["login"],
-                    "password" => $ispapi_config["password"],
+
+                $command = array(
+                        "COMMAND" => "CheckAuthentication",
                 );
                 $checkAuthentication = ispapi_call($command, $ispapi_config);
                 if($checkAuthentication["CODE"] != "200"){
