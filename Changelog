@@ -4,6 +4,9 @@ ______________________________________________________________________________
 Changelog
 ______________________________________________________________________________
 
+v 2.4 - 2018-05-07
+ - fix for compatibility issue with PHP(7.1/7.2)
+ 
 v 2.3 - 2018-01-11
  - fix for special characters in user password
 
@@ -16,7 +19,7 @@ v 2.1 - 2017-10-12
 
 v 2.0 - 2017-07-20
  - design and usability optimizations
- - load TLDs with prices through three possible ways: HEXONET costs, HEXONET Price Classes or custom CSV file 
+ - load TLDs with prices through three possible ways: HEXONET costs, HEXONET Price Classes or custom CSV file
  - bulk price update by using a factor or a fixed amount
  - support for different currencies
  - flexible performance of step-wise pricing imports (wizard)

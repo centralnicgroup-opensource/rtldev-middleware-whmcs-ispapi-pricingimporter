@@ -1,9 +1,9 @@
 <?php
 use WHMCS\Database\Capsule;
 session_start();
-$module_version = "2.3";
+$module_version = "2.4";
 
-function ispapidpi_config($params) {
+function ispapidpi_config() {
     global $module_version;
     $configarray = array(
         "name" => "ISPAPI Pricing Importer",
@@ -273,18 +273,6 @@ function ispapidpi_output($vars){
     if(isset($_POST['import'])){
         importButton();
         $smarty->assign('post-import', $_POST['import']);
-        if($_POST['dns_management'] == 'on'){
-            $smarty->assign('post-dns_management', $_POST['dns_management']);
-        }
-        if($_POST['email_forwarding'] == 'on'){
-            $smarty->assign('post-email_forwarding', $_POST['email_forwarding']);
-        }
-        if($_POST['id_protection'] == 'on'){
-            $smarty->assign('post-id_protection', $_POST['id_protection']);
-        }
-        if($_POST['epp_code'] == 'on'){
-            $smarty->assign('post-epp_code', $_POST['epp_code']);
-        }
     }
 }//end of ispapidpi_output()
 
@@ -507,7 +495,7 @@ function importButton(){
     }
     // values in $domain_addons array are -  [dns-management] => checked='checked' !!!
     foreach ($domain_addons as $key => $value) {
-        $domain_addons[$key] = 'on';
+        $domain_addons[$key] = 1;
     }
 
     foreach($new_prices_for_whmcs as $key=>$value){
@@ -617,7 +605,7 @@ function download_csv_sample_file(){
     header('Expires: 0');
     //create a file pointer connected to the output stream
     $output = fopen('php://output', 'w');
-    fputcsv($output, array('TLD','REGISTER_PRICE_USD','RENEW_PRICE_USD','TRANSFER_PRICE_USD'),";");
+    fputcsv($output, array('TLD','REGISTER_PRICE_USD','TRANSFER_PRICE_USD','RENEW_PRICE_USD'),";");
     fputcsv($output, array('com', '10.99', '10.99', '11.59'),";");
     fputcsv($output, array('com.au', '12.99', '10.45', '15.59'),";");
     exit(0);
