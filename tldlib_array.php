@@ -984,5 +984,3 @@
     'ZONE' => array('tld' => 'zone'),
     'ZUERICH' => array('tld' => 'zuerich'),
     );
-
-?>
