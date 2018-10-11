@@ -98,5 +98,8 @@
         ]
       }
     ]
+  },
+  "scripts": {
+    "semantic-release": "semantic-release"
   }
 }
