@@ -12,7 +12,7 @@
     "node": ">=8.3.0"
   },
   "homepage": "https://github.com/hexonet/ispapi_whmcs-pricing-importer-addon",
-  "repository": "github:hexonet/ispapi_whmcs-pricing-importer-addon",
+  "repository": "github:hexonet/ispapi_whmcs-pricing-importer-addon.git",
   "bugs": "https://github.com/hexonet/ispapi_whmcs-pricing-importer-addon/issues",
   "maintainers": [
     {
@@ -98,8 +98,5 @@
         ]
       }
     ]
-  },
-  "scripts": {
-    "semantic-release": "semantic-release"
   }
 }
