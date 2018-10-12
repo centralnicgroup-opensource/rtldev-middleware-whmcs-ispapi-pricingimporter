@@ -1,5 +1,5 @@
 {
-  "name": "ispapi_whmcs-pricing-importer-addon",
+  "name": "whmcs-ispapi-pricingimporter",
   "description": "WHMCS ISPAPI Pricing Importer Add-on",
   "version": "0.0.0-development",
   "private": true,
@@ -11,9 +11,9 @@
   "engines": {
     "node": ">=8.3.0"
   },
-  "homepage": "https://github.com/hexonet/ispapi_whmcs-pricing-importer-addon",
-  "repository": "github:hexonet/ispapi_whmcs-pricing-importer-addon.git",
-  "bugs": "https://github.com/hexonet/ispapi_whmcs-pricing-importer-addon/issues",
+  "homepage": "https://github.com/hexonet/whmcs-ispapi-pricingimporter",
+  "repository": "github:hexonet/whmcs-ispapi-pricingimporter.git",
+  "bugs": "https://github.com/hexonet/whmcs-ispapi-pricingimporter/issues",
   "maintainers": [
     {
       "name": "Kai Schwarz",
@@ -77,7 +77,7 @@
           "package.json",
           "composer.json",
           "registrars/ispapi/ispapi.php",
-          "ispapi_whmcs-pricing-importer-addon-latest.zip"
+          "whmcs-ispapi-pricingimporter-latest.zip"
         ],
         "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
       }
@@ -88,11 +88,11 @@
         "assets": [
           {
             "label": "WHMCS Pricing Importer Add-on (zip)",
-            "path": "pkg/ispapi_whmcs-pricing-importer-addon.zip"
+            "path": "pkg/whmcs-ispapi-pricingimporter.zip"
           },
           {
             "label": "WHMCS Pricing Importer Add-on (tar.gz)",
-            "path": "pkg/ispapi_whmcs-pricing-importer-addon.tar.gz"
+            "path": "pkg/whmcs-ispapi-pricingimporter.tar.gz"
           }
         ]
       }
