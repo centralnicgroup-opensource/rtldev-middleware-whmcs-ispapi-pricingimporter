@@ -30,15 +30,15 @@ This Repository covers the WHMCS Pricing Importer Add-on of HEXONET. It provides
 
 ## Resources ##
 
-* [Usage Guide](https://github.com/hexonet/ispapi_whmcs-pricing-importer-addon/blob/master/README.md#usage-guide)
-* [Release Notes](https://github.com/hexonet/ispapi_whmcs-pricing-importer-addon/releases)
-* [Development Guide](https://github.com/hexonet/ispapi_whmcs-pricing-importer-addon/wiki/Development-Guide)
+* [Usage Guide](https://github.com/hexonet/whmcs-ispapi-pricingimporter/blob/master/README.md#usage-guide)
+* [Release Notes](https://github.com/hexonet/whmcs-ispapi-pricingimporter/releases)
+* [Development Guide](https://github.com/hexonet/whmcs-ispapi-pricingimporter/wiki/Development-Guide)
 
-NOTE: We introduced sematic-release starting with v2.4.0. This is why older Release Versions do not appear in the [current changelog](HISTORY.md). But these versions appear in the [release overview](https://github.com/hexonet/ispapi_whmcs-pricing-importer-addon/releases) and in the [old changelog](HISTORY.old).
+NOTE: We introduced sematic-release starting with v2.4.0. This is why older Release Versions do not appear in the [current changelog](HISTORY.md). But these versions appear in the [release overview](https://github.com/hexonet/whmcs-ispapi-pricingimporter/releases) and in the [old changelog](HISTORY.old).
 
 ## Usage Guide ##
 
-Download the ZIP archive including the latest release version [here](https://github.com/hexonet/ispapi_whmcs-pricing-importer-addon/raw/master/ispapi_whmcs-pricing-importer-addon-latest.zip).
+Download the ZIP archive including the latest release version [here](https://github.com/hexonet/whmcs-ispapi-pricingimporter/raw/master/whmcs-ispapi-pricingimporter-latest.zip).
 
 Copy all files from the install/ subdirectory to your WHMCS installation root directory ($YOUR_WHMCS_ROOT), while keeping the folder structure intact.
 
@@ -58,7 +58,7 @@ For the latest WHMCS minimum system requirements, please refer to
 
 ## Contributing ##
 
-Please read [our development guide](https://github.com/hexonet/ispapi_whmcs-pricing-importer-addon/wiki/Development-Guide) for details on our code of conduct, and the process for submitting pull requests to us.
+Please read [our development guide](https://github.com/hexonet/whmcs-ispapi-pricingimporter/wiki/Development-Guide) for details on our code of conduct, and the process for submitting pull requests to us.
 
 ## Authors ##
 
@@ -66,7 +66,7 @@ Please read [our development guide](https://github.com/hexonet/ispapi_whmcs-pric
 * **Kai Schwarz** - *development* - [PapaKai](https://github.com/papakai)
 * **Tulasi Seelamkurthi** - *development* - [Tulsi91](https://github.com/tulsi91)
 
-See also the list of [contributors](https://github.com/hexonet/ispapi_whmcs-pricing-importer-addon/graphs/contributors) who participated in this project.
+See also the list of [contributors](https://github.com/hexonet/whmcs-ispapi-pricingimporter/graphs/contributors) who participated in this project.
 
 ## License ##
 
