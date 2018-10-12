@@ -1,3 +1,10 @@
+## [3.0.1](https://github.com/hexonet/whmcs-ispapi-pricingimporter/compare/v3.0.0...v3.0.1) (2018-10-12)
+
+
+### Bug Fixes
+
+* **psr2:** review code to PSR2 standard ([250f974](https://github.com/hexonet/whmcs-ispapi-pricingimporter/commit/250f974))
+
 # [3.0.0](https://github.com/hexonet/whmcs-ispapi-pricingimporter/compare/v2.0.0...v3.0.0) (2018-10-11)
 
 
