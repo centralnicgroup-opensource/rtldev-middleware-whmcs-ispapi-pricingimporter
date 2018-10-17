@@ -1,3 +1,5 @@
+# [3.1.0](https://github.com/hexonet/whmcs-ispapi-pricingimporter/compare/v3.0.1...v3.1.0) (2018-10-17)
+
 ## [3.0.1](https://github.com/hexonet/whmcs-ispapi-pricingimporter/compare/v3.0.0...v3.0.1) (2018-10-12)
 
 
