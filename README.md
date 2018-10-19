@@ -34,7 +34,7 @@ This Repository covers the WHMCS Pricing Importer Add-on of HEXONET. It provides
 * [Release Notes](https://github.com/hexonet/whmcs-ispapi-pricingimporter/releases)
 * [Development Guide](https://github.com/hexonet/whmcs-ispapi-pricingimporter/wiki/Development-Guide)
 
-NOTE: We introduced sematic-release starting with v2.4.0. This is why older Release Versions do not appear in the [current changelog](HISTORY.md). But these versions appear in the [release overview](https://github.com/hexonet/whmcs-ispapi-pricingimporter/releases) and in the [old changelog](HISTORY.old).
+NOTE: We introduced sematic-release starting with v2.4.0. This is why older Release Versions do not appear in the [current changelog](https://github.com/hexonet/whmcs-ispapi-pricingimporter/blob/master/HISTORY.md). But these versions appear in the [release overview](https://github.com/hexonet/whmcs-ispapi-pricingimporter/releases) and in the [old changelog](https://github.com/hexonet/whmcs-ispapi-pricingimporter/blob/master/HISTORY.old).
 
 ## Usage Guide ##
 
