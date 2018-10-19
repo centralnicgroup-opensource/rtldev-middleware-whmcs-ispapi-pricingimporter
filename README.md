@@ -70,6 +70,6 @@ See also the list of [contributors](https://github.com/hexonet/whmcs-ispapi-pric
 
 ## License ##
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/hexonet/whmcs-ispapi-pricingimporter/blob/master/LICENSE) file for details.
 
 [HEXONET GmbH](https://hexonet.net)
