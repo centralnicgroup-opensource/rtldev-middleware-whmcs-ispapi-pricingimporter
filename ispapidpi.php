@@ -32,13 +32,13 @@ function ispapidpi_deactivate()
 function ispapidpi_output($vars)
 {
     //load and check if registrar module is installed
-    require_once(dirname(__FILE__)."/../../../includes/registrarfunctions.php");
+    require_once(implode(DIRECTORY_SEPARATOR, array(ROOTDIR,"includes","registrarfunctions.php")));
 
     //check if the registrar module exists
     $file = "ispapi";
     $error = false;
-    if (file_exists(dirname(__FILE__)."/../../../modules/registrars/".$file."/".$file.".php")) {
-        require_once(dirname(__FILE__)."/../../../modules/registrars/".$file."/".$file.".php");
+    if (file_exists(implode(DIRECTORY_SEPARATOR, array(ROOTDIR,"modules","registrars",$file,$file.".php")))) {
+        require_once(implode(DIRECTORY_SEPARATOR, array(ROOTDIR,"modules","registrars",$file,$file.".php")));
         $funcname = $file.'_GetISPAPIModuleVersion';
         if (function_exists($file.'_GetISPAPIModuleVersion')) {
             $version = call_user_func($file.'_GetISPAPIModuleVersion');
