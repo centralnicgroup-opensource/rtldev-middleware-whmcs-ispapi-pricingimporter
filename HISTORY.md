@@ -1,3 +1,10 @@
+## [3.3.1](https://github.com/hexonet/whmcs-ispapi-pricingimporter/compare/v3.3.0...v3.3.1) (2018-11-26)
+
+
+### Bug Fixes
+
+* **symlinks:** added support for integration of the module via symlinks + documentation ([7430031](https://github.com/hexonet/whmcs-ispapi-pricingimporter/commit/7430031))
+
 # [3.3.0](https://github.com/hexonet/whmcs-ispapi-pricingimporter/compare/v3.2.0...v3.3.0) (2018-10-24)
 
 # [3.2.0](https://github.com/hexonet/whmcs-ispapi-pricingimporter/compare/v3.1.0...v3.2.0) (2018-10-19)
