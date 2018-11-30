@@ -89,7 +89,7 @@
           "HISTORY.md",
           "package.json",
           "composer.json",
-          "registrars/ispapi/ispapi.php",
+          "ispapidpi.php",
           "whmcs-ispapi-pricingimporter-latest.zip",
           "release.json"
         ],
