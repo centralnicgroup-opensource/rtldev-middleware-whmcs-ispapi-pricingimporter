@@ -31,7 +31,7 @@ This Repository covers the WHMCS Pricing Importer Add-on of HEXONET. It provides
 
 ## Resources ##
 
-* [Usage Guide](https://github.com/hexonet/whmcs-ispapi-pricingimporter/blob/master/README.md#usage-guide)
+* [Usage Guide](https://github.com/hexonet/whmcs-ispapi-pricingimporter/wiki/Usage-Guide)
 * [Release Notes](https://github.com/hexonet/whmcs-ispapi-pricingimporter/releases)
 * [Development Guide](https://github.com/hexonet/whmcs-ispapi-pricingimporter/wiki/Development-Guide)
 
@@ -41,16 +41,10 @@ NOTE: We introduced sematic-release starting with v2.4.0. This is why older Rele
 
 Download the ZIP archive including the latest release version [here](https://github.com/hexonet/whmcs-ispapi-pricingimporter/raw/master/whmcs-ispapi-pricingimporter-latest.zip).
 
-Copy all files from the install/ subdirectory to your WHMCS installation root directory ($YOUR_WHMCS_ROOT), while keeping the folder structure intact.
+Read the following to get more information ...
 
-E.g.
-
-```text
-install/modules/addons/ispapidpi/ispapidpi.php
-=> $YOUR_WHMCS_ROOT/modules/addons/ispapidpi/ispapidpi.php
-```
-
-Login to the WHMCS Admin Area and navigate to `Setup > Addon Modules` to activate.
+* [Installation](https://github.com/hexonet/whmcs-ispapi-pricingimporter/wiki/Usage-Guide#installation)
+* [Configuration](https://github.com/hexonet/whmcs-ispapi-pricingimporter/wiki/Usage-Guide#configuration)
 
 ## Minimum Requirements ##
 
