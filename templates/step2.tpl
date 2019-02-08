@@ -21,6 +21,24 @@
 </div>
 <br>
   <form action="addonmodules.php?module=ispapidpi" method="POST">
+
+    {if $smarty.post.price_class == "CSV-FILE"} 
+      {$hide="hide"}
+      {else}
+      {$hide=""}
+    {/if}
+
+    <div class={$hide}>
+      <h3>Filter TLDs based on currency</h3>
+      <select name="filterBasedCurrency">
+        {foreach $currencies as $currency}
+          <option {if $smarty.post.filterBasedCurrency == $currency} echo selected="selected"{/if}>{$currency}</option>
+        {/foreach}
+      </select>
+      <input type="submit" name="filterTLDSBasedOnCurrency" class="btn btn-primary" value="Load"></input>
+      <hr>
+    </div>
+
     <label><h2>Select the TLDs you want to import:</h2></label>
     <br>
 <table class="tableClass">

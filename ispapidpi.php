@@ -92,7 +92,7 @@ function ispapidpi_output($vars)
     $queryuserclasslist = ispapi_call($command, $ispapi_config);
     $smarty->assign('queryuserclasslist', $queryuserclasslist);
 
-    if (isset($_POST['checkbox-tld']) || (isset($_SESSION["checkbox-tld"]) && isset($_POST['multiplier'])) || (isset($_SESSION["checkbox-tld"]) && isset($_POST['addfixedamount'])) || isset($_POST['import'])) {
+    if ((isset($_POST['checkbox-tld']) && !isset($_POST['filterTLDSBasedOnCurrency'])) || (isset($_SESSION["checkbox-tld"]) && isset($_POST['multiplier'])) || (isset($_SESSION["checkbox-tld"]) && isset($_POST['addfixedamount'])) || isset($_POST['import'])) {
         //step 3
         if (isset($_POST['checkbox-tld'])) {
             $_SESSION["checkbox-tld"] = $_POST["checkbox-tld"];
@@ -262,6 +262,18 @@ function ispapidpi_output($vars)
             $getdata_of_priceclass = ispapi_call($command, $ispapi_config);
             collect_tld_register_transfer_renew_currency($getdata_of_priceclass);
         }
+    } elseif (isset($_POST['filterTLDSBasedOnCurrency'])) {
+        $filtered_tlds_based_on_currency = array();
+        foreach ($_SESSION["tld-register-renew-transfer-currency-filter"] as $key => $value) {
+            if (in_array($_POST['filterBasedCurrency'], $value)) {
+                $filtered_tlds_based_on_currency[$key] = $_SESSION["tld-register-renew-transfer-currency-filter"][$key];
+            }
+        }
+
+        $smarty->assign('currencies', $_SESSION["currencies"]);
+
+        $smarty->assign('tld_register_renew_transfer_currency_filter', $filtered_tlds_based_on_currency);
+        $smarty->display(dirname(__FILE__).'/templates/step2.tpl');
     } else {
         //step 1
         $smarty->assign('queryuserclasslist_PROPERTY_USERCLASS', $queryuserclasslist["PROPERTY"]["USERCLASS"]);
@@ -322,11 +334,16 @@ function collect_tld_register_transfer_renew_currency($priceclass_or_defaultcost
 
     //collect register, renew and transfer prices and currency for each tld in an array
     $tld_register_renew_transfer_currency = array();
+
+    //currencies for step 2 - filter TLDs based on selected currency
+    $currencies = [];
+
     foreach ($tlds as $key => $tld) {
         $register_price = '';
 
         //register
         $pattern_for_registerprice ="/PRICE_CLASS_DOMAIN_".$tld."_ANNUAL$/";
+
         if (preg_grep($pattern_for_registerprice, $priceclass_or_defaultcost["PROPERTY"]["RELATIONTYPE"])) {
             $register_match = preg_grep($pattern_for_registerprice, $priceclass_or_defaultcost["PROPERTY"]["RELATIONTYPE"]);
             $register_match_keys = array_keys($register_match);
@@ -378,7 +395,14 @@ function collect_tld_register_transfer_renew_currency($priceclass_or_defaultcost
 
         //get tld currency
         $pattern_for_currency = "/PRICE_CLASS_DOMAIN_".$tld."_CURRENCY$/";
+
         $currency_match = preg_grep($pattern_for_currency, $priceclass_or_defaultcost["PROPERTY"]["RELATIONTYPE"]);
+
+        //no currency relation exists -> then unset the tld
+        if (!$currency_match) {
+            unset($tld_register_renew_transfer_currency[$tld]);
+        }
+
         $currency_match_keys= array_keys($currency_match);
         foreach ($currency_match_keys as $key) {
             if (array_key_exists($key, $priceclass_or_defaultcost["PROPERTY"]["RELATIONVALUE"])) {
@@ -393,8 +417,8 @@ function collect_tld_register_transfer_renew_currency($priceclass_or_defaultcost
         }
     }
 
-    //remove tlds which have 0 pricings
-    //removeEmpty($tld_register_renew_transfer_currency);
+    //remove tlds which have 0 pricings and no currency
+    removeEmpty($tld_register_renew_transfer_currency);
 
     //filter tlds that are with currency USD
     //$tld_register_renew_transfer_currency_filter = filter_array($tld_register_renew_transfer_currency,'USD');
@@ -416,7 +440,19 @@ function collect_tld_register_transfer_renew_currency($priceclass_or_defaultcost
         }
     }
 
+    //collect currency for step 2
+    foreach ($tld_register_renew_transfer_currency_filter1 as $key => $value) {
+        if (!in_array($value['currency'], $currencies)) {
+            array_push($currencies, $value['currency']);
+        }
+    }
+
     $_SESSION["tld-register-renew-transfer-currency-filter"] = $tld_register_renew_transfer_currency_filter1; //session variable for tld data (tld and prices ,currency)
+
+    //in step-2 filter TLDs based on currency selection
+    $_SESSION["currencies"] =  $currencies;
+    $smarty->assign('currencies', $currencies);
+
 
     $smarty->assign('tld_register_renew_transfer_currency_filter', $tld_register_renew_transfer_currency_filter1);
     $smarty->display(dirname(__FILE__).'/templates/step2.tpl');
@@ -635,10 +671,13 @@ function filter_array($array, $term)
 }
 
 //function to remove if any of the prices are empty/not listed
-// function removeEmpty(&$arr) {
-//     foreach ($arr as $index => $person) {
-//         if (count($person) != count(array_filter($person, function($value) { return !!$value; }))) {
-//             unset($arr[$index]);
-//         }
-//     }
-// }
+function removeEmpty(&$tld_register_renew_transfer_currency)
+{
+    foreach ($tld_register_renew_transfer_currency as $key => $tldData) {
+        if (count($tldData) != count(array_filter($tldData, function ($value) {
+            return !!$value;
+        }))) {
+            unset($tld_register_renew_transfer_currency[$key]);
+        }
+    }
+}
