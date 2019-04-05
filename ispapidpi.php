@@ -193,7 +193,7 @@ function ispapidpi_output($vars)
                         $csvAsArray = array();
                         //if the delimiter is ; then continue else print an error message
                         if (checkDelimiterCount($tmpName)) {
-                         //handling comma and semicolon with csv files
+                            //handling comma and semicolon with csv files
                             $csvAsArray = array_map(function ($d) {
                                     return str_getcsv($d, ",");
                             }, file($tmpName));
@@ -202,7 +202,7 @@ function ispapidpi_output($vars)
                                 return str_getcsv($d, ";");
                             }, file($tmpName));
 
-                     //remove first element (header part of the csv file)
+                            //remove first element (header part of the csv file)
                             array_shift($csvAsArray);
 
                             $csv_as_new_array = [];
@@ -219,7 +219,7 @@ function ispapidpi_output($vars)
                                 }
                             }
 
-                     //to change keys of above array to strings
+                            //to change keys of above array to strings
                             $keynames = array('register', 'renew', 'transfer');
                             foreach ($csv_as_new_array as $key => $value) {
                                 $csv_as_new_array[$key] = array_combine($keynames, array_values($csv_as_new_array[$key]));
@@ -236,7 +236,7 @@ function ispapidpi_output($vars)
                             $smarty->display(dirname(__FILE__).'/templates/step2.tpl');
                         } else {
                             echo "<div class='errorbox'><strong><span class='title'>File error!</span></strong><br>CSV file should use \";\" as separator.</div>";
-                        // echo "<div class='errorbox'><strong><span class='title'>ERROR!</span></strong><br>No CSV file has been selected.</div><br>";
+                            // echo "<div class='errorbox'><strong><span class='title'>ERROR!</span></strong><br>No CSV file has been selected.</div><br>";
                             $smarty->display(dirname(__FILE__).'/templates/step1.tpl');
                         }
                     } else {
@@ -298,127 +298,78 @@ function checkDelimiterCount($file)
     return 1;
 }
 
-//this function is called based on the user selection --> selection of price class or to use default hexonet costs and creates an array
-function collect_tld_register_transfer_renew_currency($priceclass_or_defaultcost)
+/**
+ * Convert Relation Prices into format that can be consumed by WHMCS
+ * and output the result
+ * @param array $r API response of StatusUser or StatusUserClass, providing relations
+ */
+function collect_tld_register_transfer_renew_currency($r)
 {
-    //include file for second or third level domain name
+    //include file for TLDCLASS to TLD Label mapping
     include(dirname(__FILE__)."/tldlib_array.php");
 
+    //collect register, renew and transfer prices and currency for each tld in an array
+    $relationprices = array();
+    //relation type to value mapping for faster access
+    $relations = array();
+    foreach ($r["PROPERTY"]["RELATIONTYPE"] as $idx => &$type) {
+        $relations[$type] = $r["PROPERTY"]["RELATIONVALUE"][$idx];
+    }
+    //tldclass pattern (we leave out tldclasses without currency for import)
+    //this results in one match per tldclass, so we can drop array_unique later on
+    $pattern_for_tldclass = "/^PRICE_CLASS_DOMAIN_([^_]+)_CURRENCY$/";
+    foreach (preg_grep($pattern_for_tldclass, $r["PROPERTY"]["RELATIONTYPE"]) as $ctype) {
+        $tldclass = preg_replace("/(^PRICE_CLASS_DOMAIN_|_CURRENCY$)/", "", $ctype);
+        // if one of relation types SETUP, ANNUAL, TRANSFER exists
+        if (!isset($relations["PRICE_CLASS_DOMAIN_{$tldclass}_SETUP"]) &&
+            !isset($relations["PRICE_CLASS_DOMAIN_{$tldclass}_ANNUAL"]) &&
+            !isset($relations["PRICE_CLASS_DOMAIN_{$tldclass}_TRANSFER"])
+        ) {
+            continue;
+        }
+        //get currency
+        $currency = $relations[$ctype];
+        //get tld label; check if tldclass exeption is defined
+        $tld = isset($tldlib[$tldclass]) ? $tldlib[$tldclass]['tld'] : strtolower($tldclass);
+        //define pattern
+        $pattern ="/^PRICE_CLASS_DOMAIN_{$tldclass}_(SETUP|ANNUAL|TRANSFER)$/i";
+        $types = preg_grep($pattern, $r["PROPERTY"]["RELATIONTYPE"]);
+        if (!empty($types)) {
+            $prices = array(
+                'register' => '',
+                'renew' => '',
+                'transfer' => '',
+                'currency' => $currency
+            );
+            foreach ($types as $type) {
+                //for now we only care about these ones! -> 1Y term
+                //* basically (SETUP|ANNUAL|TRANSFER|...)[0-9]* could also appear to provide term specific prices
+                //* also handling PROMO relations is not yet covered
+                switch (preg_replace("/^.+_/", "", $type)) {
+                    case 'SETUP':
+                        $prices['register'] = $relations[$type];
+                        break;
+                    case 'ANNUAL':
+                        $prices['renew'] = $relations[$type];
+                        break;
+                    default: //TRANSFER
+                        $prices['transfer'] = $relations[$type];
+                        break;
+                }
+            }
+            if ($prices['register'] != '' || $prices['renew'] != '') {
+                $prices['register'] = sprintf("%.2f", (floatval($prices['register']) + floatval($prices['renew'])));
+            }
+            $relationprices[$tld] = $prices;
+        }
+    }
+
+    $_SESSION["tld-register-renew-transfer-currency-filter"] = $relationprices; //session variable for tld data (tld, prices, currency)
     //smarty template for table in step 2
     $smarty = new Smarty;
     $smarty->compile_dir = $GLOBALS['templates_compiledir'];
     $smarty->caching = false;
-
-    $pattern_for_tld = "/PRICE_CLASS_DOMAIN_([^_]+)_/";
-    $tlds = [];
-    foreach ($priceclass_or_defaultcost["PROPERTY"]["RELATIONTYPE"] as $key => $value) {
-        if (preg_match($pattern_for_tld, $value, $match)) {
-            $tlds[] = $match[1];
-        }
-    }
-
-    //remove duplicates of tlds
-    $tlds = array_unique($tlds);
-
-    //collect register, renew and transfer prices and currency for each tld in an array
-    $tld_register_renew_transfer_currency = array();
-    foreach ($tlds as $key => $tld) {
-        $register_price = '';
-
-        //register
-        $pattern_for_registerprice ="/PRICE_CLASS_DOMAIN_".$tld."_ANNUAL$/";
-        if (preg_grep($pattern_for_registerprice, $priceclass_or_defaultcost["PROPERTY"]["RELATIONTYPE"])) {
-            $register_match = preg_grep($pattern_for_registerprice, $priceclass_or_defaultcost["PROPERTY"]["RELATIONTYPE"]);
-            $register_match_keys = array_keys($register_match);
-            // $tld_data[] = $tld;
-            foreach ($register_match_keys as $key) {
-                if (array_key_exists($key, $priceclass_or_defaultcost["PROPERTY"]["RELATIONVALUE"])) {
-                    //values of the keys
-                    //register and renew
-                    $register_price = $priceclass_or_defaultcost["PROPERTY"]["RELATIONVALUE"][$key];
-                    $tld_register_renew_transfer_currency[$tld]['register'] = $register_price;
-                    // $tld_register_renew_transfer_currency[$tld]['renew']= $register_price;
-                }
-            }
-        } else {
-            $tld_register_renew_transfer_currency[$tld]['register']='';
-        }
-
-        //renew
-        $pattern_for_renewprice = "/PRICE_CLASS_DOMAIN_".$tld."_RENEW$/";
-        if (preg_grep($pattern_for_renewprice, $priceclass_or_defaultcost["PROPERTY"]["RELATIONTYPE"])) {
-            $renew_match = preg_grep($pattern_for_renewprice, $priceclass_or_defaultcost["PROPERTY"]["RELATIONTYPE"]);
-            $renew_match_keys = array_keys($renew_match);
-            foreach ($renew_match_keys as $key) {
-                if (array_key_exists($key, $priceclass_or_defaultcost["PROPERTY"]["RELATIONVALUE"])) {
-                    //values of the keys
-                    $renew_price = $priceclass_or_defaultcost["PROPERTY"]["RELATIONVALUE"][$key];
-                    $tld_register_renew_transfer_currency[$tld]['renew'] = $renew_price;
-                }
-            }
-        } else {
-            $tld_register_renew_transfer_currency[$tld]['renew'] = $register_price;
-        }
-
-        //Transfer
-        $pattern_for_transferprice = "/PRICE_CLASS_DOMAIN_".$tld."_TRANSFER$/";
-        if (preg_grep($pattern_for_transferprice, $priceclass_or_defaultcost["PROPERTY"]["RELATIONTYPE"])) {
-            $transfer_match = preg_grep($pattern_for_transferprice, $priceclass_or_defaultcost["PROPERTY"]["RELATIONTYPE"]);
-            $transfer_match_keys = array_keys($transfer_match);
-            foreach ($transfer_match_keys as $key) {
-                if (array_key_exists($key, $priceclass_or_defaultcost["PROPERTY"]["RELATIONVALUE"])) {
-                    //values of the keys
-                    $transfer_price = $priceclass_or_defaultcost["PROPERTY"]["RELATIONVALUE"][$key];
-                    $tld_register_renew_transfer_currency[$tld]['transfer'] = $transfer_price;
-                }
-            }
-        } else {
-            $tld_register_renew_transfer_currency[$tld]['transfer']= '';
-        }
-
-        //get tld currency
-        $pattern_for_currency = "/PRICE_CLASS_DOMAIN_".$tld."_CURRENCY$/";
-        $currency_match = preg_grep($pattern_for_currency, $priceclass_or_defaultcost["PROPERTY"]["RELATIONTYPE"]);
-        $currency_match_keys= array_keys($currency_match);
-        foreach ($currency_match_keys as $key) {
-            if (array_key_exists($key, $priceclass_or_defaultcost["PROPERTY"]["RELATIONVALUE"])) {
-                $tld_currency = $priceclass_or_defaultcost["PROPERTY"]["RELATIONVALUE"][$key];
-                $tld_register_renew_transfer_currency[$tld]['currency'] = $tld_currency;
-            }
-        }
-
-        //remove tlds which have empty register, renew and transfer relations
-        if (empty($tld_register_renew_transfer_currency[$tld]['register']) && empty($tld_register_renew_transfer_currency[$tld]['renew']) && empty($tld_register_renew_transfer_currency[$tld]['transfer'])) {
-            unset($tld_register_renew_transfer_currency[$tld]);
-        }
-    }
-
-    //remove tlds which have 0 pricings
-    //removeEmpty($tld_register_renew_transfer_currency);
-
-    //filter tlds that are with currency USD
-    //$tld_register_renew_transfer_currency_filter = filter_array($tld_register_renew_transfer_currency,'USD');
-
-    $tld_register_renew_transfer_currency_filter = $tld_register_renew_transfer_currency;
-
-    $tld_register_renew_transfer_currency_filter =  array_change_key_case($tld_register_renew_transfer_currency_filter, CASE_LOWER);
-
-    //check for second or third level domain names and replace
-    $tldlib =  array_change_key_case($tldlib, CASE_LOWER);
-
-    $tld_register_renew_transfer_currency_filter1 = array();
-    foreach ($tld_register_renew_transfer_currency_filter as $key => $value) {
-        if (array_key_exists($key, $tldlib)) {
-            $tld_register_renew_transfer_currency_filter1[$tldlib[$key]['tld']] = $tld_register_renew_transfer_currency_filter[$key];
-        } else {
-            //do not add tlds which are not existing in $tldlib.
-            //$tld_register_renew_transfer_currency_filter1[$key] = $tld_register_renew_transfer_currency_filter[$key];
-        }
-    }
-
-    $_SESSION["tld-register-renew-transfer-currency-filter"] = $tld_register_renew_transfer_currency_filter1; //session variable for tld data (tld and prices ,currency)
-
-    $smarty->assign('tld_register_renew_transfer_currency_filter', $tld_register_renew_transfer_currency_filter1);
+    $smarty->assign('tld_register_renew_transfer_currency_filter', $relationprices);
     $smarty->display(dirname(__FILE__).'/templates/step2.tpl');
 }
 
