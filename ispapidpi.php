@@ -321,8 +321,7 @@ function collect_tld_register_transfer_renew_currency($r)
     foreach (preg_grep($pattern_for_tldclass, $r["PROPERTY"]["RELATIONTYPE"]) as $ctype) {
         $tldclass = preg_replace("/(^PRICE_CLASS_DOMAIN_|_CURRENCY$)/", "", $ctype);
         // if one of relation types SETUP, ANNUAL, TRANSFER exists
-        if (
-            preg_match($dontofferpattern, $tldclass) || (
+        if (preg_match($dontofferpattern, $tldclass) || (
             !isset($relations["PRICE_CLASS_DOMAIN_{$tldclass}_SETUP"]) &&
             !isset($relations["PRICE_CLASS_DOMAIN_{$tldclass}_ANNUAL"]) &&
             !isset($relations["PRICE_CLASS_DOMAIN_{$tldclass}_TRANSFER"]))
