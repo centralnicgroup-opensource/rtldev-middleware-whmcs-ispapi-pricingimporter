@@ -321,16 +321,18 @@ function collect_tld_register_transfer_renew_currency($r)
     foreach (preg_grep($pattern_for_tldclass, $r["PROPERTY"]["RELATIONTYPE"]) as $ctype) {
         $tldclass = preg_replace("/(^PRICE_CLASS_DOMAIN_|_CURRENCY$)/", "", $ctype);
         // if one of relation types SETUP, ANNUAL, TRANSFER exists
-        if (!isset($relations["PRICE_CLASS_DOMAIN_{$tldclass}_SETUP"]) &&
+        if (
+            preg_match($dontofferpattern, $tldclass) || (
+            !isset($relations["PRICE_CLASS_DOMAIN_{$tldclass}_SETUP"]) &&
             !isset($relations["PRICE_CLASS_DOMAIN_{$tldclass}_ANNUAL"]) &&
-            !isset($relations["PRICE_CLASS_DOMAIN_{$tldclass}_TRANSFER"])
+            !isset($relations["PRICE_CLASS_DOMAIN_{$tldclass}_TRANSFER"]))
         ) {
             continue;
         }
         //get currency
         $currency = $relations[$ctype];
         //get tld label; check if tldclass exeption is defined
-        $tld = isset($tldlib[$tldclass]) ? $tldlib[$tldclass]['tld'] : strtolower($tldclass);
+        $tld = isset($tldlib[$tldclass]) ? $tldlib[$tldclass] : strtolower($tldclass);
         //define pattern
         $pattern ="/^PRICE_CLASS_DOMAIN_{$tldclass}_(SETUP|ANNUAL|TRANSFER)$/i";
         $types = preg_grep($pattern, $r["PROPERTY"]["RELATIONTYPE"]);
