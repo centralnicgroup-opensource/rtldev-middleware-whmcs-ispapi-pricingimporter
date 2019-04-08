@@ -1,3 +1,13 @@
+## [3.3.2](https://github.com/hexonet/whmcs-ispapi-pricingimporter/compare/v3.3.1...v3.3.2) (2019-04-08)
+
+
+### Bug Fixes
+
+* **domain registration price:** review import step2 ([f2de89d](https://github.com/hexonet/whmcs-ispapi-pricingimporter/commit/f2de89d))
+* **idn:** review idn output; fix smarty tpls ([6970c57](https://github.com/hexonet/whmcs-ispapi-pricingimporter/commit/6970c57))
+* **psr2:** apply format ([239fe8e](https://github.com/hexonet/whmcs-ispapi-pricingimporter/commit/239fe8e))
+* **tldlib:** review tldlib and its usage ([cbc8018](https://github.com/hexonet/whmcs-ispapi-pricingimporter/commit/cbc8018))
+
 ## [3.3.1](https://github.com/hexonet/whmcs-ispapi-pricingimporter/compare/v3.3.0...v3.3.1) (2018-11-26)
 
 
