@@ -1,3 +1,10 @@
+## [3.3.3](https://github.com/hexonet/whmcs-ispapi-pricingimporter/compare/v3.3.2...v3.3.3) (2019-04-08)
+
+
+### Bug Fixes
+
+* **build:** fix missing README in packages ([9a0b04f](https://github.com/hexonet/whmcs-ispapi-pricingimporter/commit/9a0b04f))
+
 ## [3.3.2](https://github.com/hexonet/whmcs-ispapi-pricingimporter/compare/v3.3.1...v3.3.2) (2019-04-08)
 
 

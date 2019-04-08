@@ -2,7 +2,7 @@
 use WHMCS\Database\Capsule;
 
 session_start();
-$module_version = "3.3.2";
+$module_version = "3.3.3";
 
 function ispapidpi_config()
 {
