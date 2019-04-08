@@ -17,7 +17,7 @@ buildsources:
 	cp -a templates $(FOLDER)/install/modules/addons/ispapidpi/templates
 	cp -a css $(FOLDER)/install/modules/addons/ispapidpi/css
 	# Create docs
-	cp HISTORY.md HISTORY.old LICENSE CONTRIBUTING.md /tmp/$(REPOID)/*.md $(FOLDER)/docs
+	cp README.md HISTORY.md HISTORY.old LICENSE CONTRIBUTING.md /tmp/$(REPOID)/*.md $(FOLDER)/docs
 	# Cleanup file list
 	rm -rf $(FOLDER)/docs/_*.md $(FOLDER)/docs/Home.md /tmp/$(REPOID)
 	# convert all necessary files to html
