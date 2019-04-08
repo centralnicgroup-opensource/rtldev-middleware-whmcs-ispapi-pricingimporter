@@ -34,20 +34,20 @@
   </tr>
   {foreach $tld_register_renew_transfer_currency_filter as $tld => $value}
         <tr>
-            <td><input type=checkbox class=tocheck  name=checkbox-tld[] value={$tld}></input></td>
-            <td>.{$tld}</input></td>
+            <td valign="top"><input type="checkbox" class="tocheck"  name="checkbox-tld[]" value="{$tld}"/></td>
+            <td valign="top">{if preg_match("/^xn--/", $tld)}.{$idnmap[$tld]}<br/><small>(.{$tld})</small>{else}.{$tld}{/if}</td>
             {foreach $value as $key}
-                <td name=Myprices>{$key}</td>
+                <td name="Myprices" valign="top">{$key}</td>
             {/foreach}
         </tr>
    {/foreach}
 
    {foreach $csv_as_new_array as $tld=>$value}
      <tr>
-       <td><input type=checkbox class=tocheck name=checkbox-tld[] value={$tld}></input></td>
-       <td>.{$tld}</input></td>
+       <td valign="top"><input type="checkbox" class="tocheck" name="checkbox-tld[]"" value="{$tld}"/></td>
+       <td valign="top">{if preg_match("/^xn--/", $tld)}.{$idnmap[$tld]}<br/><small>(.{$tld})</small>{else}.{$tld}{/if}</td>
        {foreach $value as $key}
-         <td name='Myprices'>{$key}</td>
+         <td name="Myprices" valign="top">{$key}</td>
        {/foreach}
     </tr>
   {/foreach}
@@ -68,7 +68,7 @@
     }
     else {
       for (var i = 0; i < checkboxes.length; i++) {
-        console.log(i)
+        //console.log(i)
         if (checkboxes[i].type == "checkbox") {
           checkboxes[i].checked = false;
         }
