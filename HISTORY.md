@@ -1,3 +1,10 @@
+# [3.4.0](https://github.com/hexonet/whmcs-ispapi-pricingimporter/compare/v3.3.3...v3.4.0) (2019-04-08)
+
+
+### Features
+
+* **max_input_vars:** check if POST data size is higher than max_input_vars setting ([e0c6bd0](https://github.com/hexonet/whmcs-ispapi-pricingimporter/commit/e0c6bd0))
+
 ## [3.3.3](https://github.com/hexonet/whmcs-ispapi-pricingimporter/compare/v3.3.2...v3.3.3) (2019-04-08)
 
 
