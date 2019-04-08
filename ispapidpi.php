@@ -95,6 +95,11 @@ function ispapidpi_output($vars)
     $smarty->assign('queryuserclasslist', $queryuserclasslist);
 
     if (isset($_POST['checkbox-tld']) || (isset($_SESSION["checkbox-tld"]) && isset($_POST['multiplier'])) || (isset($_SESSION["checkbox-tld"]) && isset($_POST['addfixedamount'])) || isset($_POST['import'])) {
+        //warning message to increase max_input_vars
+        if (ini_get("max_input_vars") <= count($_POST, COUNT_RECURSIVE)) {
+            echo "<div class='errorbox'><strong><span class='title'>WARNING!</span></strong><br>You are importing a large number of TLDs. For successful import, please increase the value of 'max_input_vars' in your server file php.ini.</div><br>";
+        }
+
         //step 3
         if (isset($_POST['checkbox-tld'])) {
             $_SESSION["checkbox-tld"] = $_POST["checkbox-tld"];
@@ -162,17 +167,19 @@ function ispapidpi_output($vars)
             $add_fixed_amount = $_POST['add-fixed-amount'];
             $smarty->assign('add_fixed_amount', $add_fixed_amount);
             $smarty->assign('session-checked-tld-data', $_SESSION["checked_tld_data"]);
-            $smarty->assign('currency_data', $currency_data);
-            $smarty->display(dirname(__FILE__).'/templates/step3.tpl');
+            #$smarty->assign('currency_data', $currency_data);
+            #$smarty->display(dirname(__FILE__).'/templates/step3.tpl');
         } elseif (isset($_POST['multiplier'])) {
             $smarty->assign('session-checked-tld-data', $_SESSION["checked_tld_data"]);
-            $smarty->assign('currency_data', $currency_data);
-            $smarty->display(dirname(__FILE__).'/templates/step3.tpl');
+            #$smarty->assign('currency_data', $currency_data);
+            #$smarty->display(dirname(__FILE__).'/templates/step3.tpl');
         } else {
             $smarty->assign('session-checked-tld-data', $_SESSION["checked_tld_data"]);
-            $smarty->assign('currency_data', $currency_data);
-            $smarty->display(dirname(__FILE__).'/templates/step3.tpl');
+            #$smarty->assign('currency_data', $currency_data);
+            #$smarty->display(dirname(__FILE__).'/templates/step3.tpl');
         }
+        $smarty->assign('currency_data', $currency_data);
+        $smarty->display(dirname(__FILE__).'/templates/step3.tpl');
     } elseif (isset($_POST['price_class'])) {
         //step 2
         $_SESSION["price_class"] = $_POST['price_class'];
