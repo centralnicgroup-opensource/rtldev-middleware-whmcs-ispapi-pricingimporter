@@ -33,6 +33,8 @@ function ispapidpi_output($vars)
 {
     //load and check if registrar module is installed
     require_once(implode(DIRECTORY_SEPARATOR, array(ROOTDIR,"includes","registrarfunctions.php")));
+    //include file for TLDCLASS to TLD Label mapping
+    include(dirname(__FILE__)."/tldlib_array.php");
 
     //check if the registrar module exists
     $file = "ispapi";
@@ -154,7 +156,8 @@ function ispapidpi_output($vars)
         } catch (Exception $e) {
             die($e->getMessage());
         }
-
+        
+        $smarty->assign('idnmap', $idnmap);
         if (isset($_POST['add-fixed-amount'])) {
             $add_fixed_amount = $_POST['add-fixed-amount'];
             $smarty->assign('add_fixed_amount', $add_fixed_amount);
@@ -305,9 +308,6 @@ function checkDelimiterCount($file)
  */
 function collect_tld_register_transfer_renew_currency($r)
 {
-    //include file for TLDCLASS to TLD Label mapping
-    include(dirname(__FILE__)."/tldlib_array.php");
-
     //collect register, renew and transfer prices and currency for each tld in an array
     $relationprices = array();
     //relation type to value mapping for faster access
@@ -371,6 +371,7 @@ function collect_tld_register_transfer_renew_currency($r)
     $smarty->compile_dir = $GLOBALS['templates_compiledir'];
     $smarty->caching = false;
     $smarty->assign('tld_register_renew_transfer_currency_filter', $relationprices);
+    $smarty->assign('idnmap', $idnmap);
     $smarty->display(dirname(__FILE__).'/templates/step2.tpl');
 }
 

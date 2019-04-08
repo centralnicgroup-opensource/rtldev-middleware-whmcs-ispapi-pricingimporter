@@ -283,4 +283,34 @@ $tldlib = array(
     'ZACOM' => 'za.com'
 );
 
-$dontofferpattern = "/^(TESTDNSERVICESCOZA|TLDBOX|NAME|NAMEEMAIL|DPML(PUB|ZONE)|.+(IDN|IDNTLD|IDNTLDASCII|REGIONAL|(CHARS|NUMBERS)[0-9]*))$/i";
+$idnmap = array(//this could get replaced by using CONVERTIDN command
+    "xn--3ds443g" => "在线",
+    "xn--5tzm5g" => "网站",
+    "xn--6frz82g" => "移动",
+    "xn--80asehdb" => "онлайн",
+    "xn--80aswg" => "сайт",
+    "xn--9dbq2a" => "קום",
+    "xn--c1avg" => "орг",
+    "xn--czrs0t" => "商店",
+    "xn--fiq228c5hs" => "中文网",
+    "xn--fjq720a" => "娱乐",
+    "xn--h2brj9c" => "भारत",
+    "xn--i1b6b1a6a2e" => "संगठन",
+    "xn--j6w193g" => "香港",
+    "xn--mgbaam7a8h" => "امارات",
+    "xn--mgbab2bd" => "بازار",
+    "xn--mk1bu44c" => "닷컴",
+    "xn--nqv7f" => "机构",
+    "xn--q9jyb4c" => "みんな",
+    "xn--rhqv96g" => "世界",
+    "xn--t60b56a" => "닷넷",
+    "xn--tckwe" => "コム",
+    "xn--unup4y" => "游戏",
+    "xn--vhquv" => "企业",
+    "xn--y9a3aq" => "հայ",
+    "xn--ngbc5azd" => "شبكة",
+    "xn--wgbl6a" => "قطر"
+
+);
+
+$dontofferpattern = "/^(MANDATE--SWISS|TESTDNSERVICESCOZA|TLDBOX|NAME|NAMEEMAIL|DPML(PUB|ZONE)|.+(IDN|IDNTLD|IDNTLDASCII|REGIONAL|(CHARS|NUMBERS)[0-9]*))$/i";
