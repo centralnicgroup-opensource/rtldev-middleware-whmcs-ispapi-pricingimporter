@@ -187,7 +187,7 @@ function ispapidpi_output($vars)
                     "command" => "StatusUser"
                 );
                 $default_costs = ispapi_call($command, $ispapi_config);
-                collect_tld_register_transfer_renew_currency($default_costs);
+                collect_tld_register_transfer_renew_currency($default_costs, $tldlib, $idnmap);
             } elseif ($_POST['price_class'] == "CSV-FILE") {
                 //when csv file is slected also in STEP 2
                 //to check if the file is csv
@@ -269,7 +269,7 @@ function ispapidpi_output($vars)
                     "userclass"=> $_POST['price_class']
                 );
                 $getdata_of_priceclass = ispapi_call($command, $ispapi_config);
-                collect_tld_register_transfer_renew_currency($getdata_of_priceclass);
+                collect_tld_register_transfer_renew_currency($getdata_of_priceclass, $tldlib, $idnmap);
             }
         } else {
             //step 1
@@ -313,7 +313,7 @@ function checkDelimiterCount($file)
  * and output the result
  * @param array $r API response of StatusUser or StatusUserClass, providing relations
  */
-function collect_tld_register_transfer_renew_currency($r)
+function collect_tld_register_transfer_renew_currency($r, $tldlib, $idnmap)
 {
     //collect register, renew and transfer prices and currency for each tld in an array
     $relationprices = array();
