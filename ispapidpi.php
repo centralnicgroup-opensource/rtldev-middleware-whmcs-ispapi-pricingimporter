@@ -187,7 +187,7 @@ function ispapidpi_output($vars)
                     "command" => "StatusUser"
                 );
                 $default_costs = ispapi_call($command, $ispapi_config);
-                collect_tld_register_transfer_renew_currency($default_costs, $tldlib, $idnmap);
+                collect_tld_register_transfer_renew_currency($default_costs, $tldlib, $idnmap, $dontofferpattern);
             } elseif ($_POST['price_class'] == "CSV-FILE") {
                 //when csv file is slected also in STEP 2
                 //to check if the file is csv
@@ -269,7 +269,7 @@ function ispapidpi_output($vars)
                     "userclass"=> $_POST['price_class']
                 );
                 $getdata_of_priceclass = ispapi_call($command, $ispapi_config);
-                collect_tld_register_transfer_renew_currency($getdata_of_priceclass, $tldlib, $idnmap);
+                collect_tld_register_transfer_renew_currency($getdata_of_priceclass, $tldlib, $idnmap, $dontofferpattern);
             }
         } else {
             //step 1
@@ -312,8 +312,11 @@ function checkDelimiterCount($file)
  * Convert Relation Prices into format that can be consumed by WHMCS
  * and output the result
  * @param array $r API response of StatusUser or StatusUserClass, providing relations
+ * @param array $tldlib TLDCLASS to TLDLABEL mapping
+ * @param array $idnmap TLDCLASS to Umlaut-Label mapping
+ * @param string $dontofferpattern pattern filter for TLDCLASS to not offer
  */
-function collect_tld_register_transfer_renew_currency($r, $tldlib, $idnmap)
+function collect_tld_register_transfer_renew_currency($r, $tldlib, $idnmap, $dontofferpattern)
 {
     //collect register, renew and transfer prices and currency for each tld in an array
     $relationprices = array();
