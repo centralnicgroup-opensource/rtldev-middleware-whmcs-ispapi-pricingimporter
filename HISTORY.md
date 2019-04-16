@@ -1,3 +1,27 @@
+# [4.0.0](https://github.com/hexonet/whmcs-ispapi-pricingimporter/compare/v3.3.3...v4.0.0) (2019-04-16)
+
+
+### Bug Fixes
+
+* **idn:** review idn tld output ([1289a3a](https://github.com/hexonet/whmcs-ispapi-pricingimporter/commit/1289a3a))
+* **import:** not considering pattern blacklist ([ffc934b](https://github.com/hexonet/whmcs-ispapi-pricingimporter/commit/ffc934b))
+* **semantic-release:** trigger next major release as of versioning issues ([a1d1460](https://github.com/hexonet/whmcs-ispapi-pricingimporter/commit/a1d1460))
+
+
+### Features
+
+* **max_input_vars:** check if POST data size is higher than max_input_vars setting ([0df14a4](https://github.com/hexonet/whmcs-ispapi-pricingimporter/commit/0df14a4))
+
+
+### Performance Improvements
+
+* **max_input_vars:** initial review ([c145611](https://github.com/hexonet/whmcs-ispapi-pricingimporter/commit/c145611))
+
+
+### BREAKING CHANGES
+
+* **semantic-release:** NO breaking change, we just need to trigger next major version
+
 # [3.4.0](https://github.com/hexonet/whmcs-ispapi-pricingimporter/compare/v3.3.3...v3.4.0) (2019-04-16)
 
 
