@@ -1,3 +1,10 @@
+## [4.0.1](https://github.com/hexonet/whmcs-ispapi-pricingimporter/compare/v4.0.0...v4.0.1) (2019-05-08)
+
+
+### Bug Fixes
+
+* **IDN:** fix import of IDN TLDs ([d541eed](https://github.com/hexonet/whmcs-ispapi-pricingimporter/commit/d541eed))
+
 # [4.0.0](https://github.com/hexonet/whmcs-ispapi-pricingimporter/compare/v3.3.3...v4.0.0) (2019-04-16)
 
 
