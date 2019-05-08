@@ -18,17 +18,6 @@ function ispapidpi_config()
     return $configarray;
 }
 
-function ispapidpi_activate()
-{
-    return array('status'=>'success','description'=>'Installed');
-}
-
-function ispapidpi_deactivate()
-{
-    return array('status'=>'success','description'=>'Uninstalled');
-}
-
-
 function ispapidpi_output($vars)
 {
     //load and check if registrar module is installed
