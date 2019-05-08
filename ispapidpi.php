@@ -1,5 +1,7 @@
 <?php
 use WHMCS\Database\Capsule;
+use ISPAPI\Helper;
+use ISPAPI\LoadRegistrars;
 
 session_start();
 $module_version = "4.0.0";
@@ -468,19 +470,42 @@ function importButton()
 //loop through array and insert or update the tld and prices for whmcs to DB
 function startimport($prices_for_whmcs)
 {
+    $path = implode(DIRECTORY_SEPARATOR, array(ROOTDIR,"modules","registrars","ispapi","lib","Helper.class.php"));
+    if (file_exists($path)) {
+        require_once($path);
+    } else {
+        die("The ISPAPI Pricing importer Module requires ISPAPI Registrar Module v1.7.3 or higher!");
+    }
+    require_once(implode(DIRECTORY_SEPARATOR, array(ROOTDIR,"modules","registrars","ispapi","lib","LoadRegistrars.class.php")));
+    $registrars = (new LoadRegistrars())->getLoadedRegistars();
+    $registrar = $registrars[0];
+
     try {
         $pdo = Capsule::connection()->getPdo();
 
         $prices_for_whmcs = array_change_key_case($prices_for_whmcs, CASE_LOWER);
+        
+        // Convert TLDs to IDN (as having punycode in DB is not desired)
+        $idns = array_keys($prices_for_whmcs);
+        $r = Helper::APICall($registrar, array(
+            "COMMAND"   => "ConvertIDN",
+            "DOMAIN"    => $idns
+        ));
+        if ($r["CODE"] == 200) {
+            $idns = $r["PROPERTY"]["IDN"];
+        }
+        $idx = 0;
         foreach ($prices_for_whmcs as $key => $value) {
+            $tld_idn = "." . $idns[$idx];
+            $idx++;
             //with TLD/extension
             $stmt = $pdo->prepare("SELECT * FROM tbldomainpricing WHERE extension=?");
-            $stmt->execute(array('.'.$key));
+            $stmt->execute(array($tld_idn));
             $tbldomainpricing = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if (!empty($tbldomainpricing)) {
                 $update_stmt = $pdo->prepare("UPDATE tbldomainpricing SET dnsmanagement=?, emailforwarding=?, idprotection=?, eppcode=? WHERE extension=?");
-                $update_stmt->execute(array($prices_for_whmcs[$key][3]['dns-management'], $prices_for_whmcs[$key][3]['email-forwarding'], $prices_for_whmcs[$key][3]['id-protection'], $prices_for_whmcs[$key][3]['epp-code'], '.'.$key));
+                $update_stmt->execute(array($prices_for_whmcs[$key][3]['dns-management'], $prices_for_whmcs[$key][3]['email-forwarding'], $prices_for_whmcs[$key][3]['id-protection'], $prices_for_whmcs[$key][3]['epp-code'], $tld_idn));
             } else {
                 if (!$prices_for_whmcs[$key][3]['dns-management']) {
                     $prices_for_whmcs[$key][3]['dns-management'] = '';
@@ -496,10 +521,10 @@ function startimport($prices_for_whmcs)
                 }
 
                 $insert_stmt = $pdo->prepare("INSERT INTO tbldomainpricing ( extension, dnsmanagement, emailforwarding, idprotection, eppcode, autoreg) VALUES ( ?, ?, ?, ?, ?, 'ispapi')");
-                $insert_stmt->execute(array('.'.$key, $prices_for_whmcs[$key][3]['dns-management'], $prices_for_whmcs[$key][3]['email-forwarding'], $prices_for_whmcs[$key][3]['id-protection'], $prices_for_whmcs[$key][3]['epp-code']));
+                $insert_stmt->execute(array($tld_idn, $prices_for_whmcs[$key][3]['dns-management'], $prices_for_whmcs[$key][3]['email-forwarding'], $prices_for_whmcs[$key][3]['id-protection'], $prices_for_whmcs[$key][3]['epp-code']));
                 if ($insert_stmt->rowCount() != 0) {
                     $stmt = $pdo->prepare("SELECT id FROM tbldomainpricing WHERE extension=?");
-                    $stmt->execute(array('.'.$key));
+                    $stmt->execute(array($tld_idn));
                     $tbldomainpricing = $stmt->fetch(PDO::FETCH_ASSOC);
                 }
             }
@@ -585,12 +610,3 @@ function filter_array($array, $term)
     }
     return $matches;
 }
-
-//function to remove if any of the prices are empty/not listed
-// function removeEmpty(&$arr) {
-//     foreach ($arr as $index => $person) {
-//         if (count($person) != count(array_filter($person, function($value) { return !!$value; }))) {
-//             unset($arr[$index]);
-//         }
-//     }
-// }
