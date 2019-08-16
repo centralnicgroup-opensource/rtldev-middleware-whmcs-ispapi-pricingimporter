@@ -1,3 +1,10 @@
+## [4.0.2](https://github.com/hexonet/whmcs-ispapi-pricingimporter/compare/v4.0.1...v4.0.2) (2019-08-16)
+
+
+### Bug Fixes
+
+* **logo:** updated to our new module design ([e26ed25](https://github.com/hexonet/whmcs-ispapi-pricingimporter/commit/e26ed25))
+
 ## [4.0.1](https://github.com/hexonet/whmcs-ispapi-pricingimporter/compare/v4.0.0...v4.0.1) (2019-05-08)
 
 
