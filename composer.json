@@ -27,11 +27,6 @@
 	"license": "MIT",
 	"authors": [
 		{
-			"name": "Anthony Schneider",
-			"homepage": "https://github.com/anthonyschn",
-			"role": "Developer"
-		},
-		{
 			"name": "Kai Schwarz",
 			"homepage": "https://github.com/papakai",
 			"role": "Developer"
