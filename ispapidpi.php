@@ -4,7 +4,7 @@ use ISPAPI\Helper;
 use ISPAPI\LoadRegistrars;
 
 session_start();
-$module_version = "4.0.2";
+$module_version = "4.0.3";
 
 function ispapidpi_config()
 {

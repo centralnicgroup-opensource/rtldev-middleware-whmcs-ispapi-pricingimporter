@@ -1,3 +1,10 @@
+## [4.0.3](https://github.com/hexonet/whmcs-ispapi-pricingimporter/compare/v4.0.2...v4.0.3) (2019-09-13)
+
+
+### Bug Fixes
+
+* **dep-bump:** Migrate CI to semantic-release-whmcs ([193daca](https://github.com/hexonet/whmcs-ispapi-pricingimporter/commit/193daca))
+
 ## [4.0.2](https://github.com/hexonet/whmcs-ispapi-pricingimporter/compare/v4.0.1...v4.0.2) (2019-08-16)
 
 
