@@ -45,7 +45,7 @@
   ],
   "devDependencies": {
     "semantic-release": "^15.13.18",
-    "@hexonet/semantic-release-githib-whmcs-config": "^1.0.0"
+    "@hexonet/semantic-release-github-whmcs-config": "^1.0.0"
   },
   "scripts": {
     "codeCheck": "phpcs --ignore=\"*/vendor/*\" --standard=PSR2 -q -n --colors *.php templates tests",
