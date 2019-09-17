@@ -1,3 +1,11 @@
+## [4.0.4](https://github.com/hexonet/whmcs-ispapi-pricingimporter/compare/v4.0.3...v4.0.4) (2019-09-17)
+
+
+### Bug Fixes
+
+* **npm:** fixed type in npm devDependencies ([43cf65f](https://github.com/hexonet/whmcs-ispapi-pricingimporter/commit/43cf65f))
+* **release process:** review from scratch ([103f7ee](https://github.com/hexonet/whmcs-ispapi-pricingimporter/commit/103f7ee))
+
 ## [4.0.3](https://github.com/hexonet/whmcs-ispapi-pricingimporter/compare/v4.0.2...v4.0.3) (2019-09-13)
 
 
