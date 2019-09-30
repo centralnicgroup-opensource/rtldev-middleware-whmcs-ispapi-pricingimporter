@@ -182,7 +182,7 @@ function ispapidpi_output($vars)
             } elseif ($_POST['price_class'] == "CSV-FILE") {
                 //when csv file is slected also in STEP 2
                 //to check if the file is csv
-                $type_of_uploaded_file = array('text/csv');
+                $type_of_uploaded_file = array('text/csv', 'application/vnd.ms-excel', 'text/plain');//linux vs. windows vs. just text
                 if (isset($_FILES["file"])) {
                     if (in_array($_FILES["file"]["type"], $type_of_uploaded_file)) {
                         $smarty->assign('post-file', $_FILES["file"]);
