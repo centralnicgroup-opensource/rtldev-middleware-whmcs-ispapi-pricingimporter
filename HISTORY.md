@@ -1,3 +1,10 @@
+## [4.0.5](https://github.com/hexonet/whmcs-ispapi-pricingimporter/compare/v4.0.4...v4.0.5) (2019-09-30)
+
+
+### Bug Fixes
+
+* **csv import:** add further supported file types ([881dc56](https://github.com/hexonet/whmcs-ispapi-pricingimporter/commit/881dc56))
+
 ## [4.0.4](https://github.com/hexonet/whmcs-ispapi-pricingimporter/compare/v4.0.3...v4.0.4) (2019-09-17)
 
 
