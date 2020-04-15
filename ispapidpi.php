@@ -1,7 +1,9 @@
 <?php
 use WHMCS\Database\Capsule;
-use ISPAPI\Helper;
-use ISPAPI\LoadRegistrars;
+
+use WHMCS\Module\Registrar\Ispapi\Ispapi;
+use WHMCS\Module\Registrar\Ispapi\LoadRegistrars;
+use WHMCS\Module\Registrar\Ispapi\Helper;
 
 session_start();
 $module_version = "4.0.5";
@@ -22,46 +24,16 @@ function ispapidpi_config()
 
 function ispapidpi_output($vars)
 {
-    //load and check if registrar module is installed
-    require_once(implode(DIRECTORY_SEPARATOR, array(ROOTDIR,"includes","registrarfunctions.php")));
+    //load all the ISPAPI registrars
+    $ispapi_registrars = new LoadRegistrars();
+    $_SESSION["ispapi_registrar"] = $ispapi_registrars->getLoadedRegistars();
+
+    if (empty($_SESSION["ispapi_registrar"])) {
+        die("The ispapi registrar authentication failed! Please verify your registrar credentials and try again.");
+    }
+
     //include file for TLDCLASS to TLD Label mapping
     include(dirname(__FILE__)."/tldlib_array.php");
-
-    //check if the registrar module exists
-    $file = "ispapi";
-    $error = false;
-    if (file_exists(implode(DIRECTORY_SEPARATOR, array(ROOTDIR,"modules","registrars",$file,$file.".php")))) {
-        require_once(implode(DIRECTORY_SEPARATOR, array(ROOTDIR,"modules","registrars",$file,$file.".php")));
-        $funcname = $file.'_GetISPAPIModuleVersion';
-        if (function_exists($file.'_GetISPAPIModuleVersion')) {
-            $version = call_user_func($file.'_GetISPAPIModuleVersion');
-
-            //check if version = 1.0.15 or higher
-            if (version_compare($version, '1.0.15') >= 0) {
-                //check authentication
-                $registrarconfigoptions = getregistrarconfigoptions($file);
-
-                $ispapi_config = ispapi_config($registrarconfigoptions);
-
-                $command = array(
-                        "COMMAND" => "CheckAuthentication",
-                );
-                $checkAuthentication = ispapi_call($command, $ispapi_config);
-                if ($checkAuthentication["CODE"] != "200") {
-                    die("The \"".$file."\" registrar authentication failed! Please verify your registrar credentials and try again.");
-                }
-            } else {
-                $error = true;
-            }
-        } else {
-            $error = true;
-        }
-    } else {
-        $error = true;
-    }
-    if ($error) {
-        die("The ISPAPI Pricing importer Module requires ISPAPI Registrar Module v1.0.15 or higher!");
-    }
 
     //download a sample csv file
     if (isset($_POST['download-sample-csv'])) {
@@ -77,12 +49,10 @@ function ispapidpi_output($vars)
     $smarty->assign('entity', $entity);
 
     //get all user classes
-    $registrarconfigoptions = getregistrarconfigoptions($file);
-    $ispapi_config = ispapi_config($registrarconfigoptions);
     $command = array(
         "command" => "queryuserclasslist"
     );
-    $queryuserclasslist = ispapi_call($command, $ispapi_config);
+    $queryuserclasslist = Ispapi::call($command);
     $smarty->assign('queryuserclasslist', $queryuserclasslist);
 
     //warning message to increase max_input_vars
@@ -157,16 +127,10 @@ function ispapidpi_output($vars)
                 $add_fixed_amount = $_POST['add-fixed-amount'];
                 $smarty->assign('add_fixed_amount', $add_fixed_amount);
                 $smarty->assign('session-checked-tld-data', $_SESSION["checked_tld_data"]);
-                #$smarty->assign('currency_data', $currency_data);
-                #$smarty->display(dirname(__FILE__).'/templates/step3.tpl');
             } elseif (isset($_POST['multiplier'])) {
                 $smarty->assign('session-checked-tld-data', $_SESSION["checked_tld_data"]);
-                #$smarty->assign('currency_data', $currency_data);
-                #$smarty->display(dirname(__FILE__).'/templates/step3.tpl');
             } else {
                 $smarty->assign('session-checked-tld-data', $_SESSION["checked_tld_data"]);
-                #$smarty->assign('currency_data', $currency_data);
-                #$smarty->display(dirname(__FILE__).'/templates/step3.tpl');
             }
             $smarty->assign('currency_data', $currency_data);
             $smarty->display(dirname(__FILE__).'/templates/step3.tpl');
@@ -177,7 +141,7 @@ function ispapidpi_output($vars)
                 $command =  $command = array(
                     "command" => "StatusUser"
                 );
-                $default_costs = ispapi_call($command, $ispapi_config);
+                $default_costs = Ispapi::call($command);
                 collect_tld_register_transfer_renew_currency($default_costs, $tldlib, $idnmap, $dontofferpattern);
             } elseif ($_POST['price_class'] == "CSV-FILE") {
                 //when csv file is slected also in STEP 2
@@ -259,7 +223,7 @@ function ispapidpi_output($vars)
                     "command" => "StatusUserClass",
                     "userclass"=> $_POST['price_class']
                 );
-                $getdata_of_priceclass = ispapi_call($command, $ispapi_config);
+                $getdata_of_priceclass = Ispapi::call($command);
                 collect_tld_register_transfer_renew_currency($getdata_of_priceclass, $tldlib, $idnmap, $dontofferpattern);
             }
         } else {
@@ -410,12 +374,6 @@ function importButton()
     //for checked items -DNS Management, email Forwarding, id Protection, epp code
     $domain_addons = [];
 
-    // $domain_addons['dns-management'] ='';
-    // $domain_addons['email-forwarding']='';
-    // $domain_addons['id-protection'] = '';
-    // $domain_addons['epp-code']= '';
-
-
     $dns_pattern = "/dns_management/";
     foreach ($_POST as $key => $value) {
         if (preg_match($dns_pattern, $key)) {
@@ -470,13 +428,6 @@ function importButton()
 //loop through array and insert or update the tld and prices for whmcs to DB
 function startimport($prices_for_whmcs)
 {
-    $path = implode(DIRECTORY_SEPARATOR, array(ROOTDIR,"modules","registrars","ispapi","lib","Helper.class.php"));
-    if (file_exists($path)) {
-        require_once($path);
-    } else {
-        die("The ISPAPI Pricing importer Module requires ISPAPI Registrar Module v1.7.3 or higher!");
-    }
-    require_once(implode(DIRECTORY_SEPARATOR, array(ROOTDIR,"modules","registrars","ispapi","lib","LoadRegistrars.class.php")));
     $registrars = (new LoadRegistrars())->getLoadedRegistars();
     $registrar = $registrars[0];
 
@@ -487,7 +438,7 @@ function startimport($prices_for_whmcs)
         
         // Convert TLDs to IDN (as having punycode in DB is not desired)
         $idns = array_keys($prices_for_whmcs);
-        $r = Helper::APICall($registrar, array(
+        $r = Ispapi::call(array(
             "COMMAND"   => "ConvertIDN",
             "DOMAIN"    => $idns
         ));
@@ -569,7 +520,6 @@ function startimport($prices_for_whmcs)
         die($e->getMessage());
     }
 }
-
 
 //download a sample csv file
 function download_csv_sample_file()
