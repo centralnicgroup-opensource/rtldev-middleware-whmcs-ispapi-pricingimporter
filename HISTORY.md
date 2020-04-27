@@ -1,3 +1,15 @@
+# [5.0.0](https://github.com/hexonet/whmcs-ispapi-pricingimporter/compare/v4.0.5...v5.0.0) (2020-04-27)
+
+
+### Code Refactoring
+
+* **migration:** to support v3.x.x of the ispapi registrar module ([f51ec27](https://github.com/hexonet/whmcs-ispapi-pricingimporter/commit/f51ec2759b4284024b3671f66abe7eca9c37b5f2))
+
+
+### BREAKING CHANGES
+
+* **migration:** compatible with ISPAPI registrar module v3.x.x
+
 ## [4.0.5](https://github.com/hexonet/whmcs-ispapi-pricingimporter/compare/v4.0.4...v4.0.5) (2019-09-30)
 
 
