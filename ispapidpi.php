@@ -6,20 +6,25 @@ use WHMCS\Module\Registrar\Ispapi\LoadRegistrars;
 use WHMCS\Module\Registrar\Ispapi\Helper;
 
 session_start();
-$module_version = "5.0.0";
 
 function ispapidpi_config()
 {
-    global $module_version;
-    $configarray = array(
+    return [
         "name" => "ISPAPI Pricing Importer",
         "description" => "Quickly update your WHMCS domain pricing list.",
-        "version" => $module_version,
         "author" => "HEXONET",
         "language" => "english",
-        "fields" => array("username" => array ("FriendlyName" => "Admin username", "Type" => "text", "Size" => "30", "Description" => "[REQUIRED]", "Default" => "admin",))
-    );
-    return $configarray;
+        "fields" => [
+            "username" => [
+                "FriendlyName" => "Admin username",
+                "Type" => "text",
+                "Size" => "30",
+                "Description" => "[REQUIRED]",
+                "Default" => "admin"
+            ]
+        ],
+        "version" => "5.0.0"
+    ];
 }
 
 function ispapidpi_output($vars)
