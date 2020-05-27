@@ -1,3 +1,10 @@
+## [5.0.1](https://github.com/hexonet/whmcs-ispapi-pricingimporter/compare/v5.0.0...v5.0.1) (2020-05-27)
+
+
+### Bug Fixes
+
+* **versioning:** migrate global var to config function ([002d9a8](https://github.com/hexonet/whmcs-ispapi-pricingimporter/commit/002d9a8c377e716f65470b0fac73a9d460299cbe))
+
 # [5.0.0](https://github.com/hexonet/whmcs-ispapi-pricingimporter/compare/v4.0.5...v5.0.0) (2020-04-27)
 
 
