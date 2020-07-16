@@ -8,6 +8,11 @@
 newversion="$1";
 date="$(date +'%Y-%m-%d')";
 
-sed -i "s/\"version\" => \"[0-9]\+\.[0-9]\+\.[0-9]\+\"/\"version\" => \"${newversion}\"/g" ispapidpi.php
-sed -i "s/\"version\": \"[0-9]\+\.[0-9]\+\.[0-9]\+\"/\"version\": \"${newversion}\"/g" release.json
-sed -i "s/\"date\": \"[0-9]\+-[0-9]\+-[0-9]\+\"/\"date\": \"${date}\"/g" release.json
+printf -v sed_script 's/"version" => "[0-9]\+\.[0-9]\+\.[0-9]\+"/"version" => "%s"/g' "${newversion}"
+sed -i -e "${sed_script}" ispapidpi.php
+
+printf -v sed_script 's/"version": "[0-9]\+\.[0-9]\+\.[0-9]\+"/"version": "%s"/g' "${newversion}"
+sed -i -e "${sed_script}" release.json
+
+printf -v sed_script 's/"date": "[0-9]\+-[0-9]\+-[0-9]\+"/"date": "%s"/g' "${date}"
+sed -i -e "${sed_script}" release.json
