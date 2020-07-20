@@ -49,6 +49,7 @@
     "@hexonet/semantic-release-github-whmcs-config": "^1.0.0"
   },
   "scripts": {
+    "phpCompatibility": "./scripts/phpcompatibility.sh",
     "codeCheck": "phpcs --standard=PSR1,PSR2 -q -n --colors *.php templates tests",
     "codeFix": "phpcbf --standard=PSR1,PSR2 -q *.php templates tests",
     "test": "phpunit"
