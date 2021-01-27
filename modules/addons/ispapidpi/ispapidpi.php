@@ -1,6 +1,6 @@
 <?php
-use WHMCS\Database\Capsule;
 
+use WHMCS\Database\Capsule;
 use WHMCS\Module\Registrar\Ispapi\Ispapi;
 use WHMCS\Module\Registrar\Ispapi\LoadRegistrars;
 use WHMCS\Module\Registrar\Ispapi\Helper;
@@ -38,7 +38,7 @@ function ispapidpi_output($vars)
     }
 
     //include file for TLDCLASS to TLD Label mapping
-    include(dirname(__FILE__)."/tldlib_array.php");
+    include(dirname(__FILE__) . "/tldlib_array.php");
 
     //download a sample csv file
     if (isset($_POST['download-sample-csv'])) {
@@ -46,7 +46,7 @@ function ispapidpi_output($vars)
     }
 
     //smarty template
-    $smarty = new Smarty;
+    $smarty = new Smarty();
     $smarty->compile_dir = $GLOBALS['templates_compiledir'];
     $smarty->caching = false;
     $entity = ($ispapi_config["entity"] == "54cd") ? "PRODUCTION Environment" : "OT&E Environment";
@@ -62,7 +62,7 @@ function ispapidpi_output($vars)
 
     //warning message to increase max_input_vars
     if (ini_get("max_input_vars") <= count($_POST, COUNT_RECURSIVE)) {
-        $smarty->display(dirname(__FILE__).'/templates/maxinputvarserr.tpl');
+        $smarty->display(dirname(__FILE__) . '/templates/maxinputvarserr.tpl');
     } else {
         if (isset($_POST['checkbox-tld']) || (isset($_SESSION["checkbox-tld"]) && isset($_POST['multiplier'])) || (isset($_SESSION["checkbox-tld"]) && isset($_POST['addfixedamount'])) || isset($_POST['import'])) {
             //step 3
@@ -96,14 +96,14 @@ function ispapidpi_output($vars)
             foreach ($get_tld as $key => $value) {
                 if (array_key_exists($key, $_SESSION["tld-register-renew-transfer-currency-filter"])) {
                     $tld_prices = $_SESSION["tld-register-renew-transfer-currency-filter"][$key];
-                    $get_checked_tld_data[$key]=$tld_prices;
+                    $get_checked_tld_data[$key] = $tld_prices;
                 }
             }
             //csv file array
             foreach ($get_tld as $key => $value) {
                 if (array_key_exists($key, $_SESSION["csv-as-new-array"])) {
                     $tld_prices = $_SESSION["csv-as-new-array"][$key];
-                    $get_checked_tld_data[$key]=$tld_prices;
+                    $get_checked_tld_data[$key] = $tld_prices;
                 }
             }
 
@@ -126,7 +126,7 @@ function ispapidpi_output($vars)
             } catch (Exception $e) {
                 die($e->getMessage());
             }
-            
+
             $smarty->assign('idnmap', $idnmap);
             if (isset($_POST['add-fixed-amount'])) {
                 $add_fixed_amount = $_POST['add-fixed-amount'];
@@ -138,7 +138,7 @@ function ispapidpi_output($vars)
                 $smarty->assign('session-checked-tld-data', $_SESSION["checked_tld_data"]);
             }
             $smarty->assign('currency_data', $currency_data);
-            $smarty->display(dirname(__FILE__).'/templates/step3.tpl');
+            $smarty->display(dirname(__FILE__) . '/templates/step3.tpl');
         } elseif (isset($_POST['price_class'])) {
             //step 2
             $_SESSION["price_class"] = $_POST['price_class'];
@@ -193,40 +193,40 @@ function ispapidpi_output($vars)
                                 foreach ($csv_as_new_array as $key => $value) {
                                     $csv_as_new_array[$key] = array_combine($keynames, array_values($csv_as_new_array[$key]));
                                 }
-                                $add_currency_to_array = array('currency'=>'USD');
+                                $add_currency_to_array = array('currency' => 'USD');
                                 foreach ($csv_as_new_array as $key => $value) {
-                                    $csv_as_new_array[$key] = $csv_as_new_array[$key]+$add_currency_to_array;
+                                    $csv_as_new_array[$key] = $csv_as_new_array[$key] + $add_currency_to_array;
                                 }
                                 $csv_as_new_array = array_change_key_case($csv_as_new_array, CASE_LOWER);
 
                                 $_SESSION["csv-as-new-array"] = $csv_as_new_array;
 
                                 $smarty->assign('csv_as_new_array', $csv_as_new_array);
-                                $smarty->display(dirname(__FILE__).'/templates/step2.tpl');
+                                $smarty->display(dirname(__FILE__) . '/templates/step2.tpl');
                             } else {
                                 echo "<div class='errorbox'><strong><span class='title'>File error!</span></strong><br>CSV file should use \";\" as separator.</div>";
                                 // echo "<div class='errorbox'><strong><span class='title'>ERROR!</span></strong><br>No CSV file has been selected.</div><br>";
-                                $smarty->display(dirname(__FILE__).'/templates/step1.tpl');
+                                $smarty->display(dirname(__FILE__) . '/templates/step1.tpl');
                             }
                         } else {
                             // end of if $_FILES["file"]["name"] is not empty
                             echo "<div class='errorbox'><strong><span class='title'>ERROR!</span></strong><br>No CSV file has been selected.</div><br>";
-                            $smarty->display(dirname(__FILE__).'/templates/step1.tpl');
+                            $smarty->display(dirname(__FILE__) . '/templates/step1.tpl');
                         }
                     } else {
                         echo "<div class='errorbox'><strong><span class='title'>ERROR!</span></strong><br>Please upload only a CSV file.</div><br>";
-                        $smarty->display(dirname(__FILE__).'/templates/step1.tpl');
+                        $smarty->display(dirname(__FILE__) . '/templates/step1.tpl');
                     }
                 } elseif (isset($_SESSION["csv-as-new-array"])) {
                     //else for isset($_FILES["file"]), i.e. there is no file, but a session
                     $csv_as_new_array = $_SESSION["csv-as-new-array"];
                     $smarty->assign('csv_as_new_array', $csv_as_new_array);
-                    $smarty->display(dirname(__FILE__).'/templates/step2.tpl');
+                    $smarty->display(dirname(__FILE__) . '/templates/step2.tpl');
                 }
             } else {
                 $command = array(
                     "command" => "StatusUserClass",
-                    "userclass"=> $_POST['price_class']
+                    "userclass" => $_POST['price_class']
                 );
                 $getdata_of_priceclass = Ispapi::call($command);
                 collect_tld_register_transfer_renew_currency($getdata_of_priceclass, $tldlib, $idnmap, $dontofferpattern);
@@ -234,7 +234,7 @@ function ispapidpi_output($vars)
         } else {
             //step 1
             $smarty->assign('queryuserclasslist_PROPERTY_USERCLASS', $queryuserclasslist["PROPERTY"]["USERCLASS"]);
-            $smarty->display(dirname(__FILE__).'/templates/step1.tpl');
+            $smarty->display(dirname(__FILE__) . '/templates/step1.tpl');
         }
 
         //import button clicked
@@ -291,7 +291,8 @@ function collect_tld_register_transfer_renew_currency($r, $tldlib, $idnmap, $don
     foreach (preg_grep($pattern_for_tldclass, $r["PROPERTY"]["RELATIONTYPE"]) as $ctype) {
         $tldclass = preg_replace("/(^PRICE_CLASS_DOMAIN_|_CURRENCY$)/", "", $ctype);
         // if one of relation types SETUP, ANNUAL, TRANSFER exists
-        if (preg_match($dontofferpattern, $tldclass) || (
+        if (
+            preg_match($dontofferpattern, $tldclass) || (
             !isset($relations["PRICE_CLASS_DOMAIN_{$tldclass}_SETUP"]) &&
             !isset($relations["PRICE_CLASS_DOMAIN_{$tldclass}_ANNUAL"]) &&
             !isset($relations["PRICE_CLASS_DOMAIN_{$tldclass}_TRANSFER"]))
@@ -303,7 +304,7 @@ function collect_tld_register_transfer_renew_currency($r, $tldlib, $idnmap, $don
         //get tld label; check if tldclass exeption is defined
         $tld = isset($tldlib[$tldclass]) ? $tldlib[$tldclass] : strtolower($tldclass);
         //define pattern
-        $pattern ="/^PRICE_CLASS_DOMAIN_{$tldclass}_(SETUP|ANNUAL|TRANSFER)$/i";
+        $pattern = "/^PRICE_CLASS_DOMAIN_{$tldclass}_(SETUP|ANNUAL|TRANSFER)$/i";
         $types = preg_grep($pattern, $r["PROPERTY"]["RELATIONTYPE"]);
         if (!empty($types)) {
             $prices = array(
@@ -337,12 +338,12 @@ function collect_tld_register_transfer_renew_currency($r, $tldlib, $idnmap, $don
 
     $_SESSION["tld-register-renew-transfer-currency-filter"] = $relationprices; //session variable for tld data (tld, prices, currency)
     //smarty template for table in step 2
-    $smarty = new Smarty;
+    $smarty = new Smarty();
     $smarty->compile_dir = $GLOBALS['templates_compiledir'];
     $smarty->caching = false;
     $smarty->assign('tld_register_renew_transfer_currency_filter', $relationprices);
     $smarty->assign('idnmap', $idnmap);
-    $smarty->display(dirname(__FILE__).'/templates/step2.tpl');
+    $smarty->display(dirname(__FILE__) . '/templates/step2.tpl');
 }
 
 //Import button clicked
@@ -440,7 +441,7 @@ function startimport($prices_for_whmcs)
         $pdo = Capsule::connection()->getPdo();
 
         $prices_for_whmcs = array_change_key_case($prices_for_whmcs, CASE_LOWER);
-        
+
         // Convert TLDs to IDN (as having punycode in DB is not desired)
         $idns = array_keys($prices_for_whmcs);
         $r = Ispapi::call(array(
@@ -490,7 +491,7 @@ function startimport($prices_for_whmcs)
             $stmt->execute(array($prices_for_whmcs[$key]['currency'], $tbldomainpricing['id']));
             $tblpricing = $stmt->fetch(PDO::FETCH_ASSOC);
             if (!empty($tblpricing)) {
-                $update_stmt=$pdo->prepare("UPDATE tblpricing SET msetupfee=? WHERE id=?");
+                $update_stmt = $pdo->prepare("UPDATE tblpricing SET msetupfee=? WHERE id=?");
                 $update_stmt->execute(array($prices_for_whmcs[$key][0], $tblpricing["id"]));
             } else {
                 $insert_stmt = $pdo->prepare("INSERT INTO tblpricing (type, currency, relid, msetupfee, qsetupfee, ssetupfee, asetupfee, bsetupfee, monthly, quarterly, semiannually, annually, biennially) VALUES ('domainregister', ?, ?, ?, '-1', '-1', '-1', '-1', '-1', '-1', '-1', '-1', '-1')");
@@ -502,7 +503,7 @@ function startimport($prices_for_whmcs)
             $stmt->execute(array($prices_for_whmcs[$key]['currency'], $tbldomainpricing['id']));
             $tblpricing = $stmt->fetch(PDO::FETCH_ASSOC);
             if (!empty($tblpricing)) {
-                $update_stmt=$pdo->prepare("UPDATE tblpricing SET msetupfee=? WHERE id=?");
+                $update_stmt = $pdo->prepare("UPDATE tblpricing SET msetupfee=? WHERE id=?");
                 $update_stmt->execute(array($prices_for_whmcs[$key][1], $tblpricing["id"]));
             } else {
                 $insert_stmt = $pdo->prepare("INSERT INTO tblpricing (type, currency, relid, msetupfee, qsetupfee, ssetupfee, asetupfee, bsetupfee, monthly, quarterly, semiannually, annually, biennially) VALUES ('domainrenew', ?, ?, ?, '-1', '-1', '-1', '-1', '-1', '-1', '-1', '-1', '-1')");
@@ -514,7 +515,7 @@ function startimport($prices_for_whmcs)
             $stmt->execute(array($prices_for_whmcs[$key]['currency'], $tbldomainpricing['id']));
             $tblpricing = $stmt->fetch(PDO::FETCH_ASSOC);
             if (!empty($tblpricing)) {
-                $update_stmt=$pdo->prepare("UPDATE tblpricing SET msetupfee=? WHERE id=?");
+                $update_stmt = $pdo->prepare("UPDATE tblpricing SET msetupfee=? WHERE id=?");
                 $update_stmt->execute(array($prices_for_whmcs[$key][2], $tblpricing["id"]));
             } else {
                 $insert_stmt = $pdo->prepare("INSERT INTO tblpricing (type, currency, relid, msetupfee, qsetupfee, ssetupfee, asetupfee, bsetupfee, monthly, quarterly, semiannually, annually, biennially) VALUES ('domaintransfer', ?, ?, ?, '-1', '-1', '-1', '-1', '-1', '-1', '-1', '-1', '-1')");
@@ -560,7 +561,7 @@ function filter_array($array, $term)
     $matches = array();
     foreach ($array as $key => $value) {
         if ($value['currency'] == $term) {
-            $matches[$key]=$value;
+            $matches[$key] = $value;
         }
     }
     return $matches;

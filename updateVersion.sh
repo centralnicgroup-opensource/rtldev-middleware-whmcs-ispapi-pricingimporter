@@ -9,7 +9,7 @@ newversion="$1"
 date="$(date +'%Y-%m-%d')"
 
 printf -v sed_script 's/"version" => "[0-9]\+\.[0-9]\+\.[0-9]\+"/"version" => "%s"/g' "${newversion}"
-sed -i -e "${sed_script}" ispapidpi.php
+sed -i -e "${sed_script}" modules/addons/ispapidpi/ispapidpi.php
 
 printf -v sed_script 's/"version": "[0-9]\+\.[0-9]\+\.[0-9]\+"/"version": "%s"/g' "${newversion}"
 sed -i -e "${sed_script}" release.json
