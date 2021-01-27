@@ -1,3 +1,10 @@
+## [5.0.2](https://github.com/hexonet/whmcs-ispapi-pricingimporter/compare/v5.0.1...v5.0.2) (2021-01-27)
+
+
+### Bug Fixes
+
+* **ci:** migration from Travis CI to github actions ([8f9247e](https://github.com/hexonet/whmcs-ispapi-pricingimporter/commit/8f9247ef5bcf13f1e4d2927064071c66d18c9698))
+
 ## [5.0.1](https://github.com/hexonet/whmcs-ispapi-pricingimporter/compare/v5.0.0...v5.0.1) (2020-05-27)
 
 
