@@ -243,7 +243,8 @@ function ispapidpi_output($vars)
             $smarty->assign('post-import', $_POST['import']);
         }
     }
-}//end of ispapidpi_output()
+    //end of ispapidpi_output()
+}
 
 //to check if each line with semicolon separated
 function checkDelimiterCount($file)
