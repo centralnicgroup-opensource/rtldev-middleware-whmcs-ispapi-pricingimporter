@@ -1,4 +1,5 @@
 <?php
+
 namespace IspapiTest;
 
 use PHPUnit\Framework\TestCase;

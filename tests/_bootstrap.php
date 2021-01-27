@@ -7,4 +7,4 @@ if (!defined('WHMCS')) {
 }
 
 // Include the WHMCS module.
-require_once __DIR__ . '/../ispapidpi.php';
+require_once __DIR__ . '/../modules/addons/ispapidpi/ispapidpi.php';
