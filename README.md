@@ -8,63 +8,20 @@
 *DEPRECATION NOTICE: As of our Integration of the `TLD & Pricing Sync` Feature available since WHMCS 7.10, this project will no longer be maintained. Behind the scenes we are working on new module that merges Pricing Import & Sync for our other products (SSL, PremiumDNS, etc.) and things the above feature did not cover.
 Download the new version of our registrar module [here](https://github.com/hexonet/whmcs-ispapi-registrar/releases) and check the `TLD & Pricing Sync` documentation [here](https://github.com/hexonet/whmcs-ispapi-registrar/wiki/FAQs#55-do-you-support-tld--pricing-sync-mechanism-shipped-with-whmcs-710)*
 
-This Repository covers the WHMCS Pricing Importer Add-on of HEXONET. It provides the following features in WHMCS:
-
-## Supported Features ##
-
-* Load TLDs with prices through three possible ways
-  * HEXONET costs
-  * HEXONET Price Classes
-  * Custom CSV file
-* Update existing extensions
-* Flexible performance of step-wise pricing imports
-* Support for different currencies
-* Bulk price update by using a factor or a fixed amount
-* Edition of prices individually
-* Supported fields:
-  * TLD
-  * Register/Transfer/Renew pricing
-  * DNS Management
-  * Email Forwarding
-  * ID Protection
-  * EPP Code
-  * Currency
-
-... and MORE!
+This Repository covers the WHMCS Pricing Importer Add-on of HEXONET.
 
 ## Resources ##
 
-* [Usage Guide](https://github.com/hexonet/whmcs-ispapi-pricingimporter/wiki/Usage-Guide)
-* [Release Notes](https://github.com/hexonet/whmcs-ispapi-pricingimporter/releases)
-* [Development Guide](https://github.com/hexonet/whmcs-ispapi-pricingimporter/wiki/Development-Guide)
-
-NOTE: We introduced sematic-release starting with v2.4.0. This is why older Release Versions do not appear in the [current changelog](https://github.com/hexonet/whmcs-ispapi-pricingimporter/blob/master/HISTORY.md). But these versions appear in the [release overview](https://github.com/hexonet/whmcs-ispapi-pricingimporter/releases) and in the [old changelog](https://github.com/hexonet/whmcs-ispapi-pricingimporter/blob/master/HISTORY.old).
-
-## Usage Guide ##
-
 Download the ZIP archive including the latest release version [here](https://github.com/hexonet/whmcs-ispapi-pricingimporter/raw/master/whmcs-ispapi-pricingimporter-latest.zip).
 
-Read the following to get more information ...
-
-* [Installation](https://github.com/hexonet/whmcs-ispapi-pricingimporter/wiki/Usage-Guide#installation)
-* [Configuration](https://github.com/hexonet/whmcs-ispapi-pricingimporter/wiki/Usage-Guide#configuration)
-
-## Minimum Requirements ##
-
-For the latest WHMCS minimum system requirements, please refer to
-[https://docs.whmcs.com/System_Requirements](https://docs.whmcs.com/System_Requirements)
-
-## Contributing ##
-
-Please read [our development guide](https://github.com/hexonet/whmcs-ispapi-pricingimporter/wiki/Development-Guide) for details on our code of conduct, and the process for submitting pull requests to us.
+* [Documentation](https://centralnic-reseller.github.io/centralnic-reseller/docs/hexonet/whmcs/whmcs-ispapi-pricingimporter/)
+* [Release Notes](https://github.com/hexonet/whmcs-ispapi-pricingimporter/releases)
 
 ## Authors ##
 
-* **Anthony Schneider** - *development* - [AnthonySchn](https://github.com/anthonyschn)
-* **Kai Schwarz** - *development* - [PapaKai](https://github.com/papakai)
-* **Tulasi Seelamkurthi** - *development* - [Tulsi91](https://github.com/tulsi91)
-
-See also the list of [contributors](https://github.com/hexonet/whmcs-ispapi-pricingimporter/graphs/contributors) who participated in this project.
+* **Kai Schwarz** - *lead developer* - [PapaKai](https://github.com/papakai)
+* **Anthony Schneider** - *former developer* - [AnthonySchn](https://github.com/anthonyschn)
+* **Tulasi Seelamkurthi** - *former developer* - [Tulsi91](https://github.com/tulsi91)
 
 ## License ##
 
