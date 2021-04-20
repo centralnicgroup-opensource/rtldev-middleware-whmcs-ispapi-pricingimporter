@@ -6,7 +6,7 @@ use WHMCS\Module\Registrar\Ispapi\LoadRegistrars;
 use WHMCS\Module\Registrar\Ispapi\Helper;
 
 session_start();
-
+// test
 function ispapidpi_config()
 {
     return [
