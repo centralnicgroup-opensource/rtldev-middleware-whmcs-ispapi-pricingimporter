@@ -56,7 +56,6 @@
   "scripts": {
     "phpCompatibility": "./scripts/phpcompatibility.sh",
     "codeCheck": "phpcs --standard=PSR12 -q -n --colors --extensions=php --ignore=node_modules,vendor,templates_c .",
-    "codeFix": "phpcbf --standard=PSR12 -q --extensions=php --ignore=node_modules,vendor,templates_c .",
-    "test": "phpunit"
+    "codeFix": "phpcbf --standard=PSR12 -q --extensions=php --ignore=node_modules,vendor,templates_c ."
   }
 }
