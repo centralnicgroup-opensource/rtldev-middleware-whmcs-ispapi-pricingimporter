@@ -1,3 +1,11 @@
+## [5.0.3](https://github.com/hexonet/whmcs-ispapi-pricingimporter/compare/v5.0.2...v5.0.3) (2021-04-21)
+
+
+### Performance Improvements
+
+* **test:** test ([246c10b](https://github.com/hexonet/whmcs-ispapi-pricingimporter/commit/246c10b44bac4abf0af798307ee99d4d2616650e))
+* **test:** test new actions ([7ebd91d](https://github.com/hexonet/whmcs-ispapi-pricingimporter/commit/7ebd91d706b3f84ea6c364649ccb0b3bfdc65493))
+
 ## [5.0.2](https://github.com/hexonet/whmcs-ispapi-pricingimporter/compare/v5.0.1...v5.0.2) (2021-01-27)
 
 
