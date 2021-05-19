@@ -1,3 +1,10 @@
+## [5.0.5](https://github.com/hexonet/whmcs-ispapi-pricingimporter/compare/v5.0.4...v5.0.5) (2021-05-19)
+
+
+### Bug Fixes
+
+* **css:** move css to module folder ([02a0e90](https://github.com/hexonet/whmcs-ispapi-pricingimporter/commit/02a0e90910d643141cb3601285ef11c7c3a54f2c))
+
 ## [5.0.4](https://github.com/hexonet/whmcs-ispapi-pricingimporter/compare/v5.0.3...v5.0.4) (2021-05-19)
 
 
