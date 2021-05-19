@@ -30,7 +30,7 @@ function ispapidpi_output($vars)
 {
     // check if the ispapi module can be loaded and is active
     $registrar = new \WHMCS\Module\Registrar();
-    if (!$registrar->load("ispapi") || !$registrar->isActivated()){
+    if (!$registrar->load("ispapi") || !$registrar->isActivated()) {
         die("Please ensure to install, configure and activate HEXONET's ISPAPI Registrar Module.");
     }
 
@@ -434,7 +434,7 @@ function startimport($prices_for_whmcs)
 {
     // check if the ispapi module can be loaded and is active
     $registrar = new \WHMCS\Module\Registrar();
-    if (!$registrar->load("ispapi") || !$registrar->isActivated()){
+    if (!$registrar->load("ispapi") || !$registrar->isActivated()) {
         die("Please ensure to install, configure and activate HEXONET's ISPAPI Registrar Module.");
     }
 
