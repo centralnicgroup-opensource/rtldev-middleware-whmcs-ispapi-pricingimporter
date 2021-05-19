@@ -2,7 +2,6 @@
 
 use WHMCS\Database\Capsule;
 use WHMCS\Module\Registrar\Ispapi\Ispapi;
-use WHMCS\Module\Registrar\Ispapi\LoadRegistrars;
 use WHMCS\Module\Registrar\Ispapi\Helper;
 
 session_start();
@@ -29,12 +28,10 @@ function ispapidpi_config()
 
 function ispapidpi_output($vars)
 {
-    //load all the ISPAPI registrars
-    $ispapi_registrars = new LoadRegistrars();
-    $_SESSION["ispapi_registrar"] = $ispapi_registrars->getLoadedRegistars();
-
-    if (empty($_SESSION["ispapi_registrar"])) {
-        die("The ispapi registrar authentication failed! Please verify your registrar credentials and try again.");
+    // check if the ispapi module can be loaded and is active
+    $registrar = new \WHMCS\Module\Registrar();
+    if (!$registrar->load("ispapi") || !$registrar->isActivated()){
+        die("Please ensure to install, configure and activate HEXONET's ISPAPI Registrar Module.");
     }
 
     //include file for TLDCLASS to TLD Label mapping
@@ -435,8 +432,11 @@ function importButton()
 //loop through array and insert or update the tld and prices for whmcs to DB
 function startimport($prices_for_whmcs)
 {
-    $registrars = (new LoadRegistrars())->getLoadedRegistars();
-    $registrar = $registrars[0];
+    // check if the ispapi module can be loaded and is active
+    $registrar = new \WHMCS\Module\Registrar();
+    if (!$registrar->load("ispapi") || !$registrar->isActivated()){
+        die("Please ensure to install, configure and activate HEXONET's ISPAPI Registrar Module.");
+    }
 
     try {
         $pdo = Capsule::connection()->getPdo();
