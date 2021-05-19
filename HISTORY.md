@@ -1,3 +1,10 @@
+## [5.0.4](https://github.com/hexonet/whmcs-ispapi-pricingimporter/compare/v5.0.3...v5.0.4) (2021-05-19)
+
+
+### Bug Fixes
+
+* **cleanup:** deprecated LoadRegistrars class usage ([193debf](https://github.com/hexonet/whmcs-ispapi-pricingimporter/commit/193debf6ab034d099b4482df9079157b4fcfd990))
+
 ## [5.0.3](https://github.com/hexonet/whmcs-ispapi-pricingimporter/compare/v5.0.2...v5.0.3) (2021-04-21)
 
 
