@@ -5,8 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/hexonet/whmcs-ispapi-pricingimporter/blob/master/CONTRIBUTING.md)
 
-_DEPRECATION NOTICE: As of our Integration of the `TLD & Pricing Sync` Feature available since WHMCS 7.10, this project will no longer be maintained. Behind the scenes we are working on new module that merges Pricing Import & Sync for our other products (SSL, PremiumDNS, etc.) and things the above feature did not cover.
-Download the new version of our registrar module [here](https://github.com/hexonet/whmcs-ispapi-registrar/releases) and check the `TLD & Pricing Sync` documentation [here](https://github.com/hexonet/whmcs-ispapi-registrar/wiki/FAQs#55-do-you-support-tld--pricing-sync-mechanism-shipped-with-whmcs-710)_
+_DEPRECATION NOTICE: As of our Integration of the `TLD & Pricing Sync` Feature available since WHMCS 7.10, this project will no longer be maintained. Download the new version of our registrar module [here](https://github.com/hexonet/whmcs-ispapi-registrar/releases) and check the `TLD & Pricing Sync` documentation [here](https://github.com/hexonet/whmcs-ispapi-registrar/wiki/FAQs#55-do-you-support-tld--pricing-sync-mechanism-shipped-with-whmcs-710)_
 
 This Repository covers the WHMCS Pricing Importer Add-on of HEXONET.
 
