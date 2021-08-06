@@ -8,10 +8,12 @@ session_start();
 // test
 function ispapidpi_config()
 {
+    $logo_src = file_get_contents(implode(DIRECTORY_SEPARATOR, [ROOTDIR, "modules", "addons", "ispapidpi", "logo.png"]));
+    $logo_data = ($logo_src) ? 'data:image/png;base64,' . base64_encode($logo_src) : '';
     return [
         "name" => "ISPAPI Pricing Importer",
         "description" => "Quickly update your WHMCS domain pricing list.",
-        "author" => "HEXONET",
+        "author" => '<a href="https://www.hexonet.net/" target="_blank"><img style="max-width:100px" src="' . $logo_data . '" alt="HEXONET" /></a>',
         "language" => "english",
         "fields" => [
             "username" => [
