@@ -1,3 +1,10 @@
+## [5.0.6](https://github.com/hexonet/whmcs-ispapi-pricingimporter/compare/v5.0.5...v5.0.6) (2021-08-09)
+
+
+### Bug Fixes
+
+* **HX logo:** HX logo.png + configuration ([2d1f1aa](https://github.com/hexonet/whmcs-ispapi-pricingimporter/commit/2d1f1aa35811a1fe763004843e240744a7cc1e01))
+
 ## [5.0.5](https://github.com/hexonet/whmcs-ispapi-pricingimporter/compare/v5.0.4...v5.0.5) (2021-05-19)
 
 

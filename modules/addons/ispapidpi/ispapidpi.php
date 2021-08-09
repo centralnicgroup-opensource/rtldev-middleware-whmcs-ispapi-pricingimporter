@@ -24,7 +24,7 @@ function ispapidpi_config()
                 "Default" => "admin"
             ]
         ],
-        "version" => "5.0.5"
+        "version" => "5.0.6"
     ];
 }
 
