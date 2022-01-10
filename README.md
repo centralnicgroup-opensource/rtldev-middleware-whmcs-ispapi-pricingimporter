@@ -19,8 +19,11 @@ Download the ZIP archive including the latest release version [here](https://git
 ## Authors
 
 - **Kai Schwarz** - _lead developer_ - [PapaKai](https://github.com/papakai)
-- **Anthony Schneider** - _former developer_ - [AnthonySchn](https://github.com/anthonyschn)
-- **Tulasi Seelamkurthi** - _former developer_ - [Tulsi91](https://github.com/tulsi91)
+
+Former Developers:
+
+- **Anthony Schneider** - [AnthonySchn](https://github.com/anthonyschn)
+- **Tulasi Seelamkurthi** - [Tulsi91](https://github.com/tulsi91)
 
 ## License
 
