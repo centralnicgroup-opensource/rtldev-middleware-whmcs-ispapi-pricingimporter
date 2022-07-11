@@ -1,3 +1,10 @@
+## [5.0.7](https://github.com/hexonet/whmcs-ispapi-pricingimporter/compare/v5.0.6...v5.0.7) (2022-07-11)
+
+
+### Bug Fixes
+
+* **gulp:** cleanup package-info ([5a2a6bf](https://github.com/hexonet/whmcs-ispapi-pricingimporter/commit/5a2a6bfc42406699074e18edaf9549bcb081cb42))
+
 ## [5.0.6](https://github.com/hexonet/whmcs-ispapi-pricingimporter/compare/v5.0.5...v5.0.6) (2021-08-09)
 
 
